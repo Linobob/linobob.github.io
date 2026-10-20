@@ -223,7 +223,7 @@
   {"titolo": "Robocop vs Terminator", "piattaforma": "MD", "data": "2026-05-03", "nota": "Hard", "link": ["https://youtu.be/Amxvg2KqE84"], "durata": "1h 12m 15s"},
   {"titolo": "Megaman 4", "piattaforma": "NES", "data": "2026-05-03", "nota": "", "link": ["https://youtu.be/Lb4HmYsIcaM"], "durata": "1h 30m 51s"},
   {"titolo": "Turrican 1.5", "piattaforma": "SNES", "data": "2026-05-03", "nota": "", "link": ["https://youtu.be/eNUSObEFvoo"], "durata": "30m 52s"},
-  {"titolo": "Tony Hawk's Pro Skater 2", "piattaforma": "PC", "data": "2026-05-06", "nota": "Carriera 100%", "link": [], "durata": "3h 50m 11s"},
+  {"titolo": "Tony Hawk's Pro Skater 2", "piattaforma": "PC", "data": "2026-05-06", "nota": "Carriera 100%", "link": ["https://youtu.be/NA1AF8F8UIM", "https://youtu.be/8xeYtWKoEYk"], "durata": "3h 50m 11s"},
   {"titolo": "Pinball Spire", "piattaforma": "PC", "data": "2026-05-11", "nota": "", "link": ["https://youtu.be/znLNaJawmiY"], "durata": "2h 18m 22s"},
   {"titolo": "Sonic 3 A.I.R.", "piattaforma": "PC", "data": "2026-05-13", "nota": "", "link": ["https://youtu.be/lPIprVSUCW4", "https://youtu.be/4LhF6ONHqPw"], "durata": "4h 14m 37s"},
   {"titolo": "Silent Bomber", "piattaforma": "PSX", "data": "2026-05-16", "nota": "", "link": ["https://youtu.be/fUHUTBTY4WM", "https://youtu.be/nrAM5_O_0J4"], "durata": "4h 38m 8s"},
@@ -249,15 +249,15 @@
   {"titolo": "Wolfenstein 3D", "piattaforma": "PC", "data": "2026-08-02", "nota": "", "link": ["https://www.youtube.com/playlist?list=PLVEE3B6udsk8"], "durata": "9h 25m 57s"},
   {"titolo": "Super Air Zonk: Rockabilly-Paradise", "piattaforma": "PC Engine CD", "data": "2026-08-03", "nota": "", "link": ["https://youtu.be/v0Qy6yac-7U"], "durata": "49m 20s"},
   {"titolo": "Bikkuriman World", "piattaforma": "PC Engine", "data": "2026-08-03", "nota": "", "link": ["https://youtu.be/y2DVrMlfdVY"], "durata": "39m 48s"},
-  {"titolo": "Runabout 2", "piattaforma": "PSX", "data": "2026-08-06", "nota": "", "link": [], "durata": "5h 25m 52s"},
+  {"titolo": "Runabout 2", "piattaforma": "PSX", "data": "2026-08-06", "nota": "", "link": ["https://youtu.be/qSJ_QnzeXDk", "https://youtu.be/-LQd46o4GA0"], "durata": "5h 25m 52s"},
   {"titolo": "Die Hard Trilogy: Die Hard", "piattaforma": "Saturn", "data": "2026-08-06", "nota": "", "link": ["https://youtu.be/TMqC3DlvC2o"], "durata": "3h 11m"},
   {"titolo": "Destruction Derby", "piattaforma": "Saturn", "data": "2026-08-09", "nota": "Stock car racing", "link": ["https://youtu.be/dkXT1tmkwM0"], "durata": "2h 3m 27s"},
-  {"titolo": "Wipeout", "piattaforma": "PC", "data": "2026-08-12", "nota": "PSX port", "link": [], "durata": "48m 45s"},
+  {"titolo": "Wipeout", "piattaforma": "PC", "data": "2026-08-12", "nota": "PSX port", "link": ["https://youtu.be/H-nHuofkRMc"], "durata": "48m 45s"},
   {"titolo": "Doom - Ultimate Doom", "piattaforma": "Saturn", "data": "2026-08-13", "nota": "Ultra Violence", "link": ["https://youtu.be/HEP69l_BXHs"], "durata": "4h 8m 54s"},
-  {"titolo": "Loaded", "piattaforma": "PSX", "data": "2026-08-31", "nota": "Loaded", "link": [], "durata": "5h 51m 23s"},
+  {"titolo": "Loaded", "piattaforma": "PSX", "data": "2026-08-31", "nota": "Loaded", "link": ["https://youtu.be/e3H3T71fG0s", "https://youtu.be/1pcdiIYLf2U", "https://youtu.be/DZ7DgYvbATc"], "durata": "5h 51m 23s"},
   {"titolo": "Star Parodier", "piattaforma": "PC Engine CD", "data": "2026-09-07", "nota": "Hard", "link": ["https://youtu.be/AV44LcaIAdU"], "durata": "49m 47s"},
   {"titolo": "F17 Challenge", "piattaforma": "Amiga", "data": "2026-09-07", "nota": "Arcade", "link": ["https://youtu.be/eDJmwhPOux4"], "durata": "1h 24m 33s"},
-  {"titolo": "Bruce Lee", "piattaforma": "SMS", "data": "2026-09-09", "nota": "", "link": [], "durata": "10m 32s"},
-  {"titolo": "Platform Explorer", "piattaforma": "SMS", "data": "2026-09-09", "nota": "", "link": [], "durata": "19m 3s"}
+  {"titolo": "Bruce Lee", "piattaforma": "SMS", "data": "2026-09-09", "nota": "", "link": ["https://youtu.be/Izx8DV2RUns"], "durata": "10m 32s"},
+  {"titolo": "Platform Explorer", "piattaforma": "SMS", "data": "2026-09-09", "nota": "", "link": ["https://youtu.be/YLDko_p3QsE"], "durata": "19m 3s"}
  ]
 }
