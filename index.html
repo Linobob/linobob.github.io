@@ -9,50 +9,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@9..144,600,0,0;9..144,700,0,0&family=Hanken+Grotesk:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/base.css">
 <style>
-/* Pagina di prova autonoma: tutto lo stile è qui dentro, così si può pubblicare da sola.
-   Colori ispirati a Peach: crema, rosa, pesca; titoli in Fraunces (serif, versione non morbida). */
-:root {
-  --bg: #FBF5F0; --fg: #2B1D24; --muted: #7A626C; --line: #EAD9D6;
-  --accent: #AD3A60; --accent-ink: #FFFFFF; --accent-soft: #F8E3E8;
-  --peach: #F7A072; --leaf: #6E9A5B;
-  --display: "Fraunces", Georgia, "Times New Roman", serif;
-  --body: "Hanken Grotesk", "Segoe UI", system-ui, sans-serif;
-  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
-  color-scheme: light;
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #1A1316; --fg: #F3E9EC; --muted: #A8959D; --line: #3A2B31;
-    --accent: #F49AB6; --accent-ink: #1A1316; --accent-soft: #3A2129;
-    --peach: #F7A072; --leaf: #8DB97A;
-    color-scheme: dark;
-  }
-}
-* { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; }
-body {
-  margin: 0; background: var(--bg); color: var(--fg);
-  font: 400 16px/1.6 var(--body);
-  padding-block: 1.25rem 3rem;
-  padding-left: max(16px, env(safe-area-inset-left, 0px));
-  padding-right: max(16px, env(safe-area-inset-right, 0px));
-}
-a { color: var(--accent); }
-:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.wrap { max-width: 46rem; margin-inline: auto; }
-
-.top { display: flex; justify-content: space-between; align-items: center; gap: 1rem;
-  padding-bottom: 0.8rem; border-bottom: 1px solid var(--line); font: 500 0.8rem var(--mono); }
-.brand { display: inline-flex; align-items: center; gap: 0.45rem; }
-.brand svg { width: 20px; height: 20px; flex: none; }
-.top a { color: var(--muted); text-decoration: none; }
-.top a:hover { color: var(--fg); }
-
+/* Stile della sola home: colori, caratteri e barra in alto stanno in assets/base.css. */
 .hero { padding: 3.5rem 0 2.5rem; }
-.kicker { margin: 0 0 1rem; font: 500 0.75rem var(--mono); text-transform: uppercase; letter-spacing: 0.09em; color: var(--accent); }
-h1 { font: 700 clamp(3.2rem, 16vw, 6rem)/0.95 var(--display); font-variation-settings: "SOFT" 0, "WONK" 0; letter-spacing: -0.02em; margin: 0; overflow-wrap: anywhere; }
-.lead { margin: 1.3rem 0 0; font-size: 1.15rem; max-width: 34rem; text-wrap: pretty; }
 .lead + .lead { margin-top: 0.8rem; color: var(--muted); font-size: 1rem; }
 
 .cta { display: flex; flex-wrap: wrap; gap: 0.7rem; margin-top: 2rem; }
@@ -71,32 +31,35 @@ h1 { font: 700 clamp(3.2rem, 16vw, 6rem)/0.95 var(--display); font-variation-set
 .facts b { display: block; font: 700 2.1rem/1 var(--display); font-variation-settings: "SOFT" 0, "WONK" 0; color: var(--accent); font-variant-numeric: tabular-nums; }
 .facts dt { order: 2; margin-top: 0.4rem; font: 500 0.7rem var(--mono); text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
 
-h2 { font: 600 1.6rem/1.15 var(--display); font-variation-settings: "SOFT" 0, "WONK" 0; margin: 3rem 0 0.4rem; }
 .sub { margin: 0; color: var(--muted); }
 .cards { list-style: none; margin: 1.2rem 0 0; padding: 0; display: grid; gap: 0.8rem; }
-.card { border: 1px solid var(--line); border-left: 4px solid var(--peach); border-radius: 10px; padding: 1.1rem 1.2rem; }
-.card h3 { margin: 0; font: 600 1.15rem/1.2 var(--display); font-variation-settings: "SOFT" 0, "WONK" 0; }
+.card { position: relative; border: 1px solid var(--line); border-left: 4px solid var(--peach); border-radius: 10px; padding: 1.1rem 1.2rem; }
+.card h3 { margin: 0; font: 600 1.15rem/1.2 var(--display); }
 .card p { margin: 0.35rem 0 0; color: var(--muted); font-size: 0.95rem; }
 .tag { display: inline-block; margin-top: 0.7rem; padding: 0.1rem 0.5rem; border-radius: 999px;
   background: var(--accent-soft); color: var(--accent); font: 500 0.72rem/1.5 var(--mono); }
-
-.foot { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--line);
-  color: var(--muted); font: 400 0.8rem var(--mono); display: flex; flex-wrap: wrap; gap: 0.4rem 1.4rem; }
-.foot a { color: var(--muted); }
+/* Scheda con link: tutta la scheda è cliccabile */
+.card h3 a { color: inherit; text-decoration: none; }
+.card h3 a::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+.card:has(a):hover { border-color: var(--accent); }
+.card .go { display: inline-block; margin-top: 0.7rem; color: var(--accent); font: 500 0.8rem var(--mono); }
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="top">
-    <span class="brand">
+    <a class="brand" href="./" aria-current="page">
       <svg viewBox="0 0 32 32" aria-hidden="true">
         <path d="M16 9c-7 0-11 5-11 11s5 9 11 9 11-3 11-9-4-11-11-11z" fill="var(--peach)"/>
-        <path d="M16 10c-2 3-2 8 0 12" stroke="#E07A5F" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+        <path d="M16 10c-2 3-2 8 0 12" stroke="var(--peach-deep)" stroke-width="1.6" fill="none" stroke-linecap="round"/>
         <path d="M16 9c1-4 5-6 9-5-1 4-5 6-9 5z" fill="var(--leaf)"/>
       </svg>
       Linobob
-    </span>
-    <a href="https://www.twitch.tv/lino_bob" target="_blank" rel="noopener">twitch.tv/lino_bob</a>
+    </a>
+    <nav aria-label="Sito">
+      <a href="giochi/">Giochi finiti</a>
+      <a href="https://www.twitch.tv/lino_bob" target="_blank" rel="noopener">twitch.tv/lino_bob</a>
+    </nav>
   </div>
 
   <header class="hero">
@@ -110,20 +73,20 @@ h2 { font: 600 1.6rem/1.15 var(--display); font-variation-settings: "SOFT" 0, "W
     </div>
   </header>
 
-  <!-- Numeri presi da giochi.json il 20/10/2026: vanno aggiornati a mano finché la pagina è da sola. -->
+  <!-- Numeri del 20/10/2026: lo script in fondo li aggiorna leggendo giochi/giochi.json. -->
   <dl class="facts">
-    <div><dd><b>234</b></dd><dt>giochi finiti</dt></div>
-    <div><dd><b>23</b></dd><dt>piattaforme</dt></div>
-    <div><dd><b>2021</b></dd><dt>la prima run</dt></div>
+    <div><dd><b id="n-giochi">234</b></dd><dt>giochi finiti</dt></div>
+    <div><dd><b id="n-piatt">23</b></dd><dt>piattaforme</dt></div>
+    <div><dd><b id="n-prima">2021</b></dd><dt>la prima run</dt></div>
   </dl>
 
   <h2>Cosa troverai qui</h2>
-  <p class="sub">Il sito è appena nato. Queste sono le sezioni in arrivo.</p>
+  <p class="sub">Il sito è appena nato: la lista dei giochi è già online, il resto è in arrivo.</p>
   <ul class="cards">
     <li class="card">
-      <h3>Giochi finiti in live</h3>
+      <h3><a href="giochi/">Giochi finiti in live</a></h3>
       <p>Il registro di ogni gioco completato in diretta, con piattaforma, durata e video della partita.</p>
-      <span class="tag">In arrivo</span>
+      <span class="go" aria-hidden="true">Apri la lista →</span>
     </li>
     <li class="card">
       <h3>Cose che ho creato</h3>
@@ -137,5 +100,17 @@ h2 { font: 600 1.6rem/1.15 var(--display); font-variation-settings: "SOFT" 0, "W
     <a href="https://www.youtube.com/@Lino_bob" target="_blank" rel="noopener">YouTube</a>
   </footer>
 </div>
+<script>
+/* Aggiorna i numeri in alto dalla lista dei giochi; se il file non si legge restano quelli scritti sopra. */
+fetch('giochi/giochi.json', { cache: 'no-cache' })
+  .then(r => r.ok ? r.json() : Promise.reject())
+  .then(d => {
+    const g = d.giochi;
+    document.getElementById('n-giochi').textContent = g.length;
+    document.getElementById('n-piatt').textContent = new Set(g.map(x => x.piattaforma)).size;
+    document.getElementById('n-prima').textContent = g.map(x => x.data).sort()[0].slice(0, 4);
+  })
+  .catch(() => {});
+</script>
 </body>
 </html>

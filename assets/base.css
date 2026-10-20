@@ -1,0 +1,59 @@
+/* Stile condiviso da tutte le pagine del sito.
+   Colori ispirati a Peach: crema, rosa, pesca. Colori e caratteri si cambiano solo qui, nei token di :root. */
+:root {
+  --bg: #FBF5F0; --fg: #2B1D24; --muted: #7A626C; --line: #EAD9D6;
+  --accent: #AD3A60; --accent-ink: #FFFFFF; --accent-soft: #F8E3E8;
+  --peach: #F7A072; --peach-deep: #E07A5F; --leaf: #6E9A5B; --bar: #E8C4CF;
+  --display: "Fraunces", Georgia, "Times New Roman", serif;
+  --body: "Hanken Grotesk", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1A1316; --fg: #F3E9EC; --muted: #A8959D; --line: #3A2B31;
+    --accent: #F49AB6; --accent-ink: #1A1316; --accent-soft: #3A2129;
+    --peach: #F7A072; --peach-deep: #E07A5F; --leaf: #8DB97A; --bar: #5A3A46;
+    color-scheme: dark;
+  }
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font: 400 16px/1.6 var(--body);
+  padding-block: 1.25rem 3rem;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+img { max-width: 100%; height: auto; }
+[hidden] { display: none !important; }
+a { color: var(--accent); }
+button, input, select { font: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.wrap { max-width: 46rem; margin-inline: auto; }
+
+/* Barra in alto, uguale su tutte le pagine: la pesca porta alla home */
+.top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.4rem 1.2rem;
+  padding-bottom: 0.8rem; border-bottom: 1px solid var(--line); font: 500 0.8rem var(--mono); }
+.top nav { display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem; }
+.top a { color: var(--muted); text-decoration: none; }
+.top a:hover, .top a[aria-current="page"] { color: var(--fg); }
+.top .brand { display: inline-flex; align-items: center; gap: 0.45rem; color: var(--fg); }
+.brand svg { width: 20px; height: 20px; flex: none; }
+
+/* Titoli in Fraunces, versione non morbida */
+h1, h2, h3 { font-variation-settings: "SOFT" 0, "WONK" 0; }
+h1 { font: 700 clamp(3.2rem, 16vw, 6rem)/0.95 var(--display); letter-spacing: -0.02em; margin: 0; overflow-wrap: anywhere; }
+h2 { font: 600 1.6rem/1.15 var(--display); margin: 3rem 0 0.4rem; }
+.lead { margin: 1.3rem 0 0; font-size: 1.15rem; max-width: 34rem; text-wrap: pretty; }
+.kicker, .label { font: 500 0.75rem var(--mono); text-transform: uppercase; letter-spacing: 0.09em; }
+.kicker { margin: 0 0 1rem; color: var(--accent); }
+.label { color: var(--muted); }
+
+.foot { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--line);
+  color: var(--muted); font: 400 0.8rem var(--mono); display: flex; flex-wrap: wrap; gap: 0.4rem 1.4rem; }
+.foot a { color: var(--muted); }
+.foot p { margin: 0; }
+.foot code { font: inherit; font-weight: 500; color: var(--fg); }
