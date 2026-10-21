@@ -353,6 +353,16 @@ select:disabled { opacity: .55; }
 .hist .m { color: var(--muted); font-size: .85rem; overflow-wrap: anywhere; }
 .empty { color: var(--muted); margin: 8px 0 0; font-size: .95rem; }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+/* barra in alto: lingua e istruzioni */
+.top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; margin-bottom: 8px; }
+.top .kicker { margin: 0; }
+.tools { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.lang { display: flex; gap: 4px; }
+.lang .chip { min-width: 44px; justify-content: center; font-weight: 600; }
+.tools .chip { min-height: 40px; }
+.help-b h3 { margin: 16px 0 4px; font: 700 1rem/1.3 var(--ui); color: var(--fg); }
+.help-b h3:first-child { margin-top: 8px; }
+.help-b p { margin: 0; line-height: 1.5; }
 /* il mio giudizio + la mia lista */
 .mark { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; display: grid; gap: 12px; }
 .mark[hidden] { display: none; }
@@ -389,6 +399,8 @@ textarea { width: 100%; min-height: 64px; padding: 10px 12px; font: 400 .95rem/1
 .torna { display: inline-block; margin-bottom: .6rem; padding: .3rem 0; color: var(--muted); font: 500 .9rem var(--ui); text-decoration: none; }
 .torna:hover, .torna:focus-visible { color: var(--accent); text-decoration: underline; }
 footer a { color: inherit; }
+/* La nota sulle licenze c'è in italiano e in inglese: si vede quella della lingua scelta nella pagina */
+html[lang="en"] .sito-it, html:not([lang="en"]) .sito-en { display: none; }
 </style>
 </head>
 <body>
@@ -397,99 +409,114 @@ footer a { color: inherit; }
 <div class="wrap">
   <header>
     <a class="torna" href="../../">← Linobob</a>
-    <p class="kicker" id="kicker"></p>
-    <h1>Gioco a Caso</h1>
-    <nav class="picker" id="picker" aria-label="Sistema"></nav>
+    <div class="top">
+      <p class="kicker" id="kicker"></p>
+      <div class="tools">
+        <button class="chip" id="helpBtn" type="button" aria-haspopup="dialog" data-t="help"></button>
+        <div class="lang" id="langSel" role="radiogroup" data-ta="langAria">
+          <button class="chip" type="button" role="radio" aria-checked="false" data-lang="it" lang="it" aria-label="Italiano">IT</button>
+          <button class="chip" type="button" role="radio" aria-checked="false" data-lang="en" lang="en" aria-label="English">EN</button>
+        </div>
+      </div>
+    </div>
+    <h1 data-t="h1"></h1>
+    <nav class="picker" id="picker" data-ta="sysAria"></nav>
   </header>
 
   <main>
-    <section class="stage" id="stage" aria-label="Gioco estratto"><div id="view"></div></section>
+    <section class="stage" id="stage" data-ta="stageAria"><div id="view"></div></section>
     <div class="actions">
-      <button class="primary" id="draw" type="button">Estrai un gioco</button>
-      <button class="ghost" id="rndsys" type="button">Sistema a caso</button>
-      <button class="ghost" id="openList" type="button" aria-haspopup="dialog">La mia lista</button>
+      <button class="primary" id="draw" type="button" data-t="draw"></button>
+      <button class="ghost" id="rndsys" type="button" data-t="rndsys"></button>
+      <button class="ghost" id="openList" type="button" aria-haspopup="dialog"></button>
       <span class="info" id="poolInfo"></span>
     </div>
-    <p class="note" id="note"></p>
-    <section class="mark" id="mark" aria-labelledby="markH" hidden>
-      <h2 class="mark-h" id="markH">Il tuo giudizio su questo gioco</h2>
-      <div class="mark-row">
-        <div class="seg" id="markState" role="radiogroup" aria-label="Stato">
-          <button class="chip" type="button" role="radio" aria-checked="false" data-s="todo">Da provare</button>
-          <button class="chip" type="button" role="radio" aria-checked="false" data-s="played">Provato</button>
-          <button class="chip" type="button" role="radio" aria-checked="false" data-s="dropped">Abbandonato</button>
-        </div>
-        <div class="stars" id="markStars" role="radiogroup" aria-label="Voto da 1 a 5"></div>
-      </div>
-      <textarea id="mnote" maxlength="300" rows="2" placeholder="Nota (facoltativa)" aria-label="Nota"></textarea>
-      <div class="mark-row"><button class="linkbtn" id="mDel" type="button" hidden>Togli dalla lista</button></div>
-    </section>
     <ul class="links" id="links" hidden>
       <li><a id="lnkMain" target="_blank" rel="noopener noreferrer"></a></li>
-      <li><a id="lnkWeb" target="_blank" rel="noopener noreferrer">Cerca sul web ↗</a></li>
-      <li><a id="lnkYt" target="_blank" rel="noopener noreferrer">Video su YouTube ↗</a></li>
+      <li><a id="lnkWeb" target="_blank" rel="noopener noreferrer" data-t="lnkWeb"></a></li>
+      <li><a id="lnkYt" target="_blank" rel="noopener noreferrer" data-t="lnkYt"></a></li>
     </ul>
+    <p class="note" id="note"></p>
+    <section class="mark" id="mark" aria-labelledby="markH" hidden>
+      <h2 class="mark-h" id="markH" data-t="markH"></h2>
+      <div class="mark-row">
+        <div class="seg" id="markState" role="radiogroup" data-ta="stateAria">
+          <button class="chip" type="button" role="radio" aria-checked="false" data-s="todo" data-t="s_todo"></button>
+          <button class="chip" type="button" role="radio" aria-checked="false" data-s="played" data-t="s_played"></button>
+          <button class="chip" type="button" role="radio" aria-checked="false" data-s="dropped" data-t="s_dropped"></button>
+        </div>
+        <div class="stars" id="markStars" role="radiogroup" data-ta="starsAria"></div>
+      </div>
+      <textarea id="mnote" maxlength="300" rows="2" data-tp="notePh" data-ta="noteAria"></textarea>
+      <div class="mark-row"><button class="linkbtn" id="mDel" type="button" hidden data-t="mDel"></button></div>
+    </section>
     <div class="sr" id="status" aria-live="polite"></div>
   </main>
 
   <div class="side">
     <section class="panel" aria-labelledby="hFilters">
-      <h2 id="hFilters">Cosa estrarre</h2>
-      <div class="field"><label for="cat">Categoria</label><select id="cat"></select></div>
-      <div class="field" id="subField"><label for="sub">Sottogenere</label><select id="sub"></select></div>
+      <h2 id="hFilters" data-t="hFilters"></h2>
+      <div class="field"><label for="cat" data-t="cat"></label><select id="cat"></select></div>
+      <div class="field" id="subField"><label for="sub" data-t="sub"></label><select id="sub"></select></div>
       <fieldset id="yearField">
-        <legend>Anno di uscita</legend>
+        <legend data-t="year"></legend>
         <div class="pair">
-          <div class="field"><label for="yfrom">Da</label><select id="yfrom"></select></div>
-          <div class="field"><label for="yto">A</label><select id="yto"></select></div>
+          <div class="field"><label for="yfrom" data-t="from"></label><select id="yfrom"></select></div>
+          <div class="field"><label for="yto" data-t="to"></label><select id="yto"></select></div>
         </div>
-        <p class="hint" id="yearHint">Con un intervallo impostato, i giochi senza anno restano esclusi.</p>
+        <p class="hint" id="yearHint" data-t="yearHint"></p>
       </fieldset>
       <div class="check" id="pubField">
         <input type="checkbox" id="pub">
-        <label for="pub">Solo giochi con un editore</label>
-        <span class="help">Esclude amatoriali, demo, public domain e titoli non pubblicati.</span>
+        <label for="pub" data-t="pub"></label>
+        <span class="help" data-t="pubHelp"></span>
       </div>
       <div class="check">
         <input type="checkbox" id="norep" checked>
-        <label for="norep">Non ripetere i giochi già estratti</label>
+        <label for="norep" data-t="norep"></label>
       </div>
     </section>
 
     <section aria-labelledby="hHist">
       <div class="hist-head">
-        <h2 id="hHist">Ultimi estratti</h2>
-        <button class="linkbtn" id="clear" type="button">Svuota</button>
+        <h2 id="hHist" data-t="hHist"></h2>
+        <button class="linkbtn" id="clear" type="button" data-t="clear"></button>
       </div>
-      <p class="empty" id="histEmpty">Ancora nessuna estrazione per questo sistema.</p>
+      <p class="empty" id="histEmpty" data-t="histEmpty"></p>
       <ul class="hist" id="hist"></ul>
     </section>
   </div>
 
   <dialog class="dlg" id="dlg" aria-labelledby="dlgH">
-    <div class="dlg-h"><h2 id="dlgH">La mia lista</h2><button class="ghost sm" id="lClose" type="button">Chiudi</button></div>
+    <div class="dlg-h"><h2 id="dlgH" data-t="dlgH"></h2><button class="ghost sm" id="lClose" type="button" data-t="close"></button></div>
     <div class="dlg-f">
-      <div class="field"><label for="lfSys">Sistema</label><select id="lfSys"></select></div>
-      <div class="field"><label for="lfState">Stato</label>
-        <select id="lfState"><option value="">Tutti</option><option value="todo">Da provare</option><option value="played">Provati</option><option value="dropped">Abbandonati</option></select></div>
-      <div class="field"><label for="lfSort">Ordine</label>
-        <select id="lfSort"><option value="recent">Più recenti</option><option value="rating">Voto più alto</option><option value="title">Titolo</option><option value="system">Sistema</option></select></div>
+      <div class="field"><label for="lfSys" data-t="lfSys"></label><select id="lfSys"></select></div>
+      <div class="field"><label for="lfState" data-t="lfState"></label>
+        <select id="lfState"><option value="" data-t="f_all"></option><option value="todo" data-t="f_todo"></option><option value="played" data-t="f_played"></option><option value="dropped" data-t="f_dropped"></option></select></div>
+      <div class="field"><label for="lfSort" data-t="lfSort"></label>
+        <select id="lfSort"><option value="recent" data-t="o_recent"></option><option value="rating" data-t="o_rating"></option><option value="title" data-t="o_title"></option><option value="system" data-t="o_system"></option></select></div>
     </div>
-    <p class="warn" id="lwarn" hidden>Il browser non permette di salvare i dati: usa Esporta per non perderli.</p>
+    <p class="warn" id="lwarn" hidden data-t="lwarn"></p>
     <div class="dlg-b" id="lbody"></div>
     <div class="dlg-x">
-      <button class="ghost sm" id="lExport" type="button">Esporta (.json)</button>
-      <button class="ghost sm" id="lImport" type="button">Importa…</button>
+      <button class="ghost sm" id="lExport" type="button" data-t="export"></button>
+      <button class="ghost sm" id="lImport" type="button" data-t="import"></button>
       <input type="file" id="lFile" accept=".json,application/json" hidden>
-      <span class="hint" id="lmsg" aria-live="polite">I dati restano in questo browser: esportali per avere un backup o per spostarli su un altro dispositivo.</span>
+      <span class="hint" id="lmsg" aria-live="polite"></span>
     </div>
   </dialog>
 
+  <dialog class="dlg" id="help" aria-labelledby="helpH">
+    <div class="dlg-h"><h2 id="helpH" data-t="helpH"></h2><button class="ghost sm" id="hClose" type="button" data-t="close"></button></div>
+    <div class="dlg-b help-b" id="hbody"></div>
+  </dialog>
+
   <footer>
-    <p>Fonti e licenze dei dati: <a href="https://github.com/PigSaint/GameDataBase" target="_blank" rel="noopener">GameDataBase</a> di PigSaint (<a href="https://creativecommons.org/licenses/by/4.0/deed.it" target="_blank" rel="noopener">CC BY 4.0</a>), <a href="https://github.com/libretro/libretro-database" target="_blank" rel="noopener">libretro-database</a> (<a href="https://creativecommons.org/licenses/by-sa/4.0/deed.it" target="_blank" rel="noopener">CC BY-SA 4.0</a>), <a href="https://github.com/zxdb/ZXDB" target="_blank" rel="noopener">ZXDB</a> (<a href="https://opendatacommons.org/licenses/odbl/1-0/" target="_blank" rel="noopener">ODbL 1.0</a>) e <a href="https://gb64.com" target="_blank" rel="noopener">GameBase64</a> del GB64 Team. Gli elenchi sono stati filtrati e ridotti a titolo, anno, editore e genere.</p>
+    <p class="sito-it" lang="it">Fonti e licenze dei dati: <a href="https://github.com/PigSaint/GameDataBase" target="_blank" rel="noopener">GameDataBase</a> di PigSaint (<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>), <a href="https://github.com/libretro/libretro-database" target="_blank" rel="noopener">libretro-database</a> (<a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>), <a href="https://github.com/zxdb/ZXDB" target="_blank" rel="noopener">ZXDB</a> (<a href="https://opendatacommons.org/licenses/odbl/1-0/" target="_blank" rel="noopener">ODbL 1.0</a>) e <a href="https://gb64.com" target="_blank" rel="noopener">GameBase64</a> del GB64 Team. Gli elenchi sono stati filtrati e ridotti a titolo, anno, editore e genere.</p>
+    <p class="sito-en" lang="en">Data sources and licenses: <a href="https://github.com/PigSaint/GameDataBase" target="_blank" rel="noopener">GameDataBase</a> by PigSaint (<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>), <a href="https://github.com/libretro/libretro-database" target="_blank" rel="noopener">libretro-database</a> (<a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>), <a href="https://github.com/zxdb/ZXDB" target="_blank" rel="noopener">ZXDB</a> (<a href="https://opendatacommons.org/licenses/odbl/1-0/" target="_blank" rel="noopener">ODbL 1.0</a>) and <a href="https://gb64.com" target="_blank" rel="noopener">GameBase64</a> by the GB64 Team. The lists were filtered and reduced to title, year, publisher and genre.</p>
     <p id="credit"></p>
     <p id="sysnote"></p>
-    <p>Font incorporati: VT323, Press Start 2P, Silkscreen, Orbitron e Bungee (SIL Open Font License). I nomi dei sistemi appartengono ai rispettivi proprietari; questa pagina non è affiliata a nessuno di loro.</p>
+    <p data-t="fonts"></p>
   </footer>
 </div>
 
@@ -515,38 +542,160 @@ footer a { color: inherit; }
 (function () {
   "use strict";
   const $ = (id) => document.getElementById(id);
-  const nf = new Intl.NumberFormat("it-IT");
+  let nf = new Intl.NumberFormat("it-IT");
   const reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   const SYS = [
-    { id: "c64", n: "Commodore 64", s: "C64", g: "Computer", ch: "term", cmd: "c64", dot: "#7a6dd0", src: "gb64", link: "gb64" },
-    { id: "spectrum", n: "ZX Spectrum", s: "ZX Spectrum", g: "Computer", ch: "term", cmd: "zx", dot: "#d70000", src: "zxdb", link: "zx", xl: "MODELLO" },
-    { id: "msx", n: "MSX", s: "MSX", g: "Computer", ch: "term", cmd: "msx", dot: "#5455ed", src: "lib" },
-    { id: "nes", n: "Nintendo Entertainment System", s: "NES", g: "Nintendo", ch: "cart", shape: "tall", dot: "#c8261f", src: "gdb", note: "Include i giochi per Famicom Disk System." },
-    { id: "snes", n: "Super Nintendo", s: "SNES", g: "Nintendo", ch: "cart", shape: "wide", dot: "#4b3f9e", src: "gdb" },
-    { id: "gb", n: "Game Boy", s: "Game Boy", g: "Nintendo", ch: "lcd", orient: "port", dot: "#9bbc0f", src: "gdb" },
-    { id: "gbc", n: "Game Boy Color", s: "GB Color", g: "Nintendo", ch: "lcd", orient: "port", dot: "#8a5fe0", src: "gdb" },
-    { id: "gba", n: "Game Boy Advance", s: "GBA", g: "Nintendo", ch: "lcd", orient: "land", dot: "#6a5bd1", src: "gdb" },
-    { id: "n64", n: "Nintendo 64", s: "N64", g: "Nintendo", ch: "cart", shape: "wide", dot: "#46c46b", src: "gdb" },
-    { id: "sms", n: "Sega Master System", s: "Master System", g: "Sega", ch: "cart", shape: "card", dot: "#e4122b", src: "gdb" },
-    { id: "md", n: "Sega Mega Drive / Genesis", s: "Mega Drive", g: "Sega", ch: "cart", shape: "wide", dot: "#1aa6ff", src: "gdb", note: "Include i giochi per Mega-CD e 32X." },
-    { id: "gg", n: "Sega Game Gear", s: "Game Gear", g: "Sega", ch: "lcd", orient: "land", dot: "#7fd6ff", src: "gdb" },
-    { id: "saturn", n: "Sega Saturn", s: "Saturn", g: "Sega", ch: "disc", dot: "#8fa0ff", src: "gdb" },
-    { id: "pce", n: "PC Engine / TurboGrafx-16", s: "PC Engine", g: "Altri", ch: "cart", shape: "card", dot: "#d3202a", src: "gdb", note: "Include i giochi su CD-ROM²." },
-    { id: "a2600", n: "Atari 2600", s: "Atari 2600", g: "Altri", ch: "cart", shape: "ridged", dot: "#f0a53a", src: "lib" },
-    { id: "intv", n: "Mattel Intellivision", s: "Intellivision", g: "Altri", ch: "cart", shape: "ridged", dot: "#6f3a14", src: "lib" },
-    { id: "coleco", n: "ColecoVision", s: "ColecoVision", g: "Altri", ch: "cart", shape: "ridged", dot: "#ff5033", src: "lib" },
-    { id: "arcade", n: "Arcade", s: "Arcade", g: "Altri", ch: "marquee", dot: "#ff2e88", src: "gdb", xl: "ROM MAME", note: "Solo i titoli di Capcom, Konami, Sega, SNK, Taito, Irem, Nichibutsu e Nintendo." }
+    { id: "c64", n: "Commodore 64", s: "C64", g: "comp", ch: "term", cmd: "c64", dot: "#7a6dd0", src: "gb64", link: "gb64" },
+    { id: "spectrum", n: "ZX Spectrum", s: "ZX Spectrum", g: "comp", ch: "term", cmd: "zx", dot: "#d70000", src: "zxdb", link: "zx", xl: "xl_model" },
+    { id: "msx", n: "MSX", s: "MSX", g: "comp", ch: "term", cmd: "msx", dot: "#5455ed", src: "lib" },
+    { id: "nes", n: "Nintendo Entertainment System", s: "NES", g: "nin", ch: "cart", shape: "tall", dot: "#c8261f", src: "gdb", note: "note_nes" },
+    { id: "snes", n: "Super Nintendo", s: "SNES", g: "nin", ch: "cart", shape: "wide", dot: "#4b3f9e", src: "gdb" },
+    { id: "gb", n: "Game Boy", s: "Game Boy", g: "nin", ch: "lcd", orient: "port", dot: "#9bbc0f", src: "gdb" },
+    { id: "gbc", n: "Game Boy Color", s: "GB Color", g: "nin", ch: "lcd", orient: "port", dot: "#8a5fe0", src: "gdb" },
+    { id: "gba", n: "Game Boy Advance", s: "GBA", g: "nin", ch: "lcd", orient: "land", dot: "#6a5bd1", src: "gdb" },
+    { id: "n64", n: "Nintendo 64", s: "N64", g: "nin", ch: "cart", shape: "wide", dot: "#46c46b", src: "gdb" },
+    { id: "sms", n: "Sega Master System", s: "Master System", g: "sega", ch: "cart", shape: "card", dot: "#e4122b", src: "gdb" },
+    { id: "md", n: "Sega Mega Drive / Genesis", s: "Mega Drive", g: "sega", ch: "cart", shape: "wide", dot: "#1aa6ff", src: "gdb", note: "note_md" },
+    { id: "gg", n: "Sega Game Gear", s: "Game Gear", g: "sega", ch: "lcd", orient: "land", dot: "#7fd6ff", src: "gdb" },
+    { id: "saturn", n: "Sega Saturn", s: "Saturn", g: "sega", ch: "disc", dot: "#8fa0ff", src: "gdb" },
+    { id: "pce", n: "PC Engine / TurboGrafx-16", s: "PC Engine", g: "oth", ch: "cart", shape: "card", dot: "#d3202a", src: "gdb", note: "note_pce" },
+    { id: "a2600", n: "Atari 2600", s: "Atari 2600", g: "oth", ch: "cart", shape: "ridged", dot: "#f0a53a", src: "lib" },
+    { id: "intv", n: "Mattel Intellivision", s: "Intellivision", g: "oth", ch: "cart", shape: "ridged", dot: "#6f3a14", src: "lib" },
+    { id: "coleco", n: "ColecoVision", s: "ColecoVision", g: "oth", ch: "cart", shape: "ridged", dot: "#ff5033", src: "lib" },
+    { id: "arcade", n: "Arcade", s: "Arcade", g: "oth", ch: "marquee", dot: "#ff2e88", src: "gdb", xl: "xl_rom", note: "note_arcade" }
   ];
   const BY = {}; SYS.forEach((x) => { BY[x.id] = x; });
   const isSys = (x) => Object.prototype.hasOwnProperty.call(BY, x);
-  const CREDIT = {
-    gb64: "Dati: database GameBase64 v18 (marzo 2022) del GB64 Team. Esclusi i contenuti per adulti e le versioni duplicate.",
-    zxdb: "Dati: ZXDB (licenza ODbL 1.0). Solo giochi per ZX Spectrum disponibili, senza contenuti per adulti.",
-    gdb: "Dati: GameDataBase di PigSaint (licenza CC BY 4.0). Esclusi prototipi, compilation, hack e traduzioni amatoriali.",
-    lib: "Dati: libretro-database, cartella genre (licenza CC BY-SA 4.0). Un solo genere per gioco, assegnato a mano e a volte impreciso. Nessun anno né editore."
+  /* ---- lingue: testi in italiano e in inglese ---- */
+  const LANGKEY = "gioco-a-caso-lang";
+  let lang = "it";
+  const I18N = {
+    it: {
+      h1: "Gioco a Caso", langAria: "Lingua", sysAria: "Sistema", stageAria: "Gioco estratto", help: "? Come funziona", helpH: "Come funziona",
+      draw: "Estrai un gioco", rndsys: "Sistema a caso", listBtn: (n) => n ? "La mia lista (" + n + ")" : "La mia lista",
+      lnkWeb: "Cerca sul web ↗", lnkYt: "Video su YouTube ↗", openGb: "Apri su GameBase64 ↗", openZx: "Apri su Spectrum Computing ↗",
+      markH: "Il tuo giudizio su questo gioco", stateAria: "Stato", s_todo: "Da provare", s_played: "Provato", s_dropped: "Abbandonato",
+      starsAria: "Voto da 1 a 5", star: (n) => n + (n === 1 ? " stella" : " stelle"), starsOf: (n) => n + " stelle su 5",
+      notePh: "Nota (facoltativa)", noteAria: "Nota", mDel: "Togli dalla lista",
+      hFilters: "Cosa estrarre", cat: "Categoria", sub: "Sottogenere", year: "Anno di uscita", from: "Da", to: "A",
+      yearHint: "Con un intervallo impostato, i giochi senza anno restano esclusi.",
+      pub: "Solo giochi con un editore", pubHelp: "Esclude amatoriali, demo, public domain e titoli non pubblicati.",
+      norep: "Non ripetere i giochi già estratti", hHist: "Ultimi estratti", clear: "Svuota", histEmpty: "Ancora nessuna estrazione per questo sistema.",
+      dlgH: "La mia lista", close: "Chiudi", lfSys: "Sistema", lfState: "Stato", lfSort: "Ordine",
+      f_all: "Tutti", f_todo: "Da provare", f_played: "Provati", f_dropped: "Abbandonati",
+      o_recent: "Più recenti", o_rating: "Voto più alto", o_title: "Titolo", o_system: "Sistema",
+      lwarn: "Il browser non permette di salvare i dati: usa Esporta per non perderli.", export: "Esporta (.json)", import: "Importa…",
+      lhint: "I dati restano in questo browser: esportali per avere un backup o per spostarli su un altro dispositivo.",
+      fonts: "Font incorporati: VT323, Press Start 2P, Silkscreen, Orbitron e Bungee (SIL Open Font License). I nomi dei sistemi appartengono ai rispettivi proprietari; questa pagina non è affiliata a nessuno di loro.",
+      games: (n) => nf.format(n) + (n === 1 ? " gioco" : " giochi"),
+      pool: (n) => nf.format(n) + (n === 1 ? " gioco nel sorteggio" : " giochi nel sorteggio"), noPool: "Nessun gioco con questi filtri",
+      noMatch: "Nessun gioco corrisponde ai filtri.", drawn: "Estratto: ", restart: "Li hai estratti tutti: si ricomincia.",
+      allCats: (n) => "Tutte le categorie (" + n + ")", allSubs: "Tutti i sottogeneri", noSub: "Senza sottogenere", any: "Qualsiasi", uncat: "Non classificato",
+      k_year: "ANNO", k_pub: "EDITORE", k_genre: "GENERE", xl_model: "MODELLO", xl_rom: "ROM MAME", na: "N/D",
+      grp_comp: "Computer", grp_nin: "Nintendo", grp_sega: "Sega", grp_oth: "Altri",
+      note_nes: "Include i giochi per Famicom Disk System.", note_md: "Include i giochi per Mega-CD e 32X.", note_pce: "Include i giochi su CD-ROM².",
+      note_arcade: "Solo i titoli di Capcom, Konami, Sega, SNK, Taito, Irem, Nichibutsu e Nintendo.",
+      cr_gb64: "Dati: database GameBase64 v18 (marzo 2022) del GB64 Team. Esclusi i contenuti per adulti e le versioni duplicate.",
+      cr_zxdb: "Dati: ZXDB (licenza ODbL 1.0). Solo giochi per ZX Spectrum disponibili, senza contenuti per adulti.",
+      cr_gdb: "Dati: GameDataBase di PigSaint (licenza CC BY 4.0). Esclusi prototipi, compilation, hack e traduzioni amatoriali.",
+      cr_lib: "Dati: libretro-database, cartella genre (licenza CC BY-SA 4.0). Un solo genere per gioco, assegnato a mano e a volte impreciso. Nessun anno né editore.",
+      pubs: { "(Not Published)": "Non pubblicato", "(Unknown)": "Sconosciuto", "(Public Domain)": "Public domain", "(Preview)": "Anteprima", "(Created with SEUCK)": "Creato con SEUCK" },
+      allSys: (n) => "Tutti i sistemi (" + n + ")", listNoMatch: "Nessun gioco corrisponde a questi filtri.",
+      listEmpty: "La lista è vuota. Estrai un gioco e segnalo come “Da provare” o dagli un voto.",
+      open: "Apri", remove: "Rimuovi", more: (n) => "Mostrati i primi 300 di " + n + ": usa i filtri per restringere.",
+      gone: "Questo gioco non è più presente nel database.", exported: (n) => "File esportato: " + n + " giochi.",
+      readErr: "Non riesco a leggere il file.", badJson: "File non valido: non è un JSON.", nothingNew: "Nessun gioco nuovo o più recente nel file.",
+      imported: (a, u) => "Importati " + a + " giochi nuovi e aggiornati " + u + ".",
+      helpText: [
+        ["Estrarre un gioco", "Scegli un sistema in alto e premi “Estrai un gioco”. I filtri a lato restringono il sorteggio per categoria e, dove i dati lo permettono, per anno ed editore. “Sistema a caso” cambia sistema ed estrae subito."],
+        ["Link", "Sotto il pulsante trovi una ricerca sul web e i video su YouTube; per C64 e ZX Spectrum anche la scheda del gioco su GameBase64 o Spectrum Computing."],
+        ["Voti e note", "Sotto ogni gioco puoi segnarlo come “Da provare”, “Provato” o “Abbandonato”, dargli da 1 a 5 stelle e scrivere una nota. Se voti un gioco “Da provare”, diventa “Provato”. Un secondo clic sulla stessa stella toglie il voto."],
+        ["La mia lista", "Raccoglie tutti i giochi che hai segnato, di tutti i sistemi. Puoi filtrarli, ordinarli per voto o data, riaprirli o toglierli."],
+        ["Dove si salvano i dati", "Ogni modifica si salva subito, ma solo in questo browser su questo dispositivo: non ci sono account né server. Se cancelli i dati di navigazione, usi una finestra privata o apri la pagina da un altro browser, la lista non la trovi."],
+        ["Backup e altri dispositivi", "In “La mia lista”, “Esporta” scarica un file .json con tutti i tuoi giochi segnati; “Importa” lo rilegge e lo unisce a quelli che hai già (per ogni gioco vale la modifica più recente). Esporta ogni tanto: è il tuo backup, e serve anche per portare la lista su un altro computer o telefono."],
+        ["Cronologia e filtri", "“Ultimi estratti” tiene gli ultimi 12 giochi per sistema. Anche la cronologia, i filtri e la lingua scelta restano salvati nel browser."]
+      ]
+    },
+    en: {
+      h1: "Random Game", langAria: "Language", sysAria: "System", stageAria: "Drawn game", help: "? How it works", helpH: "How it works",
+      draw: "Draw a game", rndsys: "Random system", listBtn: (n) => n ? "My list (" + n + ")" : "My list",
+      lnkWeb: "Search the web ↗", lnkYt: "Videos on YouTube ↗", openGb: "Open on GameBase64 ↗", openZx: "Open on Spectrum Computing ↗",
+      markH: "Your verdict on this game", stateAria: "Status", s_todo: "To play", s_played: "Played", s_dropped: "Dropped",
+      starsAria: "Rating from 1 to 5", star: (n) => n + (n === 1 ? " star" : " stars"), starsOf: (n) => n + " out of 5 stars",
+      notePh: "Note (optional)", noteAria: "Note", mDel: "Remove from list",
+      hFilters: "What to draw", cat: "Category", sub: "Subgenre", year: "Release year", from: "From", to: "To",
+      yearHint: "When a range is set, games with no known year are left out.",
+      pub: "Only games with a publisher", pubHelp: "Leaves out homebrew, demos, public domain and unreleased titles.",
+      norep: "Don't repeat games already drawn", hHist: "Recently drawn", clear: "Clear", histEmpty: "Nothing drawn for this system yet.",
+      dlgH: "My list", close: "Close", lfSys: "System", lfState: "Status", lfSort: "Sort by",
+      f_all: "All", f_todo: "To play", f_played: "Played", f_dropped: "Dropped",
+      o_recent: "Most recent", o_rating: "Highest rated", o_title: "Title", o_system: "System",
+      lwarn: "This browser won't let the page save data: use Export so you don't lose it.", export: "Export (.json)", import: "Import…",
+      lhint: "Your data stays in this browser: export it to keep a backup or to move it to another device.",
+      fonts: "Embedded fonts: VT323, Press Start 2P, Silkscreen, Orbitron and Bungee (SIL Open Font License). System names belong to their respective owners; this page is not affiliated with any of them.",
+      games: (n) => nf.format(n) + (n === 1 ? " game" : " games"),
+      pool: (n) => nf.format(n) + (n === 1 ? " game in the draw" : " games in the draw"), noPool: "No games match these filters",
+      noMatch: "No games match the filters.", drawn: "Drawn: ", restart: "You've drawn them all: starting over.",
+      allCats: (n) => "All categories (" + n + ")", allSubs: "All subgenres", noSub: "No subgenre", any: "Any", uncat: "Uncategorized",
+      k_year: "YEAR", k_pub: "PUBLISHER", k_genre: "GENRE", xl_model: "MODEL", xl_rom: "MAME ROM", na: "N/A",
+      grp_comp: "Computers", grp_nin: "Nintendo", grp_sega: "Sega", grp_oth: "Others",
+      note_nes: "Includes Famicom Disk System games.", note_md: "Includes Mega-CD and 32X games.", note_pce: "Includes CD-ROM² games.",
+      note_arcade: "Only titles by Capcom, Konami, Sega, SNK, Taito, Irem, Nichibutsu and Nintendo.",
+      cr_gb64: "Data: GameBase64 v18 database (March 2022) by the GB64 Team. Adult content and duplicate versions excluded.",
+      cr_zxdb: "Data: ZXDB (ODbL 1.0 license). Only available ZX Spectrum games, no adult content.",
+      cr_gdb: "Data: PigSaint's GameDataBase (CC BY 4.0 license). Prototypes, compilations, hacks and fan translations excluded.",
+      cr_lib: "Data: libretro-database, genre folder (CC BY-SA 4.0 license). One genre per game, assigned by hand and sometimes inaccurate. No year or publisher.",
+      pubs: { "(Not Published)": "Not published", "(Unknown)": "Unknown", "(Public Domain)": "Public domain", "(Preview)": "Preview", "(Created with SEUCK)": "Made with SEUCK" },
+      allSys: (n) => "All systems (" + n + ")", listNoMatch: "No games match these filters.",
+      listEmpty: "Your list is empty. Draw a game and mark it as “To play”, or give it a rating.",
+      open: "Open", remove: "Remove", more: (n) => "Showing the first 300 of " + n + ": use the filters to narrow it down.",
+      gone: "This game is no longer in the database.", exported: (n) => "File exported: " + n + " games.",
+      readErr: "Couldn't read the file.", badJson: "Invalid file: it isn't JSON.", nothingNew: "No new or newer games in the file.",
+      imported: (a, u) => "Imported " + a + " new games and updated " + u + ".",
+      helpText: [
+        ["Drawing a game", "Pick a system at the top and press “Draw a game”. The filters on the side narrow the draw by category and, where the data allows, by year and publisher. “Random system” switches system and draws right away."],
+        ["Links", "Below the button you'll find a web search and YouTube videos; for C64 and ZX Spectrum, also the game's page on GameBase64 or Spectrum Computing."],
+        ["Ratings and notes", "Below each game you can mark it as “To play”, “Played” or “Dropped”, give it 1 to 5 stars and write a note. Rating a “To play” game turns it into “Played”. Clicking the same star again removes the rating."],
+        ["My list", "Collects every game you've marked, across all systems. You can filter them, sort them by rating or date, open them again or remove them."],
+        ["Where your data is saved", "Every change is saved right away, but only in this browser on this device: there are no accounts and no server. If you clear your browsing data, use a private window or open the page in another browser, your list won't be there."],
+        ["Backups and other devices", "In “My list”, “Export” downloads a .json file with all your marked games; “Import” reads it back and merges it with what you already have (for each game, the most recent change wins). Export now and then: it's your backup, and it's how you move your list to another computer or phone."],
+        ["History and filters", "“Recently drawn” keeps the last 12 games for each system. History, filters and your chosen language are saved in the browser too."]
+      ]
+    }
   };
-  const PUB = { "(Not Published)": "Non pubblicato", "(Unknown)": "Sconosciuto", "(Public Domain)": "Public domain", "(Preview)": "Anteprima", "(Created with SEUCK)": "Creato con SEUCK" };
+  function T(k) {
+    const a = Array.prototype.slice.call(arguments, 1);
+    let v = I18N[lang][k]; if (v === undefined) v = I18N.it[k];
+    return typeof v === "function" ? v.apply(null, a) : (v === undefined ? k : v);
+  }
+  function initLang() {
+    try { const v = localStorage.getItem(LANGKEY); if (v === "it" || v === "en") return v; } catch (e) {}
+    const l = (navigator.languages && navigator.languages[0]) || navigator.language || "it";
+    return /^it\b/i.test(l) ? "it" : "en";
+  }
+  function renderHelp() {
+    const b = $("hbody"); b.replaceChildren();
+    T("helpText").forEach((x) => b.append(el("h3", "", x[0]), el("p", "", x[1])));
+  }
+  function setLang(l, rerender) {
+    lang = l === "en" ? "en" : "it";
+    try { localStorage.setItem(LANGKEY, lang); } catch (e) {}
+    nf = new Intl.NumberFormat(lang === "it" ? "it-IT" : "en-US");
+    document.documentElement.lang = lang;
+    document.title = T("h1");
+    document.querySelectorAll("[data-t]").forEach((e) => { e.textContent = T(e.dataset.t); });
+    document.querySelectorAll("[data-ta]").forEach((e) => e.setAttribute("aria-label", T(e.dataset.ta)));
+    document.querySelectorAll("[data-tp]").forEach((e) => e.setAttribute("placeholder", T(e.dataset.tp)));
+    document.querySelectorAll("#markStars .star").forEach((b) => b.setAttribute("aria-label", T("star", +b.dataset.n)));
+    document.querySelectorAll("#langSel [data-lang]").forEach((b) => b.setAttribute("aria-checked", b.dataset.lang === lang ? "true" : "false"));
+    if (!rerender) return;
+    buildPicker(); updateListBtn();
+    const c = cur;
+    if (c >= 0) { setSystem(st.sys, false, false, true); showGame(c, false); } else setSystem(st.sys, false, false);
+    if ($("dlg").open) { renderList(); lmsg(T("lhint")); }
+    if ($("help").open) renderHelp();
+  }
 
   const KEY = "gioco-a-caso-v2";
   const st = { sys: "c64", per: {} };
@@ -615,14 +764,14 @@ footer a { color: inherit; }
     if (s.cat === "") s.sub = "";
   }
 
-  const pubLabel = (u) => PUB[D.U[u]] || D.U[u].replace(/^\((.*)\)$/, "$1");
-  const genreLabel = (si) => { const p = D.P[D.S[si][0]], n = D.S[si][1]; return n ? p + " / " + n : p; };
+  const pubLabel = (u) => { const v = I18N[lang].pubs[D.U[u]]; return v || D.U[u].replace(/^\((.*)\)$/, "$1"); };
+  const genreLabel = (si) => { let p = D.P[D.S[si][0]]; const n = D.S[si][1]; if (p === "Non classificato") p = T("uncat"); return n ? p + " / " + n : p; };
   function rows(r) {
     const out = [];
-    if (D.hasYear) out.push(["ANNO", r[1] ? String(r[1]) : "N/D"]);
-    if (D.hasPubInfo) out.push(["EDITORE", pubLabel(r[2])]);
-    out.push(["GENERE", genreLabel(r[3])]);
-    if (sy.xl && r[5]) out.push([sy.xl, r[5]]);
+    if (D.hasYear) out.push([T("k_year"), r[1] ? String(r[1]) : T("na")]);
+    if (D.hasPubInfo) out.push([T("k_pub"), pubLabel(r[2])]);
+    out.push([T("k_genre"), genreLabel(r[3])]);
+    if (sy.xl && r[5]) out.push([T(sy.xl), r[5]]);
     return out;
   }
 
@@ -649,18 +798,18 @@ footer a { color: inherit; }
   const opt = (v, t) => { const o = document.createElement("option"); o.value = v; o.textContent = t; return o; };
   function buildCats() {
     const s = state(sy.id), sel = $("cat");
-    sel.replaceChildren(opt("", "Tutte le categorie (" + nf.format(D.counts.total) + ")"));
-    D.catOrder.forEach((i) => { if (D.counts.cc[i] > 0 || String(i) === s.cat) sel.append(opt(String(i), D.P[i] + " (" + nf.format(D.counts.cc[i]) + ")")); });
+    sel.replaceChildren(opt("", T("allCats", nf.format(D.counts.total))));
+    D.catOrder.forEach((i) => { if (D.counts.cc[i] > 0 || String(i) === s.cat) sel.append(opt(String(i), (D.P[i] === "Non classificato" ? T("uncat") : D.P[i]) + " (" + nf.format(D.counts.cc[i]) + ")")); });
     sel.value = s.cat;
   }
   function buildSubs() {
     const s = state(sy.id), sel = $("sub");
     $("subField").hidden = !D.hasSub;
     if (!D.hasSub) return;
-    if (s.cat === "") { sel.replaceChildren(opt("", "Tutti i sottogeneri")); sel.disabled = true; sel.value = ""; return; }
+    if (s.cat === "") { sel.replaceChildren(opt("", T("allSubs"))); sel.disabled = true; sel.value = ""; return; }
     sel.disabled = false;
-    sel.replaceChildren(opt("", "Tutti i sottogeneri (" + nf.format(D.counts.cc[+s.cat]) + ")"));
-    D.subsBy[+s.cat].forEach((i) => { sel.append(opt(String(i), (D.S[i][1] || "Senza sottogenere") + " (" + nf.format(D.counts.sc[i]) + ")")); });
+    sel.replaceChildren(opt("", T("allSubs") + " (" + nf.format(D.counts.cc[+s.cat]) + ")"));
+    D.subsBy[+s.cat].forEach((i) => { sel.append(opt(String(i), (D.S[i][1] || T("noSub")) + " (" + nf.format(D.counts.sc[i]) + ")")); });
     sel.value = s.sub;
   }
   function buildYears() {
@@ -669,13 +818,13 @@ footer a { color: inherit; }
     $("yearHint").hidden = !D.someNoYear;
     if (!D.hasYear) return;
     ["yfrom", "yto"].forEach((id) => {
-      const sel = $(id); sel.replaceChildren(opt("", "Qualsiasi"));
+      const sel = $(id); sel.replaceChildren(opt("", T("any")));
       D.years.forEach((y) => sel.append(opt(String(y), String(y))));
     });
     $("yfrom").value = s.from; $("yto").value = s.to;
   }
   function updateInfo() {
-    $("poolInfo").textContent = pool.length ? nf.format(pool.length) + (pool.length === 1 ? " gioco nel sorteggio" : " giochi nel sorteggio") : "Nessun gioco con questi filtri";
+    $("poolInfo").textContent = pool.length ? T("pool", pool.length) : T("noPool");
     $("draw").disabled = pool.length === 0;
   }
 
@@ -750,21 +899,21 @@ footer a { color: inherit; }
     view.replaceChildren(sy.ch === "term" ? renderTerm(r, a, t) : sy.ch === "cart" ? renderCart(r) : sy.ch === "lcd" ? renderLcd(r) : sy.ch === "disc" ? renderDisc(r) : renderMarquee(r));
     const q = encodeURIComponent(r[0] + " " + sy.n);
     const main = $("lnkMain");
-    if (sy.link === "gb64") { main.href = "https://gb64.com/game.php?id=" + r[4] + "&h=0"; main.textContent = "Apri su GameBase64 ↗"; main.parentNode.hidden = false; }
-    else if (sy.link === "zx") { main.href = "https://spectrumcomputing.co.uk/entry/" + r[4]; main.textContent = "Apri su Spectrum Computing ↗"; main.parentNode.hidden = false; }
+    if (sy.link === "gb64") { main.href = "https://gb64.com/game.php?id=" + r[4] + "&h=0"; main.textContent = T("openGb"); main.parentNode.hidden = false; }
+    else if (sy.link === "zx") { main.href = "https://spectrumcomputing.co.uk/entry/" + r[4]; main.textContent = T("openZx"); main.parentNode.hidden = false; }
     else main.parentNode.hidden = true;
     $("lnkWeb").href = "https://duckduckgo.com/?q=" + q;
     $("lnkYt").href = "https://www.youtube.com/results?search_query=" + q;
     $("links").hidden = false;
-    $("status").textContent = "Estratto: " + r[0] + (r[1] ? ", " + r[1] : "") + ", " + genreLabel(r[3]) + ".";
+    $("status").textContent = T("drawn") + r[0] + (r[1] ? ", " + r[1] : "") + ", " + genreLabel(r[3]) + ".";
   }
   function showEmpty() {
     token++; cur = -1; renderMark();
     const w = el("div", "term"), scr = el("div", "term-in");
-    scr.append(el("div", "ln", "Nessun gioco con questi filtri."));
+    scr.append(el("div", "ln", T("noPool") + "."));
     w.append(scr); $("view").replaceChildren(w);
     $("links").hidden = true;
-    $("status").textContent = "Nessun gioco corrisponde ai filtri.";
+    $("status").textContent = T("noMatch");
   }
   function renderHist() {
     const s = state(sy.id), ul = $("hist");
@@ -783,7 +932,7 @@ footer a { color: inherit; }
     const dr = drawn[sy.id]; let cand = pool, msg = "";
     if (s.norep) {
       cand = pool.filter((i) => !dr.has(i));
-      if (!cand.length) { pool.forEach((i) => dr.delete(i)); cand = pool; msg = "Li hai estratti tutti: si ricomincia."; }
+      if (!cand.length) { pool.forEach((i) => dr.delete(i)); cand = pool; msg = T("restart"); }
     }
     const i = cand[Math.floor(Math.random() * cand.length)];
     dr.add(i);
@@ -794,7 +943,7 @@ footer a { color: inherit; }
 
   /* ---- la mia lista (voti, stato, note) ---- */
   const LKEY = "gioco-a-caso-lista-v1";
-  const STATES = { todo: "Da provare", played: "Provato", dropped: "Abbandonato" };
+  const STATES = { todo: 1, played: 1, dropped: 1 };
   const hasOwn = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
   let L = {}, cur = -1, lsOk = true, noteTimer = 0;
   const gkey = (r) => r[0] + "|" + r[1];
@@ -827,7 +976,7 @@ footer a { color: inherit; }
     $("lwarn").hidden = lsOk; updateListBtn();
   }
   function listCount() { let n = 0; Object.keys(L).forEach((s) => { n += Object.keys(L[s]).length; }); return n; }
-  function updateListBtn() { const n = listCount(); $("openList").textContent = n ? "La mia lista (" + nf.format(n) + ")" : "La mia lista"; }
+  function updateListBtn() { const n = listCount(); $("openList").textContent = T("listBtn", n ? nf.format(n) : ""); }
 
   function renderMark() {
     const box = $("mark"), r = cur >= 0 && D ? D.G[cur] : null;
@@ -857,7 +1006,7 @@ footer a { color: inherit; }
   function lmsg(t) { $("lmsg").textContent = t; }
   function renderList() {
     const sel = $("lfSys"), prev = sel.value;
-    sel.replaceChildren(opt("", "Tutti i sistemi (" + nf.format(listCount()) + ")"));
+    sel.replaceChildren(opt("", T("allSys", nf.format(listCount()))));
     SYS.forEach((x) => { if (L[x.id]) sel.append(opt(x.id, x.s + " (" + Object.keys(L[x.id]).length + ")")); });
     sel.value = L[prev] ? prev : "";
     const fs = sel.value, fst = $("lfState").value, so = $("lfSort").value, body = $("lbody");
@@ -868,30 +1017,30 @@ footer a { color: inherit; }
     });
     const sysIx = (id) => SYS.findIndex((x) => x.id === id);
     items.sort((a, b) => so === "rating" ? (b[2].r - a[2].r) || (b[2].u - a[2].u)
-      : so === "title" ? a[2].t.localeCompare(b[2].t, "it")
-      : so === "system" ? (sysIx(a[0]) - sysIx(b[0])) || a[2].t.localeCompare(b[2].t, "it")
+      : so === "title" ? a[2].t.localeCompare(b[2].t, lang)
+      : so === "system" ? (sysIx(a[0]) - sysIx(b[0])) || a[2].t.localeCompare(b[2].t, lang)
       : b[2].u - a[2].u);
     body.replaceChildren();
-    if (!items.length) { body.append(el("p", "empty", listCount() ? "Nessun gioco corrisponde a questi filtri." : "La lista è vuota. Estrai un gioco e segnalo come “Da provare” o dagli un voto.")); return; }
+    if (!items.length) { body.append(el("p", "empty", listCount() ? T("listNoMatch") : T("listEmpty"))); return; }
     items.slice(0, 300).forEach((it) => {
       const sid = it[0], k = it[1], e = it[2], li = el("div", "li");
       li.append(el("span", "t", e.t));
-      li.append(el("span", "m", BY[sid].s + (e.y ? " · " + e.y : "") + (e.g ? " · " + e.g : "") + " · " + STATES[e.s]));
-      if (e.r) { const rs = el("span", "rs", stars(e.r)); rs.setAttribute("role", "img"); rs.setAttribute("aria-label", e.r + " stelle su 5"); li.append(rs); }
+      li.append(el("span", "m", BY[sid].s + (e.y ? " · " + e.y : "") + (e.g ? " · " + e.g : "") + " · " + T("s_" + e.s)));
+      if (e.r) { const rs = el("span", "rs", stars(e.r)); rs.setAttribute("role", "img"); rs.setAttribute("aria-label", T("starsOf", e.r)); li.append(rs); }
       if (e.n) li.append(el("span", "n", e.n));
       const ac = el("div", "ac");
-      const open = el("button", "ghost sm", "Apri"); open.type = "button"; open.dataset.a = "open"; open.dataset.s = sid; open.dataset.k = k;
-      const del = el("button", "linkbtn", "Rimuovi"); del.type = "button"; del.dataset.a = "del"; del.dataset.s = sid; del.dataset.k = k;
+      const open = el("button", "ghost sm", T("open")); open.type = "button"; open.dataset.a = "open"; open.dataset.s = sid; open.dataset.k = k;
+      const del = el("button", "linkbtn", T("remove")); del.type = "button"; del.dataset.a = "del"; del.dataset.s = sid; del.dataset.k = k;
       ac.append(open, del); li.append(ac); body.append(li);
     });
-    if (items.length > 300) body.append(el("p", "hint", "Mostrati i primi 300 di " + nf.format(items.length) + ": usa i filtri per restringere."));
+    if (items.length > 300) body.append(el("p", "hint", T("more", nf.format(items.length))));
   }
   function openEntry(sid, k) {
     const e = L[sid] && L[sid][k]; if (!e) return;
     if (st.sys !== sid) setSystem(sid, false, false, true);
     if (!D.idx) { D.idx = new Map(); D.G.forEach((r, i) => { const key = gkey(r); if (!D.idx.has(key)) D.idx.set(key, i); }); }
     const i = D.idx.get(k);
-    if (i === undefined) { lmsg("Questo gioco non è più presente nel database."); if (st.sys === sid) setSystem(sid, false, false); return; }
+    if (i === undefined) { lmsg(T("gone")); if (st.sys === sid) setSystem(sid, false, false); return; }
     $("dlg").close();
     showGame(i, true);
     try { $("stage").scrollIntoView({ block: "center", behavior: reduce ? "auto" : "smooth" }); } catch (x) {}
@@ -903,22 +1052,22 @@ footer a { color: inherit; }
     a.download = "gioco-a-caso-lista-" + new Date().toLocaleDateString("sv-SE") + ".json";
     document.body.append(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(a.href), 5000);
-    lmsg("File esportato: " + nf.format(listCount()) + " giochi.");
+    lmsg(T("exported", nf.format(listCount())));
   }
   function importList(file) {
     const rd = new FileReader();
-    rd.onerror = () => lmsg("Non riesco a leggere il file.");
+    rd.onerror = () => lmsg(T("readErr"));
     rd.onload = () => {
       let inc;
-      try { inc = cleanList(JSON.parse(String(rd.result))); } catch (e) { lmsg("File non valido: non è un JSON."); return; }
+      try { inc = cleanList(JSON.parse(String(rd.result))); } catch (e) { lmsg(T("badJson")); return; }
       let add = 0, upd = 0;
       Object.keys(inc).forEach((sid) => Object.keys(inc[sid]).forEach((k) => {
         const e = inc[sid][k], m = L[sid] || (L[sid] = {}), old = m[k];
         if (!old) { m[k] = e; add++; } else if (e.u >= old.u) { m[k] = e; upd++; }
       }));
-      if (!add && !upd) { lmsg("Nessun gioco nuovo o più recente nel file."); return; }
+      if (!add && !upd) { lmsg(T("nothingNew")); return; }
       saveList(); renderList(); renderMark();
-      lmsg("Importati " + nf.format(add) + " giochi nuovi e aggiornati " + nf.format(upd) + ".");
+      lmsg(T("imported", nf.format(add), nf.format(upd)));
     };
     rd.readAsText(file);
   }
@@ -926,8 +1075,9 @@ footer a { color: inherit; }
   /* ---- scelta del sistema ---- */
   function buildPicker() {
     const nav = $("picker"); let cur = null, grp = null;
+    nav.replaceChildren();
     SYS.forEach((x) => {
-      if (x.g !== cur) { cur = x.g; grp = el("div", "grp"); grp.setAttribute("role", "radiogroup"); grp.setAttribute("aria-label", x.g); grp.append(el("span", "grp-l", x.g)); nav.append(grp); }
+      if (x.g !== cur) { cur = x.g; const gl = T("grp_" + x.g); grp = el("div", "grp"); grp.setAttribute("role", "radiogroup"); grp.setAttribute("aria-label", gl); grp.append(el("span", "grp-l", gl)); nav.append(grp); }
       const b = el("button", "chip"); b.type = "button"; b.dataset.id = x.id; b.setAttribute("role", "radio"); b.setAttribute("aria-checked", "false");
       const dot = el("i"); dot.style.setProperty("--dot", x.dot); dot.setAttribute("aria-hidden", "true");
       b.append(dot, document.createTextNode(x.s)); grp.append(b);
@@ -941,9 +1091,9 @@ footer a { color: inherit; }
     D = load(id);
     const s = state(id); sanitize(s);
     document.querySelectorAll("#picker .chip").forEach((c) => c.setAttribute("aria-checked", c.dataset.id === id ? "true" : "false"));
-    $("kicker").textContent = sy.n + "  ·  " + nf.format(D.G.length) + " giochi";
-    $("credit").textContent = CREDIT[sy.src];
-    $("sysnote").textContent = sy.note || ""; $("sysnote").hidden = !sy.note;
+    $("kicker").textContent = sy.n + "  ·  " + T("games", D.G.length);
+    $("credit").textContent = T("cr_" + sy.src);
+    $("sysnote").textContent = sy.note ? T(sy.note) : ""; $("sysnote").hidden = !sy.note;
     $("pubField").hidden = !D.showPub; $("pub").checked = s.pub; $("norep").checked = s.norep;
     recompute(); buildCats(); buildSubs(); buildYears(); updateInfo(); renderHist(); $("note").textContent = "";
     if (noShow) { /* il chiamante mostra un gioco preciso */ }
@@ -956,6 +1106,7 @@ footer a { color: inherit; }
   $("picker").addEventListener("click", (e) => { const b = e.target.closest(".chip"); if (b && b.dataset.id !== st.sys) setSystem(b.dataset.id, true, false); });
   $("rndsys").addEventListener("click", () => { const others = SYS.filter((x) => x.id !== st.sys); setSystem(others[Math.floor(Math.random() * others.length)].id, true, true); });
   $("draw").addEventListener("click", () => draw(true));
+  window.addEventListener("hashchange", () => { const h = (location.hash || "").slice(1); if (isSys(h) && h !== st.sys) setSystem(h, true, false); });
   $("cat").addEventListener("change", (e) => change((s) => { s.cat = e.target.value; s.sub = ""; }));
   $("sub").addEventListener("change", (e) => change((s) => { s.sub = e.target.value; }));
   $("yfrom").addEventListener("change", (e) => change((s) => { s.from = e.target.value; }));
@@ -966,7 +1117,7 @@ footer a { color: inherit; }
   $("clear").addEventListener("click", () => { const s = state(sy.id); s.hist = []; if (drawn[sy.id]) drawn[sy.id].clear(); renderHist(); store(); });
 
   for (let n = 1; n <= 5; n++) {
-    const b = el("button", "star", "☆"); b.type = "button"; b.dataset.n = String(n); b.setAttribute("role", "radio"); b.setAttribute("aria-checked", "false"); b.setAttribute("aria-label", n + (n === 1 ? " stella" : " stelle"));
+    const b = el("button", "star", "☆"); b.type = "button"; b.dataset.n = String(n); b.setAttribute("role", "radio"); b.setAttribute("aria-checked", "false"); 
     $("markStars").append(b);
   }
   $("markState").addEventListener("click", (e) => { const b = e.target.closest(".chip"); if (b) edit((x) => { x.s = b.dataset.s; }, b.dataset.s); });
@@ -981,10 +1132,14 @@ footer a { color: inherit; }
   });
   $("mDel").addEventListener("click", () => { if (cur >= 0) removeEntry(sy.id, gkey(D.G[cur])); });
   $("openList").addEventListener("click", () => {
-    const d = $("dlg"); lmsg("I dati restano in questo browser: esportali per avere un backup o per spostarli su un altro dispositivo.");
+    const d = $("dlg"); lmsg(T("lhint"));
     renderList(); if (d.showModal) d.showModal(); else d.setAttribute("open", "");
   });
   $("lClose").addEventListener("click", () => $("dlg").close());
+  $("helpBtn").addEventListener("click", () => { const d = $("help"); renderHelp(); if (d.showModal) d.showModal(); else d.setAttribute("open", ""); });
+  $("hClose").addEventListener("click", () => $("help").close());
+  $("help").addEventListener("click", (e) => { if (e.target === $("help")) $("help").close(); });
+  $("langSel").addEventListener("click", (e) => { const b = e.target.closest("[data-lang]"); if (b && b.dataset.lang !== lang) setLang(b.dataset.lang, true); });
   $("dlg").addEventListener("click", (e) => { if (e.target === $("dlg")) $("dlg").close(); });
   ["lfSys", "lfState", "lfSort"].forEach((id) => $(id).addEventListener("change", renderList));
   $("lbody").addEventListener("click", (e) => {
@@ -997,6 +1152,7 @@ footer a { color: inherit; }
   $("lFile").addEventListener("change", (e) => { const f = e.target.files && e.target.files[0]; if (f) importList(f); e.target.value = ""; });
 
   restore();
+  setLang(initLang(), false);
   buildPicker();
   const h = (location.hash || "").slice(1);
   loadList(); updateListBtn();
