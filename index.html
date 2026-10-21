@@ -43,6 +43,10 @@
 .card h3 a::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
 .card:has(a):hover { border-color: var(--accent); }
 .card .go { display: inline-block; margin-top: 0.7rem; color: var(--accent); font: 500 0.8rem var(--mono); }
+/* Link secondario dentro una scheda cliccabile: sta sopra il link che copre la scheda */
+.card .extra { position: relative; z-index: 1; display: block; width: fit-content; margin-top: 0.5rem;
+  padding: 0.3rem 0; color: var(--muted); font-size: 0.9rem; }
+.card .extra:hover { color: var(--accent); }
 </style>
 </head>
 <body>
@@ -81,17 +85,21 @@
   </dl>
 
   <h2>Cosa troverai qui</h2>
-  <p class="sub">Il sito è appena nato: la lista dei giochi è già online, il resto è in arrivo.</p>
   <ul class="cards">
     <li class="card">
       <h3><a href="giochi/">Giochi finiti in live</a></h3>
       <p>Il registro di ogni gioco completato in diretta, con piattaforma, durata e video della partita.</p>
       <span class="go" aria-hidden="true">Apri la lista →</span>
     </li>
+  </ul>
+
+  <h2 id="cose">Cose</h2>
+  <ul class="cards">
     <li class="card">
-      <h3>Cose che ho creato</h3>
-      <p>Giochi per browser, piccoli strumenti ed esperimenti, raccolti in un posto solo.</p>
-      <span class="tag">In arrivo</span>
+      <h3><a href="progetti/poeta-elettronico/">Il poeta elettronico</a></h3>
+      <p>Un generatore di haiku nato come Il poeta elettronico, programma per Commodore 64 di Stefano Magistretti pubblicato nel 1984 da Edizioni Elettroniche VIFI-Mondadori. L'ho riportato in vita nel browser, con il suo aspetto da C64.</p>
+      <span class="go" aria-hidden="true">Apri il poeta →</span>
+      <a class="extra" href="https://archive.org/details/ilpoetaelettronico" target="_blank" rel="noopener">L'originale e il manuale su Internet Archive</a>
     </li>
   </ul>
 

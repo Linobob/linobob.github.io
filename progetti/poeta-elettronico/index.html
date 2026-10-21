@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Il poeta elettronico</title>
+    <link rel="stylesheet" href="haiku.css">
+  </head>
+  <body onload="haiku.display_main_menu()">
+    <script>
+      // ---------------------------------------------------------------
+      // STAMPA: disegna l'haiku visualizzato in #screen su un canvas
+      // (stessi colori, font C64 e ombra del div) e mostra un'anteprima
+      // con i pulsanti per salvarlo come PNG o condividerlo.
+      // ---------------------------------------------------------------
+      let stampaBlob = null;
+      let stampaUrl = null;
+
+      async function take_haiku_screenshot() {
+        const versi = Array.from(document.querySelectorAll('#screen h1.text'))
+          .map((h) => h.textContent.trim())
+          .filter((v) => v.length > 0);
+        if (versi.length === 0) return;
+
+        // Il font deve essere caricato prima di poterlo usare nel canvas
+        try { await document.fonts.load('40px c64'); } catch (e) {}
+
+        const W = 1600, H = 1200;                  // 800x600 a doppia risoluzione
+        const canvas = document.createElement('canvas');
+        canvas.width = W;
+        canvas.height = H;
+        const ctx = canvas.getContext('2d');
+
+        ctx.fillStyle = 'rgb(129, 129, 129)';
+        ctx.fillRect(0, 0, W, H);
+
+        // Dimensione del testo: 40px, ridotta se un verso non ci sta
+        let size = 40;
+        ctx.font = size + 'px c64, monospace';
+        const larghezzaMax = Math.max(...versi.map((v) => ctx.measureText(v).width));
+        if (larghezzaMax > W * 0.88) {
+          size = Math.floor(size * (W * 0.88) / larghezzaMax);
+          ctx.font = size + 'px c64, monospace';
+        }
+
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = 'white';
+        ctx.shadowColor = 'black';
+        ctx.shadowOffsetX = 2;
+        ctx.shadowOffsetY = 2;
+        ctx.shadowBlur = 4;
+
+        const passo = size * 3.9;                  // distanza tra i versi, come a schermo
+        const y0 = H / 2 - passo * (versi.length - 1) / 2;
+        versi.forEach((v, i) => ctx.fillText(v, W / 2, y0 + i * passo));
+
+        canvas.toBlob((blob) => {
+          stampaBlob = blob;
+          if (stampaUrl) URL.revokeObjectURL(stampaUrl);
+          stampaUrl = URL.createObjectURL(blob);
+          document.getElementById('stampa-img').src = stampaUrl;
+
+          // "Condividi" solo dove il browser sa condividere file (telefoni)
+          const file = new File([blob], nome_file_haiku(), { type: 'image/png' });
+          const puoCondividere = !!(navigator.canShare && navigator.canShare({ files: [file] }));
+          document.getElementById('stampa-condividi').hidden = !puoCondividere;
+
+          document.getElementById('stampa-overlay').hidden = false;
+        }, 'image/png');
+      }
+
+      function nome_file_haiku() {
+        const d = new Date();
+        const z = (n) => String(n).padStart(2, '0');
+        return 'haiku-' + d.getFullYear() + z(d.getMonth() + 1) + z(d.getDate()) +
+               '-' + z(d.getHours()) + z(d.getMinutes()) + z(d.getSeconds()) + '.png';
+      }
+
+      function salva_haiku() {
+        if (!stampaUrl) return;
+        const a = document.createElement('a');
+        a.href = stampaUrl;
+        a.download = nome_file_haiku();
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      }
+
+      async function condividi_haiku() {
+        if (!stampaBlob) return;
+        const file = new File([stampaBlob], nome_file_haiku(), { type: 'image/png' });
+        try {
+          await navigator.share({ files: [file], title: 'Il poeta elettronico' });
+        } catch (e) {
+          if (e.name !== 'AbortError') salva_haiku();   // se fallisce, scarica
+        }
+      }
+
+      function chiudi_stampa() {
+        document.getElementById('stampa-overlay').hidden = true;
+      }
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') chiudi_stampa();
+      });
+    </script>
+    <script type="module">import * as haiku from './__target__/haiku.js'; window.haiku = haiku;</script>
+    <a class="text torna" href="../../">&larr; LINOBOB</a>
+    <div class="main">
+      <div class="box" id="screen">
+      </div>
+      <div class="box" id="sidebar">
+      </div>
+    </div>
+    <!-- <div class="checkbox-wrapper-32">
+      <input type="checkbox" name="checkbox-32" id="checkbox-32" onclick="haiku.change_background_color()">
+      <label for="checkbox-32"></label>
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <path d="M 10 10 L 90 90" stroke="#000" stroke-dasharray="113" stroke-dashoffset="113"></path>
+        <path d="M 90 10 L 10 90" stroke="#000" stroke-dasharray="113" stroke-dashoffset="113"></path>
+      </svg>
+    </div> -->
+    <div id="checkbox-wrapper-32">
+    <label class="custom-checkbox">
+        <input name="" type="checkbox" id="checkbox-32" onclick="haiku.change_background_color()">
+        <span class="checkmark"></span>
+    </label>
+    </div>
+    <div id="stampa-overlay" hidden onclick="if (event.target === this) chiudi_stampa()">
+      <img id="stampa-img" alt="Haiku">
+      <p class="text stampa-nota">SU TELEFONO PUOI ANCHE TENERE PREMUTO SULL'IMMAGINE</p>
+      <div class="stampa-pulsanti">
+        <button class="text" onclick="salva_haiku()">SALVA</button>
+        <button class="text" id="stampa-condividi" onclick="condividi_haiku()" hidden>CONDIVIDI</button>
+        <button class="text" onclick="chiudi_stampa()">CHIUDI</button>
+      </div>
+    </div>
+  </body>
+</html>

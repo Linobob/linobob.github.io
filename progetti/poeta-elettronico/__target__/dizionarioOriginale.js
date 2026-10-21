@@ -1,0 +1,36 @@
+// Transcrypt'ed from Python, 2025-08-25 18:51:40
+import {AssertionError, AttributeError, BaseException, DeprecationWarning, Exception, IndexError, IterableError, KeyError, NotImplementedError, RuntimeWarning, StopIteration, UserWarning, ValueError, Warning, __JsIterator__, __PyIterator__, __Terminal__, __add__, __and__, __call__, __class__, __envir__, __eq__, __floordiv__, __ge__, __get__, __getcm__, __getitem__, __getslice__, __getsm__, __gt__, __i__, __iadd__, __iand__, __idiv__, __ijsmod__, __ilshift__, __imatmul__, __imod__, __imul__, __in__, __init__, __ior__, __ipow__, __irshift__, __isub__, __ixor__, __jsUsePyNext__, __jsmod__, __k__, __kwargtrans__, __le__, __lshift__, __lt__, __matmul__, __mergefields__, __mergekwargtrans__, __mod__, __mul__, __ne__, __neg__, __nest__, __or__, __pow__, __pragma__, __pyUseJsNext__, __rshift__, __setitem__, __setproperty__, __setslice__, __sort__, __specialattrib__, __sub__, __super__, __t__, __terminal__, __truediv__, __withblock__, __xor__, _sort, abs, all, any, assert, bin, bool, bytearray, bytes, callable, chr, delattr, dict, dir, divmod, filter, float, getattr, hasattr, hex, input, int, isinstance, issubclass, len, list, map, max, min, object, oct, ord, pow, print, property, py_TypeError, py_enumerate, py_iter, py_metatype, py_next, py_reversed, py_typeof, range, repr, round, set, setattr, sorted, str, sum, tuple, zip} from './org.transcrypt.__runtime__.js';
+var __name__ = 'dizionarioOriginale';
+export var dizionarioOriginale = dict ({});
+dizionarioOriginale ['sostantiviMaschiliConsonante'] = ['LAGO', 'FIUME', 'TORRENTE', 'MARE', 'CAMPO', 'SOLE', 'SALICE', 'LAMPO', 'BUIO', 'PESCO', 'FOGLIAME', 'FANTASMA', 'CANNETO', 'BOSCO', 'CIELO', 'PINO', 'VENTO', 'MATTINO', 'PETALO', 'SENTIERO', "BAMBU'", 'TEMPO', 'GIORNO', 'TRAMONTO', 'SILENZIO', 'SUONO', 'FIORE', 'RAMO', 'CHIARORE', 'CILIEGIO', 'VENTO DEL NORD'];
+dizionarioOriginale ['sostantiviMaschiliVocale'] = ['ALBERO', 'ORIZZONTE', 'OCEANO', 'ABETE', 'ANEMONE', 'USIGNOLO', 'INVERNO', 'AIRONE', 'URAGANO', 'AUTUNNO', 'ARBUSTO'];
+dizionarioOriginale ['sostantiviMaschili'] = [];
+dizionarioOriginale ['sostantiviMaschili'].extend (dizionarioOriginale ['sostantiviMaschiliConsonante']);
+dizionarioOriginale ['sostantiviMaschili'].extend (dizionarioOriginale ['sostantiviMaschiliVocale']);
+dizionarioOriginale ['sostantiviFemminiliConsonante'] = ['MONTAGNA', 'BRUGHIERA', 'LUNA', 'STELLA', 'NEVICATA', 'NINFEA', 'LUCE', 'PROFONDA NOTTE', 'PALUDE', 'FORESTA', 'PINETA', 'ROCCIA', 'PIOGGIA', 'CASCATA', 'CAMELIA', 'PIETRA', 'BRINA', 'STAGIONE', 'BREZZA', 'SERA', 'COLLINA', 'NUVOLA', 'POLVERE', 'PIANURA', 'FARFALLA', 'PEONIA', 'MEMORIA', 'BRUMA', 'PRIMAVERA', 'NEBBIA', 'NOTTE', 'SPIAGGIA'];
+dizionarioOriginale ['sostantiviFemminiliVocale'] = ['ACQUA', 'ARIA', 'OMBRA', 'ALBA', 'ERBA', 'OCA SELVATICA', 'ERICA', 'ONDA', 'ORCHIDEA', 'ESTATE', 'ECO'];
+dizionarioOriginale ['sostantiviFemminili'] = [];
+dizionarioOriginale ['sostantiviFemminili'].extend (dizionarioOriginale ['sostantiviFemminiliConsonante']);
+dizionarioOriginale ['sostantiviFemminili'].extend (dizionarioOriginale ['sostantiviFemminiliVocale']);
+dizionarioOriginale ['aggettiviMaschiliConsonante'] = ['PRIMAVERILE', 'ROSSO', 'BIANCO', 'NERO', 'DELLA SERA', 'LUMINOSO', 'NITIDO', 'QUIETO', 'MONTANO', 'SOLITARIO', 'VIOLA', 'SOGNATO', 'FREDDO', 'CALDO', 'GELATO', 'PICCOLO', 'LONTANO', 'POLVEROSO', 'VERDE', 'GRANDE', 'NOTTURNO', 'FELICE', 'LIMPIDO', 'MISTERIOSO', 'NEBBIOSO'];
+dizionarioOriginale ['aggettiviMaschiliVocale'] = ['OSCURO', 'AZZURRO', 'ANTICO', 'ALTO', 'ESTIVO', 'AMATO', 'ARIDO'];
+dizionarioOriginale ['aggettiviMaschili'] = [];
+dizionarioOriginale ['aggettiviMaschili'].extend (dizionarioOriginale ['aggettiviMaschiliConsonante']);
+dizionarioOriginale ['aggettiviMaschili'].extend (dizionarioOriginale ['aggettiviMaschiliVocale']);
+dizionarioOriginale ['aggettiviFemminiliConsonante'] = ['ROSSA', 'BIANCA', 'NERA', 'DEL MATTINO', 'VERDE', 'CALDA', 'SOLITARIA', 'MARINA', 'PROFUMATA', 'VIOLA', 'SCURA', 'LONTANA', 'BRILLANTE', 'GELIDA', 'SILENZIOSA', 'PICCOLA', 'QUIETA', 'SONORA', 'GRANDE', 'FELICE', 'FREDDA', 'SOGNATA', 'NITIDA', 'MISTERIOSA', 'CHIARA'];
+dizionarioOriginale ['aggettiviFemminiliVocale'] = ['AUTUNNALE', 'ELEGANTE', 'UMIDA', 'AZZURRA', 'INVERNALE', 'AMATA', 'ANTICA'];
+dizionarioOriginale ['aggettiviFemminili'] = [];
+dizionarioOriginale ['aggettiviFemminili'].extend (dizionarioOriginale ['aggettiviFemminiliConsonante']);
+dizionarioOriginale ['aggettiviFemminili'].extend (dizionarioOriginale ['aggettiviFemminiliVocale']);
+dizionarioOriginale ['verbiSeiPreposizioni'] = ['FIORISCE', 'DORME', 'SPLENDE', 'SI RISVEGLIA', 'SI SPEGNE', 'VIVE', "E' IMMOBILE", 'RILUCE', 'RESPIRA'];
+dizionarioOriginale ['verbiA_Di'] = ['MORMORA', 'SUSSURRA', 'SORRIDE', 'TACE'];
+dizionarioOriginale ['verbiA'] = ['SI MOSTRA', 'PALPITA', 'FREME', 'SI APRE'];
+dizionarioOriginale ['verbiDa'] = ['SI MUOVE', 'SVANISCE', 'SI LEVA', 'TRASCORRE', 'RIAPPARE'];
+dizionarioOriginale ['verbi'] = [];
+dizionarioOriginale ['verbi'].extend (dizionarioOriginale ['verbiSeiPreposizioni']);
+dizionarioOriginale ['verbi'].extend (dizionarioOriginale ['verbiA_Di']);
+dizionarioOriginale ['verbi'].extend (dizionarioOriginale ['verbiA']);
+dizionarioOriginale ['verbi'].extend (dizionarioOriginale ['verbiDa']);
+dizionarioOriginale ['preposizioni'] = ['IN', 'SU', 'PRESSO', 'OLTRE', 'CON', 'PER', 'A', 'DI', 'A', 'DA'];
+dizionarioOriginale ['avverbi'] = ["D' IMPROVVISO", 'LENTAMENTE', "GIA'", 'TALVOLTA', 'DOLCEMENTE', 'OGGI', 'ANCORA', 'IN SILENZIO', 'SPESSO', 'STANOTTE', 'COME IN SOGNO', 'A LUNGO'];
+
