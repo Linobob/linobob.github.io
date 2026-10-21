@@ -1,19 +1,22 @@
 /* Stile condiviso da tutte le pagine del sito.
-   Colori ispirati a Peach: crema, rosa, pesca. Colori e caratteri si cambiano solo qui, nei token di :root. */
+   Colori blu e arancio (variante "A"). Colori e caratteri si cambiano solo qui, nei token di :root.
+   --detail è il bordino colorato delle schede; --peach, --peach-deep e --leaf servono solo alla pesca del logo. */
 :root {
-  --bg: #FBF5F0; --fg: #2B1D24; --muted: #7A626C; --line: #EAD9D6;
-  --accent: #AD3A60; --accent-ink: #FFFFFF; --accent-soft: #F8E3E8;
-  --peach: #F7A072; --peach-deep: #E07A5F; --leaf: #6E9A5B; --bar: #E8C4CF;
-  --display: "Fraunces", Georgia, "Times New Roman", serif;
+  --bg: #F6F8FC; --fg: #14213D; --muted: #56627A; --line: #D8DEEA;
+  --accent: #1F4E99; --accent-ink: #FFFFFF; --accent-soft: #DFE8F7; --accent-soft-ink: #1F4E99;
+  --detail: #F28C28; --bar: #C9D6EC;
+  --peach: #F7A072; --peach-deep: #E07A5F; --leaf: #6E9A5B;
+  --display: "Chakra Petch", "Segoe UI", system-ui, sans-serif;
   --body: "Hanken Grotesk", "Segoe UI", system-ui, sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #1A1316; --fg: #F3E9EC; --muted: #A8959D; --line: #3A2B31;
-    --accent: #F49AB6; --accent-ink: #1A1316; --accent-soft: #3A2129;
-    --peach: #F7A072; --peach-deep: #E07A5F; --leaf: #8DB97A; --bar: #5A3A46;
+    --bg: #0F1726; --fg: #E8EDF6; --muted: #9AA6BC; --line: #24314A;
+    --accent: #FFA24C; --accent-ink: #0F1726; --accent-soft: #2E2418; --accent-soft-ink: #FFA24C;
+    --detail: #4C8DFF; --bar: #33456A;
+    --peach: #F7A072; --peach-deep: #E07A5F; --leaf: #8DB97A;
     color-scheme: dark;
   }
 }
@@ -43,8 +46,6 @@ button, input, select { font: inherit; }
 .top .brand { display: inline-flex; align-items: center; gap: 0.45rem; color: var(--fg); }
 .brand svg { width: 20px; height: 20px; flex: none; }
 
-/* Titoli in Fraunces, versione non morbida */
-h1, h2, h3 { font-variation-settings: "SOFT" 0, "WONK" 0; }
 h1 { font: 700 clamp(3.2rem, 16vw, 6rem)/0.95 var(--display); letter-spacing: -0.02em; margin: 0; overflow-wrap: anywhere; }
 h2 { font: 600 1.6rem/1.15 var(--display); margin: 3rem 0 0.4rem; }
 .lead { margin: 1.3rem 0 0; font-size: 1.15rem; max-width: 34rem; text-wrap: pretty; }
