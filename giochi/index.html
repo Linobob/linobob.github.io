@@ -57,7 +57,12 @@ h1 { font-size: clamp(2.4rem, 9vw, 3.8rem); line-height: 1; }
 .chip:hover { border-color: var(--accent); }
 .chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
 .chip[aria-pressed="true"] i { color: inherit; opacity: 0.85; }
-@media (min-width: 761px) { .chips { flex-wrap: wrap; overflow: visible; } }
+@media (min-width: 761px) { .chips { flex-wrap: wrap; overflow: visible; } #plat { display: none; } }
+/* Sul telefono i pulsanti diventano un menu a tendina accanto a "Ordina" */
+@media (max-width: 760px) {
+  .chips { display: none; }
+  .tools select { flex: 1 1 9rem; }
+}
 
 /* Registro: una riga per gioco (data, titolo e nota, piattaforma, durata, video) */
 .sum {
@@ -150,6 +155,7 @@ h1 { font-size: clamp(2.4rem, 9vw, 3.8rem); line-height: 1; }
       <option value="brevi">Più brevi</option>
       <option value="titolo">Titolo A-Z</option>
     </select>
+    <select id="plat" aria-label="Piattaforma"></select>
   </div>
   <div class="chips" id="chips" role="group" aria-label="Piattaforma"></div>
 
@@ -234,6 +240,8 @@ h1 { font-size: clamp(2.4rem, 9vw, 3.8rem); line-height: 1; }
     const chip = (val, label, n) =>
       '<button type="button" class="chip" data-p="' + esc(val) + '" aria-pressed="false">' + esc(label) + '<i>' + n + '</i></button>';
     $('chips').innerHTML = chip('', 'Tutte', games.length) + ordPlat.map(s => chip(s, nomi.get(s) || s, perPlat[s])).join('');
+    const opt = (val, label, n) => '<option value="' + esc(val) + '">' + esc(label) + ' (' + n + ')</option>';
+    $('plat').innerHTML = opt('', 'Tutte', games.length) + ordPlat.map(s => opt(s, nomi.get(s) || s, perPlat[s])).join('');
 
     function linksHtml(g) {
       if (!g.link.length) return '<span class="nolink">nessun video</span>';
@@ -266,6 +274,7 @@ h1 { font-size: clamp(2.4rem, 9vw, 3.8rem); line-height: 1; }
       const tot = res.reduce((t, g) => t + (g.sec || 0), 0);
       $('sum').textContent = res.length + (res.length === 1 ? ' gioco' : ' giochi') + ' · ' + fmtTot(tot);
       $('reset').hidden = !(state.q || state.plat || state.anno);
+      $('plat').value = state.plat;
       document.querySelectorAll('#chips .chip').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.p === state.plat)));
       document.querySelectorAll('#years button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.y === state.anno)));
       $('years').toggleAttribute('data-sel', !!state.anno);
@@ -274,6 +283,7 @@ h1 { font-size: clamp(2.4rem, 9vw, 3.8rem); line-height: 1; }
 
     $('q').addEventListener('input', e => { state.q = e.target.value; update(); });
     $('ord').addEventListener('change', e => { state.ord = e.target.value; update(); });
+    $('plat').addEventListener('change', e => { state.plat = e.target.value; update(); });
     $('chips').addEventListener('click', e => { const b = e.target.closest('button[data-p]'); if (b) { state.plat = b.dataset.p; update(); } });
     $('years').addEventListener('click', e => { const b = e.target.closest('button[data-y]'); if (b) { state.anno = state.anno === b.dataset.y ? '' : b.dataset.y; update(); } });
     $('reset').addEventListener('click', azzera);
