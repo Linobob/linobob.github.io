@@ -96,6 +96,18 @@ h1 { font-size: clamp(2.4rem, 9vw, 3.8rem); line-height: 1; }
 .btn:hover { background: var(--accent); color: var(--accent-ink); }
 .parts .btn { padding: 0 0.45rem; }
 .nolink { font: 400 0.85rem var(--mono); color: var(--muted); }
+
+/* Più run dello stesso gioco (stesso titolo e piattaforma): una riga per il gioco, sotto una riga per run */
+.grp { grid-template-areas: "d t p u l" "r r r r r"; row-gap: 0.2rem; }
+.grp > .d { color: var(--muted); }
+.runs { grid-area: r; list-style: none; margin: 0; padding: 0; }
+.run {
+  display: grid; grid-template-columns: 6.6rem minmax(0, 1fr) 9.5rem 5.4rem minmax(5.5rem, auto);
+  grid-template-areas: "d t . u l"; gap: 0.35rem 1.1rem; align-items: center; padding: 0.45rem 0;
+}
+.run + .run { border-top: 1px dashed var(--line); }
+.run .t { font: inherit; }
+.run .note { margin-left: 0; }
 .empty { padding: 2.5rem 0; color: var(--muted); }
 
 /* Telefono: ogni gioco è una scheda separata */
@@ -111,6 +123,9 @@ h1 { font-size: clamp(2.4rem, 9vw, 3.8rem); line-height: 1; }
   }
   .l, .parts { justify-content: flex-start; }
   .l { margin-top: 0.2rem; }
+  .grp { grid-template-areas: "t t t" "d p u" "r r r"; }
+  .runs { margin-top: 0.3rem; border-top: 1px solid var(--line); }
+  .run { grid-template-columns: auto minmax(0, 1fr) auto; grid-template-areas: "d t u" "l l l"; align-items: baseline; gap: 0.4rem 0.8rem; padding: 0.7rem 0 0.2rem; }
 }
 @media (prefers-reduced-motion: reduce) { .years .bar { transition: none; } }
 </style>
@@ -141,7 +156,7 @@ h1 { font-size: clamp(2.4rem, 9vw, 3.8rem); line-height: 1; }
       <p class="last" id="last"></p>
     </div>
     <div>
-      <p class="label chart-label" id="chart-label">Giochi per anno</p>
+      <p class="label chart-label" id="chart-label">Run per anno</p>
       <div class="years" id="years" role="group" aria-labelledby="chart-label"></div>
     </div>
   </header>
@@ -217,18 +232,20 @@ h1 { font-size: clamp(2.4rem, 9vw, 3.8rem); line-height: 1; }
     const totSec = games.reduce((t, g) => t + (g.sec || 0), 0);
     const piattUsate = new Set(games.map(g => g.piattaforma));
     $('stats').innerHTML =
-      '<div class="stat"><b>' + games.length + '</b><span class="label">giochi</span></div>' +
+      '<div class="stat"><b>' + games.length + '</b><span class="label">run</span></div>' +
       '<div class="stat"><b>' + Math.round(totSec / 3600) + '</b><span class="label">ore di live</span></div>' +
       '<div class="stat"><b>' + piattUsate.size + '</b><span class="label">piattaforme</span></div>';
     const ultimo = games.reduce((a, g) => g.data > a ? g.data : a, '');
-    if (ultimo) $('last').textContent = 'Ultimo gioco finito il ' + fmtData(ultimo);
+    // Giochi diversi: stesso titolo e stessa piattaforma contano una volta sola, come nei gruppi della lista
+    const diversi = new Set(games.map(g => norm(g.titolo) + '|' + g.piattaforma)).size;
+    if (ultimo) $('last').textContent = diversi + ' giochi diversi · Ultimo gioco finito il ' + fmtData(ultimo);
 
     const perAnno = {};
     games.forEach(g => { perAnno[g.anno] = (perAnno[g.anno] || 0) + 1; });
     const anni = Object.keys(perAnno).sort();
     const maxAnno = Math.max.apply(null, anni.map(a => perAnno[a]));
     $('years').innerHTML = anni.map(a =>
-      '<button type="button" data-y="' + a + '" aria-pressed="false" aria-label="' + a + ': ' + perAnno[a] + ' giochi">' +
+      '<button type="button" data-y="' + a + '" aria-pressed="false" aria-label="' + a + ': ' + perAnno[a] + ' run">' +
       '<span class="n">' + perAnno[a] + '</span>' +
       '<span class="bar" style="height:' + Math.max(4, Math.round(perAnno[a] / maxAnno * 84)) + 'px"></span>' +
       '<span class="y">' + a + '</span></button>'
@@ -245,12 +262,13 @@ h1 { font-size: clamp(2.4rem, 9vw, 3.8rem); line-height: 1; }
 
     function linksHtml(g) {
       if (!g.link.length) return '<span class="nolink">nessun video</span>';
+      const nome = g.titolo + (g.nota ? ' (' + g.nota + ')' : '');
       if (g.link.length === 1) {
         const u = g.link[0];
-        return '<a class="btn" href="' + esc(u) + '" target="_blank" rel="noopener" aria-label="Guarda ' + esc(g.titolo) + '">' + (isPlaylist(u) ? 'Playlist' : 'Guarda') + '</a>';
+        return '<a class="btn" href="' + esc(u) + '" target="_blank" rel="noopener" aria-label="Guarda ' + esc(nome) + '">' + (isPlaylist(u) ? 'Playlist' : 'Guarda') + '</a>';
       }
       return '<span class="parts"><span class="plabel">Parti</span>' + g.link.map((u, k) =>
-        '<a class="btn" href="' + esc(u) + '" target="_blank" rel="noopener" aria-label="Guarda ' + esc(g.titolo) + ', ' + (isPlaylist(u) ? 'playlist' : 'parte ' + (k + 1)) + '">' + (isPlaylist(u) ? 'Playlist' : (k + 1)) + '</a>'
+        '<a class="btn" href="' + esc(u) + '" target="_blank" rel="noopener" aria-label="Guarda ' + esc(nome) + ', ' + (isPlaylist(u) ? 'playlist' : 'parte ' + (k + 1)) + '">' + (isPlaylist(u) ? 'Playlist' : (k + 1)) + '</a>'
       ).join('') + '</span>';
     }
     const rowHtml = g => '<li class="row">' +
@@ -260,19 +278,50 @@ h1 { font-size: clamp(2.4rem, 9vw, 3.8rem); line-height: 1; }
       '<span class="u">' + fmtDur(g.sec) + '</span>' +
       '<span class="l">' + linksHtml(g) + '</span></li>';
 
+    // Gruppo: le run dello stesso gioco, in ordine di data
+    const grpHtml = rs => {
+      const tot = rs.some(g => g.sec != null) ? rs.reduce((t, g) => t + (g.sec || 0), 0) : null;
+      return '<li class="row grp">' +
+        '<span class="d">' + rs.length + ' run</span>' +
+        '<span class="t">' + esc(rs[0].titolo) + '</span>' +
+        '<span class="p">' + esc(nomi.get(rs[0].piattaforma) || rs[0].piattaforma) + '</span>' +
+        '<span class="u" title="Durata totale">' + fmtDur(tot) + '</span>' +
+        '<ol class="runs">' + rs.map(g => '<li class="run">' +
+          '<span class="d">' + fmtData(g.data) + '</span>' +
+          '<span class="t">' + (g.nota ? '<span class="note">' + esc(g.nota) + '</span>' : '') + '</span>' +
+          '<span class="u">' + fmtDur(g.sec) + '</span>' +
+          '<span class="l">' + linksHtml(g) + '</span></li>').join('') +
+        '</ol></li>';
+    };
+    // Per ordinare un gruppo: run più recente / meno recente, durata totale, titolo
+    const totSecOf = rs => rs.reduce((t, g) => t + (g.sec || 0), 0);
+    const repr = rs => ({
+      titolo: rs[0].titolo,
+      data: state.ord === 'vecchi' ? rs[0].data : rs[rs.length - 1].data,
+      i: state.ord === 'vecchi' ? rs[0].i : rs[rs.length - 1].i,
+      sec: rs.some(g => g.sec != null) ? totSecOf(rs) : null
+    });
+
     function update() {
       const terms = norm(state.q).split(/\s+/).filter(Boolean);
       const res = games.filter(g =>
         (!state.plat || g.piattaforma === state.plat) &&
         (!state.anno || g.anno === state.anno) &&
         terms.every(t => g.chiave.indexOf(t) !== -1)
-      ).sort(sorters[state.ord]);
+      );
+      const gruppi = new Map();
+      res.slice().sort(sorters.vecchi).forEach(g => {
+        const k = norm(g.titolo) + '|' + g.piattaforma;
+        if (!gruppi.has(k)) gruppi.set(k, []);
+        gruppi.get(k).push(g);
+      });
+      const voci = Array.from(gruppi.values()).sort((a, b) => sorters[state.ord](repr(a), repr(b)));
 
-      $('list').innerHTML = res.length
-        ? res.map(rowHtml).join('')
+      $('list').innerHTML = voci.length
+        ? voci.map(rs => rs.length === 1 ? rowHtml(rs[0]) : grpHtml(rs)).join('')
         : '<li class="empty">Nessun gioco corrisponde a questa ricerca. <button type="button" data-reset>Azzera i filtri</button></li>';
       const tot = res.reduce((t, g) => t + (g.sec || 0), 0);
-      $('sum').textContent = res.length + (res.length === 1 ? ' gioco' : ' giochi') + ' · ' + fmtTot(tot);
+      $('sum').textContent = voci.length + (voci.length === 1 ? ' gioco' : ' giochi') + ' · ' + res.length + ' run · ' + fmtTot(tot);
       $('reset').hidden = !(state.q || state.plat || state.anno);
       $('plat').value = state.plat;
       document.querySelectorAll('#chips .chip').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.p === state.plat)));

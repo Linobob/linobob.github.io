@@ -258,6 +258,16 @@
   {"titolo": "Star Parodier", "piattaforma": "PC Engine CD", "data": "2026-09-07", "nota": "Hard", "link": ["https://youtu.be/AV44LcaIAdU"], "durata": "49m 47s"},
   {"titolo": "F17 Challenge", "piattaforma": "Amiga", "data": "2026-09-07", "nota": "Arcade", "link": ["https://youtu.be/eDJmwhPOux4"], "durata": "1h 24m 33s"},
   {"titolo": "Bruce Lee", "piattaforma": "SMS", "data": "2026-09-09", "nota": "", "link": ["https://youtu.be/Izx8DV2RUns"], "durata": "10m 32s"},
-  {"titolo": "Platform Explorer", "piattaforma": "SMS", "data": "2026-09-09", "nota": "", "link": ["https://youtu.be/YLDko_p3QsE"], "durata": "19m 3s"}
+  {"titolo": "Platform Explorer", "piattaforma": "SMS", "data": "2026-09-09", "nota": "", "link": ["https://youtu.be/YLDko_p3QsE"], "durata": "19m 3s"},
+  {"titolo": "Wave Race 64", "piattaforma": "N64", "data": "2026-09-14", "nota": "", "link": ["https://youtu.be/Z087iDuCJm8"], "durata": "1h 31m 11s"},
+  {"titolo": "Adventure Island", "piattaforma": "GB", "data": "2026-09-16", "nota": "", "link": ["https://youtu.be/6Shfk8JYpuY"], "durata": "1h 7m 35s"},
+  {"titolo": "Diet a Go Go", "piattaforma": "Arcade", "data": "2026-09-16", "nota": "", "link": ["https://youtu.be/p5lKJiBFeNk"], "durata": "45m 24s"},
+  {"titolo": "Caveman Ninja: Joe & Mac", "piattaforma": "Arcade", "data": "2026-09-17", "nota": "", "link": ["https://youtu.be/iqgEyFJ8yd4"], "durata": "20m 54s"},
+  {"titolo": "Point Blank", "piattaforma": "PSX", "data": "2026-09-21", "nota": "Arcade Very Hard", "link": ["https://youtu.be/t8oacEjRsW8"], "durata": "10m 34s"},
+  {"titolo": "Point Blank", "piattaforma": "PSX", "data": "2026-09-21", "nota": "Arrange Very Hard", "link": ["https://youtu.be/J5YG7a5AQoU"], "durata": "12m 23s"},
+  {"titolo": "Splatterhouse", "piattaforma": "Arcade", "data": "2026-10-04", "nota": "1cc", "link": ["https://youtu.be/8a4UuF_vodQ"], "durata": "27m 15s"},
+  {"titolo": "Zak McKracken and the Cosmic Energy", "piattaforma": "SNES", "data": "2026-10-04", "nota": "", "link": ["https://youtu.be/APkArHn6bPg"], "durata": "11m 1s"},
+  {"titolo": "Slipstream", "piattaforma": "Arcade", "data": "2026-10-11", "nota": "", "link": ["https://youtu.be/DZjTN5TdgNE"], "durata": "9m 31s"},
+  {"titolo": "Super Monaco GP", "piattaforma": "Arcade", "data": "2026-10-11", "nota": "", "link": ["https://youtu.be/Hx9s-Ajat-Q"], "durata": "8m 36s"}
  ]
 }

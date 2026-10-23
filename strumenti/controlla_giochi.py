@@ -60,9 +60,10 @@ def main():
                     errori.append(f"{nome}: link non valido '{u}'")
             if not link:
                 avvisi.append(f"{nome}: nessun link al video")
-        chiave = (g.get("titolo"), g.get("piattaforma"), g.get("data"))
+        # Stesso gioco nello stesso giorno va bene se la nota è diversa (es. due difficoltà)
+        chiave = (g.get("titolo"), g.get("piattaforma"), g.get("data"), g.get("nota"))
         if chiave in visti:
-            errori.append(f"{nome}: voce duplicata (stesso titolo, piattaforma e data)")
+            errori.append(f"{nome}: voce duplicata (stesso titolo, piattaforma, data e nota)")
         visti.add(chiave)
 
     for a in avvisi:

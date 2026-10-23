@@ -77,9 +77,10 @@
     </div>
   </header>
 
-  <!-- Numeri del 20/10/2026: lo script in fondo li aggiorna leggendo giochi/giochi.json. -->
+  <!-- Numeri del 23/10/2026: lo script in fondo li aggiorna leggendo giochi/giochi.json.
+       "Giochi finiti" conta i giochi diversi (stesso titolo e piattaforma = uno), non le run. -->
   <dl class="facts">
-    <div><dd><b id="n-giochi">234</b></dd><dt>giochi finiti</dt></div>
+    <div><dd><b id="n-giochi">240</b></dd><dt>giochi finiti</dt></div>
     <div><dd><b id="n-piatt">23</b></dd><dt>piattaforme</dt></div>
     <div><dd><b id="n-prima">2021</b></dd><dt>la prima run</dt></div>
   </dl>
@@ -119,7 +120,8 @@ fetch('giochi/giochi.json', { cache: 'no-cache' })
   .then(r => r.ok ? r.json() : Promise.reject())
   .then(d => {
     const g = d.giochi;
-    document.getElementById('n-giochi').textContent = g.length;
+    const norm = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    document.getElementById('n-giochi').textContent = new Set(g.map(x => norm(x.titolo) + '|' + x.piattaforma)).size;
     document.getElementById('n-piatt').textContent = new Set(g.map(x => x.piattaforma)).size;
     document.getElementById('n-prima').textContent = g.map(x => x.data).sort()[0].slice(0, 4);
   })
