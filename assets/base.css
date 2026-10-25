@@ -1,11 +1,14 @@
 /* Stile condiviso da tutte le pagine del sito.
    Colori blu e arancio (variante "A"). Colori e caratteri si cambiano solo qui, nei token di :root.
-   --detail è il bordino colorato delle schede; --peach, --peach-deep e --leaf servono solo alla pesca del logo. */
+   --detail è il bordino colorato delle schede; --peach, --peach-deep e --leaf servono solo alla pesca del logo.
+   --chip/--chip-line/--chip-ink: i tasti delle piattaforme. --twitch e --yt: i colori dei due siti, uguali nei due temi. */
 :root {
   --bg: #F6F8FC; --fg: #14213D; --muted: #56627A; --line: #D8DEEA;
   --accent: #1F4E99; --accent-ink: #FFFFFF; --accent-soft: #DFE8F7; --accent-soft-ink: #1F4E99;
   --detail: #F28C28; --bar: #C9D6EC;
   --peach: #F7A072; --peach-deep: #E07A5F; --leaf: #6E9A5B;
+  --chip: #1F4E99; --chip-line: #1F4E99; --chip-ink: #FFFFFF;
+  --twitch: #9146FF; --twitch-hover: #772CE8; --yt: #CC0000; --yt-hover: #A80000; --brand-ink: #FFFFFF;
   --display: "Chakra Petch", "Segoe UI", system-ui, sans-serif;
   --body: "Hanken Grotesk", "Segoe UI", system-ui, sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
@@ -17,6 +20,8 @@
     --accent: #FFA24C; --accent-ink: #0F1726; --accent-soft: #2E2418; --accent-soft-ink: #FFA24C;
     --detail: #4C8DFF; --bar: #33456A;
     --peach: #F7A072; --peach-deep: #E07A5F; --leaf: #8DB97A;
+    --chip: #FFA24C; --chip-line: #FFA24C; --chip-ink: #0F1726;
+    --twitch: #9146FF; --twitch-hover: #772CE8; --yt: #CC0000; --yt-hover: #A80000; --brand-ink: #FFFFFF;
     color-scheme: dark;
   }
 }

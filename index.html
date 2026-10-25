@@ -19,9 +19,16 @@
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
   min-height: 48px; padding: 0 1.4rem; border-radius: 999px; border: 2px solid var(--accent);
   font: 600 1rem var(--body); text-decoration: none; }
-.btn.primary { background: var(--accent); color: var(--accent-ink); }
-.btn.secondary { color: var(--accent); }
-.btn:hover { filter: brightness(1.08); }
+/* Pulsanti nei colori e nello stile di Twitch (angoli quasi squadrati) e YouTube (pillola) */
+.btn .ico { width: 1.25rem; height: 1.25rem; flex: none; }
+.btn .yt-ico { width: 1.5rem; }
+.btn.tw { background: var(--twitch); border-color: var(--twitch); color: var(--brand-ink); border-radius: 4px; }
+.btn.tw:hover { background: var(--twitch-hover); border-color: var(--twitch-hover); }
+.btn.yt { background: var(--yt); border-color: var(--yt); color: var(--brand-ink); font-weight: 700; }
+.btn.yt:hover { background: var(--yt-hover); border-color: var(--yt-hover); }
+.foot a { display: inline-flex; align-items: center; gap: 0.35rem; }
+.foot .ico-s { width: 1rem; height: 1rem; flex: none; }
+.foot .yt-ico { width: 1.2rem; }
 .btn small { font: 400 0.75rem var(--mono); opacity: 0.85; }
 
 .facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem;
@@ -72,8 +79,8 @@
     <p class="lead">Gioco ai giochi retro in diretta su Twitch, un po' di tutto, dal Commodore 64 al Saturn. A volte per arrivare ai titoli di coda, a volte per provare una curiosità o qualche lavoro nuovo che merita.</p>
     <p class="lead">Le live sono la mia spinta a giocare e un modo per condividerlo con chi ha voglia di farmi compagnia. I giochi che finisco li raccolgo in una lista, e le partite complete finiscono su YouTube.</p>
     <div class="cta">
-      <a class="btn primary" href="https://www.twitch.tv/lino_bob" target="_blank" rel="noopener">Guarda su Twitch <small>lino_bob</small></a>
-      <a class="btn secondary" href="https://www.youtube.com/@Lino_bob" target="_blank" rel="noopener">Video su YouTube</a>
+      <a class="btn tw" href="https://www.twitch.tv/lino_bob" target="_blank" rel="noopener"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M4.3 2 3 5.4v14h4.6V22h2.6l2.5-2.6h3.8L21.5 14V2H4.3zm15.4 11.1-2.9 2.9h-4.6l-2.5 2.5V16H5.8V3.8h13.9v9.3zM16.9 6.9v5h-1.7v-5h1.7zm-4.6 0v5h-1.7v-5h1.7z"/></svg>Guarda su Twitch <small>lino_bob</small></a>
+      <a class="btn yt" href="https://www.youtube.com/@Lino_bob" target="_blank" rel="noopener"><svg class="ico yt-ico" viewBox="0 0 28 20" aria-hidden="true"><rect width="28" height="20" rx="5" fill="var(--brand-ink)"/><path d="M11.2 5.6v8.8l7.6-4.4z" fill="var(--yt)"/></svg>Video su YouTube</a>
     </div>
   </header>
 
@@ -110,8 +117,8 @@
   </ul>
 
   <footer class="foot">
-    <a href="https://www.twitch.tv/lino_bob" target="_blank" rel="noopener">Twitch</a>
-    <a href="https://www.youtube.com/@Lino_bob" target="_blank" rel="noopener">YouTube</a>
+    <a href="https://www.twitch.tv/lino_bob" target="_blank" rel="noopener"><svg class="ico-s" viewBox="0 0 24 24" aria-hidden="true"><path fill="var(--twitch)" d="M4.3 2 3 5.4v14h4.6V22h2.6l2.5-2.6h3.8L21.5 14V2H4.3zm15.4 11.1-2.9 2.9h-4.6l-2.5 2.5V16H5.8V3.8h13.9v9.3zM16.9 6.9v5h-1.7v-5h1.7zm-4.6 0v5h-1.7v-5h1.7z"/></svg>Twitch</a>
+    <a href="https://www.youtube.com/@Lino_bob" target="_blank" rel="noopener"><svg class="ico-s yt-ico" viewBox="0 0 28 20" aria-hidden="true"><rect width="28" height="20" rx="5" fill="var(--yt)"/><path d="M11.2 5.6v8.8l7.6-4.4z" fill="var(--brand-ink)"/></svg>YouTube</a>
   </footer>
 </div>
 <script>

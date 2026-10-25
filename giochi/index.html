@@ -49,13 +49,13 @@ h1 { font-size: clamp(2.4rem, 9vw, 3.8rem); line-height: 1; }
 .chips { display: flex; gap: 0.45rem; margin-top: 0.9rem; overflow-x: auto; padding-bottom: 0.5rem; scrollbar-width: thin; }
 .chip {
   flex: none; white-space: nowrap; cursor: pointer;
-  background: transparent; color: var(--fg);
-  border: 1px solid var(--line); border-radius: 999px;
+  background: transparent; color: var(--chip);
+  border: 1px solid var(--chip-line); border-radius: 999px;
   padding: 0.3rem 0.8rem; font-size: 0.9rem; min-height: 36px;
 }
 .chip i { font: 400 0.8rem var(--mono); font-style: normal; color: var(--muted); margin-left: 0.35rem; }
-.chip:hover { border-color: var(--accent); }
-.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.chip:hover { border-color: var(--chip); }
+.chip[aria-pressed="true"] { background: var(--chip); border-color: var(--chip); color: var(--chip-ink); }
 .chip[aria-pressed="true"] i { color: inherit; opacity: 0.85; }
 @media (min-width: 761px) { .chips { flex-wrap: wrap; overflow: visible; } #plat { display: none; } }
 /* Sul telefono i pulsanti diventano un menu a tendina accanto a "Ordina" */
