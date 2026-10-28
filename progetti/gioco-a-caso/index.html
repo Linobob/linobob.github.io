@@ -325,7 +325,8 @@ h2 { margin: 0; font: 700 .78rem/1.2 var(--ui); letter-spacing: .1em; text-trans
 .primary:active:not(:disabled) { transform: translateY(.12em); box-shadow: none; }
 .primary:disabled { opacity: .45; cursor: not-allowed; }
 .ghost { background: transparent; color: var(--fg); border: 1px solid var(--line); border-radius: var(--rb); padding: 12px 16px; min-height: 52px; cursor: pointer; font: 500 .95rem/1.1 var(--ui); }
-.ghost:hover { background: var(--hover); }
+.ghost:hover:not(:disabled) { background: var(--hover); }
+.ghost:disabled { opacity: .4; cursor: not-allowed; }
 .info { color: var(--muted); font-size: .9rem; font-variant-numeric: tabular-nums; flex-basis: 100%; }
 .note { color: var(--muted); font-size: .9rem; min-height: 1.4em; margin: 0; }
 .links { display: flex; flex-wrap: wrap; gap: 6px 22px; margin: 0; padding: 0; list-style: none; }
@@ -353,6 +354,61 @@ select:disabled { opacity: .55; }
 .hist .m { color: var(--muted); font-size: .85rem; overflow-wrap: anywhere; }
 .empty { color: var(--muted); margin: 8px 0 0; font-size: .95rem; }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+/* campo software house con suggerimenti */
+.combo-w { position: relative; }
+.combo-w input { width: 100%; min-height: 46px; padding: 10px 46px 10px 12px; font: 400 1rem/1.2 var(--ui); color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: var(--rb); }
+.combo-w input::placeholder { color: var(--muted); opacity: 1; }
+.combo-w input:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.combo-x { position: absolute; right: 1px; top: 1px; bottom: 1px; width: 44px; background: none; border: 0; color: var(--muted); font: 400 1.4rem/1 var(--ui); cursor: pointer; border-radius: var(--rb); }
+.combo-x:hover { color: var(--fg); }
+.combo-x:focus-visible { outline: 3px solid var(--focus); outline-offset: -3px; }
+.combo-l { position: absolute; z-index: 30; left: 0; right: 0; top: calc(100% + 4px); margin: 0; padding: 4px; list-style: none; max-height: min(340px, 55vh); overflow: auto;
+  background: var(--surface); color: var(--fg); border: 1px solid var(--line); border-radius: min(var(--rb), 12px); box-shadow: 0 12px 28px #00000059; }
+.combo-l li { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; padding: 8px 10px; border-radius: min(var(--rb), 8px); cursor: pointer; }
+.combo-l li .nm { overflow-wrap: anywhere; min-width: 0; }
+.combo-l li .nm b { font-weight: 800; text-decoration: underline; text-underline-offset: 3px; }
+.combo-l li .c { color: var(--muted); font-size: .88rem; font-variant-numeric: tabular-nums; flex: none; }
+.combo-l li[aria-selected="true"], .combo-l li[role="option"]:hover { background: var(--hover); }
+.combo-l li[aria-selected="true"] { box-shadow: inset 3px 0 0 var(--accent); }
+.combo-l li.none { color: var(--muted); cursor: default; font-size: .9rem; min-height: 0; }
+#pqUse { justify-self: start; text-align: left; padding: 6px 0; }
+/* retro game gauntlet */
+.dlg.dlg-xl { width: min(1180px, calc(100% - 2 * max(16px, env(safe-area-inset-left, 0px)))); height: calc(100dvh - 32px); max-height: calc(100dvh - 32px); }
+@media (max-width: 700px) { .dlg.dlg-xl { width: 100%; max-width: 100%; height: 100dvh; max-height: 100dvh; border: 0; border-radius: 0; } }
+.g-body { flex: 1 1 auto; min-height: 0; overflow: auto; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 28px 36px; padding: 18px 20px 28px; align-items: start; }
+@media (max-width: 860px) { .g-body { grid-template-columns: minmax(0, 1fr); } }
+.g-col { display: grid; gap: 16px; min-width: 0; }
+.g-col h3 { margin: 0; font: 700 .78rem/1.2 var(--ui); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.g-col h3 + .hint { margin-top: -10px; }
+.g-sys { display: flex; flex-wrap: wrap; gap: 6px 8px; }
+.g-sys .chip[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); font-weight: 700; }
+.g-card { border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); padding: 14px; display: grid; gap: 12px; }
+.g-card-h { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 12px; }
+.g-pool { color: var(--muted); font-size: .88rem; font-variant-numeric: tabular-nums; }
+.g-col input[type="text"] { width: 100%; min-height: 46px; padding: 10px 12px; font: 400 1rem/1.2 var(--ui); color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: var(--rb); }
+.g-col input[type="text"]::placeholder { color: var(--muted); opacity: 1; }
+.g-col input:focus-visible, .g-col button:focus-visible, .g-col select:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.g-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.g-head span { color: var(--muted); font-size: .88rem; }
+.g-list { list-style: none; margin: 0; padding: 0; }
+.g-list li { display: grid; grid-template-columns: 2.4em minmax(0, 1fr) auto; align-items: center; gap: 6px 10px; padding: 8px 0; border-top: 1px solid var(--line); }
+.g-list li:first-child { border-top: 0; }
+.g-num { font: 400 1.15rem/1 var(--display); color: var(--fg); text-align: right; font-variant-numeric: tabular-nums; }
+.g-tx { display: grid; gap: 2px; min-width: 0; }
+.g-t { font-weight: 600; overflow-wrap: anywhere; }
+.g-m { color: var(--muted); font-size: .84rem; overflow-wrap: anywhere; }
+.g-btns { display: flex; gap: 2px; }
+.ib { min-width: 40px; min-height: 40px; padding: 0; background: none; border: 1px solid transparent; border-radius: min(var(--rb), 8px); color: var(--fg); font: 400 1.1rem/1 var(--ui); cursor: pointer; }
+.ib:hover:not(:disabled) { background: var(--hover); border-color: var(--line); }
+.ib:disabled { opacity: .3; cursor: default; }
+@media (max-width: 520px) { .g-list li { grid-template-columns: 2.4em minmax(0, 1fr); } .g-btns { grid-column: 2; } .ib { min-width: 44px; min-height: 44px; } }
+.g-act { display: flex; flex-wrap: wrap; gap: 10px; }
+.g-row { display: flex; gap: 10px; align-items: center; }
+.g-row select { flex: 1 1 auto; min-width: 0; }
+.g-prev { border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; display: flex; justify-content: center;
+  background: repeating-conic-gradient(#80808033 0 25%, transparent 0 50%) 0 0 / 18px 18px; }
+.g-prev img { display: block; width: min(250px, 70%); height: auto; box-shadow: 0 8px 22px #00000066; }
+#gGen { justify-self: start; }
 /* barra in alto: lingua e istruzioni */
 .top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; margin-bottom: 8px; }
 .top .kicker { margin: 0; }
@@ -373,7 +429,7 @@ select:disabled { opacity: .55; }
 .star { background: none; border: 0; cursor: pointer; color: var(--muted); font: 400 1.9rem/1 var(--ui); min-width: 44px; min-height: 44px; padding: 0; border-radius: var(--rb); }
 .star.on { color: var(--accent); }
 .star:hover { background: var(--hover); }
-textarea { width: 100%; min-height: 64px; padding: 10px 12px; font: 400 .95rem/1.35 var(--ui); color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: var(--rb); resize: vertical; box-sizing: border-box; }
+textarea { width: 100%; min-height: 64px; padding: 10px 12px; font: 400 1rem/1.35 var(--ui); color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: var(--rb); resize: vertical; box-sizing: border-box; }
 .mark button:focus-visible, .dlg button:focus-visible, .dlg select:focus-visible, textarea:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 .sm { min-height: 44px; padding: 8px 14px; }
 .dlg { width: min(680px, calc(100% - 2 * max(16px, env(safe-area-inset-left, 0px)))); max-height: min(88vh, 900px); padding: 0; margin: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg); color: var(--fg); font-family: var(--ui); }
@@ -429,6 +485,7 @@ html[lang="en"] .sito-it, html:not([lang="en"]) .sito-en { display: none; }
       <button class="primary" id="draw" type="button" data-t="draw"></button>
       <button class="ghost" id="rndsys" type="button" data-t="rndsys"></button>
       <button class="ghost" id="openList" type="button" aria-haspopup="dialog"></button>
+      <button class="ghost" id="openG" type="button" aria-haspopup="dialog" data-t="gBtn"></button>
       <span class="info" id="poolInfo"></span>
     </div>
     <ul class="links" id="links" hidden>
@@ -447,7 +504,7 @@ html[lang="en"] .sito-it, html:not([lang="en"]) .sito-en { display: none; }
         </div>
         <div class="stars" id="markStars" role="radiogroup" data-ta="starsAria"></div>
       </div>
-      <textarea id="mnote" maxlength="300" rows="2" data-tp="notePh" data-ta="noteAria"></textarea>
+      <textarea id="mnote" maxlength="300" rows="2" enterkeyhint="done" data-tp="notePh" data-ta="noteAria"></textarea>
       <div class="mark-row"><button class="linkbtn" id="mDel" type="button" hidden data-t="mDel"></button></div>
     </section>
     <div class="sr" id="status" aria-live="polite"></div>
@@ -458,6 +515,16 @@ html[lang="en"] .sito-it, html:not([lang="en"]) .sito-en { display: none; }
       <h2 id="hFilters" data-t="hFilters"></h2>
       <div class="field"><label for="cat" data-t="cat"></label><select id="cat"></select></div>
       <div class="field" id="subField"><label for="sub" data-t="sub"></label><select id="sub"></select></div>
+      <div class="field" id="pqField">
+        <label for="pq" id="pqLabel" data-t="pq"></label>
+        <div class="combo-w">
+          <input id="pq" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="pqList" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="80" enterkeyhint="done" data-tp="pqPh">
+          <button class="combo-x" id="pqClear" type="button" data-ta="pqClear" hidden>×</button>
+          <ul class="combo-l" id="pqList" role="listbox" aria-labelledby="pqLabel" hidden></ul>
+        </div>
+        <p class="hint" id="pqHint" aria-live="polite" hidden></p>
+        <button class="linkbtn" id="pqUse" type="button" hidden></button>
+      </div>
       <fieldset id="yearField">
         <legend data-t="year"></legend>
         <div class="pair">
@@ -503,6 +570,53 @@ html[lang="en"] .sito-it, html:not([lang="en"]) .sito-en { display: none; }
       <button class="ghost sm" id="lImport" type="button" data-t="import"></button>
       <input type="file" id="lFile" accept=".json,application/json" hidden>
       <span class="hint" id="lmsg" aria-live="polite"></span>
+    </div>
+  </dialog>
+
+  <dialog class="dlg dlg-xl" id="gnt" aria-labelledby="gntH">
+    <div class="dlg-h"><h2 id="gntH" data-t="gntH"></h2><button class="ghost sm" id="gClose" type="button" data-t="close"></button></div>
+    <div class="g-body">
+      <section class="g-col" aria-labelledby="gSetH">
+        <h3 id="gSetH" data-t="gSetH"></h3>
+        <fieldset>
+          <legend data-t="gSys"></legend>
+          <div class="g-sys" id="gSys"></div>
+          <p class="hint" data-t="gSysHint"></p>
+        </fieldset>
+        <div class="pair">
+          <div class="field"><label for="gN" data-t="gN"></label><select id="gN"></select></div>
+          <div class="field"><label for="gOrder" data-t="gOrder"></label><select id="gOrder"><option value="mix" data-t="gMix"></option><option value="sys" data-t="gBySys"></option></select></div>
+        </div>
+        <div class="check"><input type="checkbox" id="gExcl"><label for="gExcl" data-t="gExcl"></label></div>
+        <div class="g-col" id="gFiltWrap">
+          <h3 data-t="gFiltH"></h3>
+          <p class="hint" data-t="gFiltHint"></p>
+          <div class="g-col" id="gFilters"></div>
+        </div>
+        <button class="primary" id="gGen" type="button" data-t="gGen"></button>
+        <p class="hint" id="gMsg" aria-live="polite"></p>
+      </section>
+      <section class="g-col" aria-labelledby="gOutH">
+        <div class="g-head"><h3 id="gOutH" data-t="gOutH"></h3><span id="gCount"></span></div>
+        <div class="field"><label for="gTitle" data-t="gTitleL"></label><input type="text" id="gTitle" maxlength="60" autocomplete="off" enterkeyhint="done"></div>
+        <p class="empty" id="gEmpty" data-t="gEmpty"></p>
+        <ol class="g-list" id="gList"></ol>
+        <div class="g-act">
+          <button class="ghost sm" id="gAdd" type="button" data-t="gAdd"></button>
+          <button class="ghost sm" id="gSave" type="button" data-t="gSave"></button>
+          <button class="ghost sm" id="gNew" type="button" data-t="gNew"></button>
+        </div>
+        <div class="field">
+          <label for="gSaved" data-t="gSavedL"></label>
+          <div class="g-row"><select id="gSaved"></select><button class="ghost sm" id="gDel" type="button" data-t="gDel"></button></div>
+        </div>
+        <h3 data-t="gImgH"></h3>
+        <div class="field"><label for="gTheme" data-t="gTheme"></label><select id="gTheme"></select></div>
+        <div class="g-prev"><img id="gImg" alt="" width="480" height="1080"></div>
+        <div class="g-act"><button class="ghost sm" id="gPng" type="button" data-t="gPng"></button></div>
+        <p class="hint" data-t="gImgHint"></p>
+        <div class="sr" id="gStatus" aria-live="polite"></div>
+      </section>
     </div>
   </dialog>
 
@@ -607,13 +721,41 @@ html[lang="en"] .sito-it, html:not([lang="en"]) .sito-en { display: none; }
       gone: "Questo gioco non è più presente nel database.", exported: (n) => "File esportato: " + n + " giochi.",
       readErr: "Non riesco a leggere il file.", badJson: "File non valido: non è un JSON.", nothingNew: "Nessun gioco nuovo o più recente nel file.",
       imported: (a, u) => "Importati " + a + " giochi nuovi e aggiornati " + u + ".",
+      pq: "Software house", pqPh: "Scrivi un nome (es. Ocean, Konami)", pqClear: "Cancella la software house",
+      pqNoRes: "Nessuna software house trovata con gli altri filtri attivi.", pqMore: (n) => "…e altre " + n + ": continua a scrivere per restringere.",
+      pqExact: "Solo i giochi di questa software house.", pqSub: (q, n) => "Valgono tutte le software house che contengono “" + q + "” (" + n + "). Scegline una dall'elenco per restringere.",
+      pqNone: (q) => "Nessuna software house contiene “" + q + "”.", pqUse: (n) => "Usa quella del gioco estratto: " + n,
+      gYFrom: "Anno: da", gYTo: "Anno: a",
+      gBtn: "Gauntlet", gntH: "Retro game gauntlet", gSetH: "Impostazioni", gSys: "Sistemi",
+      gSysHint: "Puoi sceglierne più di uno: i giochi si dividono in parti uguali tra i sistemi scelti.",
+      gN: "Numero di giochi", gOrder: "Ordine", gMix: "Mescolati", gBySys: "Raggruppati per sistema",
+      gExcl: "Escludi i giochi già provati o abbandonati in “La mia lista”",
+      gFiltH: "Filtri per sistema", gFiltHint: "Partono da quelli impostati nella pagina principale; qui puoi cambiarli solo per il gauntlet.",
+      allCatsShort: "Tutte", gGen: "Genera la lista", gNoSys: "Scegli almeno un sistema.",
+      gShort: (n) => "Con questi filtri ci sono solo " + n + " giochi.", gNoMore: (s) => "Nessun altro gioco disponibile per " + s + " con questi filtri.",
+      gNoMoreAll: "Nessun altro gioco disponibile con questi filtri.", gMax: (n) => "Al massimo " + n + " giochi.",
+      gOutH: "La lista", gTitleL: "Titolo", gDefTitle: "Retro Game Gauntlet",
+      gEmpty: "Ancora nessun gioco: scegli i sistemi e premi “Genera la lista”.",
+      gReroll: (n, t) => "Estrai un altro gioco al posto del n. " + n + " (" + t + ")", gUp: (n, t) => "Sposta su il n. " + n + " (" + t + ")",
+      gDown: (n, t) => "Sposta giù il n. " + n + " (" + t + ")", gRemove: (n, t) => "Togli il n. " + n + " (" + t + ")",
+      gGenerated: (n) => "Lista generata: " + n + " giochi.", gRerolled: (n, t) => "Nuovo gioco al n. " + n + ": " + t + ".",
+      gAdded: (t) => "Aggiunto: " + t + ".", gMoved: (t, n) => t + " ora è al n. " + n + ".", gRemoved: (t) => "Tolto: " + t + ".",
+      gAdd: "+ Aggiungi un gioco", gSave: "Salva nei miei gauntlet", gNew: "Nuovo", gSavedL: "I miei gauntlet",
+      gSavedNone: "Nessun gauntlet salvato", gSavedPick: (n) => "Apri un gauntlet salvato (" + n + ")", gDel: "Elimina",
+      gSavedMsg: "Gauntlet salvato.", gDeleted: "Gauntlet eliminato.", gLoaded: "Gauntlet aperto.", gNewMsg: "Nuovo gauntlet: stesse impostazioni, lista vuota.",
+      gImgH: "Immagine per la live", gTheme: "Grafica", gNeutral: "Neutra scura", gPng: "Scarica PNG (480×1080)",
+      gImgHint: "Una colonna da affiancare al gioco in OBS. Su telefono puoi anche tenere premuto sull'immagine per salvarla.",
+      gImgAlt: (t, n) => "Anteprima dell'immagine: " + t + ", " + n + " giochi", gImgEmpty: "Lista vuota", gDownloaded: "Immagine scaricata.",
+      gExported: (n) => " Inclusi " + n + " gauntlet.", gImported: (n) => "Gauntlet importati: " + n + ".",
       helpText: [
         ["Estrarre un gioco", "Scegli un sistema in alto e premi “Estrai un gioco”. I filtri a lato restringono il sorteggio per categoria e, dove i dati lo permettono, per anno ed editore. “Sistema a caso” cambia sistema ed estrae subito."],
+        ["Software house", "Nel campo “Software house” scrivi un nome: mentre scrivi compaiono quelle disponibili, con il numero di giochi. Se ne scegli una, estrai solo i suoi giochi. Se lasci il testo senza scegliere, valgono tutte quelle che lo contengono: utile quando lo stesso nome compare in più forme, come “Ocean” e “Ocean Software”. Con “Usa quella del gioco estratto” la imposti in un clic. Per alcuni sistemi, se manca l'editore, vale lo sviluppatore. Non c'è per Atari 2600, Intellivision, ColecoVision e MSX, che non hanno questo dato."],
         ["Link", "Sotto il pulsante trovi una ricerca sul web e i video su YouTube; per C64 e ZX Spectrum anche la scheda del gioco su GameBase64 o Spectrum Computing."],
         ["Voti e note", "Sotto ogni gioco puoi segnarlo come “Da provare”, “Provato” o “Abbandonato”, dargli da 1 a 5 stelle e scrivere una nota. Se voti un gioco “Da provare”, diventa “Provato”. Un secondo clic sulla stessa stella toglie il voto."],
+        ["Retro game gauntlet", "“Gauntlet” crea una lista di giochi da giocare uno dopo l'altro. Scegli uno o più sistemi, quanti giochi e, per ogni sistema, i filtri (partono da quelli della pagina). “Genera la lista” li estrae; poi puoi rifare l'estrazione di un singolo gioco (↻), spostarlo (↑ ↓), toglierlo (✕) o aggiungerne altri. Dai un titolo e scarica l'immagine a colonna (480×1080) da affiancare al gioco in OBS. I gauntlet salvati restano nel browser e finiscono anche nel file di Esporta."],
         ["La mia lista", "Raccoglie tutti i giochi che hai segnato, di tutti i sistemi. Puoi filtrarli, ordinarli per voto o data, riaprirli o toglierli."],
         ["Dove si salvano i dati", "Ogni modifica si salva subito, ma solo in questo browser su questo dispositivo: non ci sono account né server. Se cancelli i dati di navigazione, usi una finestra privata o apri la pagina da un altro browser, la lista non la trovi."],
-        ["Backup e altri dispositivi", "In “La mia lista”, “Esporta” scarica un file .json con tutti i tuoi giochi segnati; “Importa” lo rilegge e lo unisce a quelli che hai già (per ogni gioco vale la modifica più recente). Esporta ogni tanto: è il tuo backup, e serve anche per portare la lista su un altro computer o telefono."],
+        ["Backup e altri dispositivi", "In “La mia lista”, “Esporta” scarica un file .json con tutti i tuoi giochi segnati e i gauntlet salvati; “Importa” lo rilegge e lo unisce a quelli che hai già (per ogni gioco vale la modifica più recente). Esporta ogni tanto: è il tuo backup, e serve anche per portare la lista su un altro computer o telefono."],
         ["Cronologia e filtri", "“Ultimi estratti” tiene gli ultimi 12 giochi per sistema. Anche la cronologia, i filtri e la lingua scelta restano salvati nel browser."]
       ]
     },
@@ -653,13 +795,41 @@ html[lang="en"] .sito-it, html:not([lang="en"]) .sito-en { display: none; }
       gone: "This game is no longer in the database.", exported: (n) => "File exported: " + n + " games.",
       readErr: "Couldn't read the file.", badJson: "Invalid file: it isn't JSON.", nothingNew: "No new or newer games in the file.",
       imported: (a, u) => "Imported " + a + " new games and updated " + u + ".",
+      pq: "Publisher", pqPh: "Type a name (e.g. Ocean, Konami)", pqClear: "Clear publisher",
+      pqNoRes: "No publishers found with the other active filters.", pqMore: (n) => "…and " + n + " more: keep typing to narrow down.",
+      pqExact: "Only games from this publisher.", pqSub: (q, n) => "Every publisher containing “" + q + "” counts (" + n + "). Pick one from the list to narrow it down.",
+      pqNone: (q) => "No publisher contains “" + q + "”.", pqUse: (n) => "Use the drawn game's publisher: " + n,
+      gYFrom: "Year from", gYTo: "Year to",
+      gBtn: "Gauntlet", gntH: "Retro game gauntlet", gSetH: "Settings", gSys: "Systems",
+      gSysHint: "You can pick more than one: games are split evenly across the chosen systems.",
+      gN: "Number of games", gOrder: "Order", gMix: "Shuffled", gBySys: "Grouped by system",
+      gExcl: "Leave out games already marked as played or dropped in “My list”",
+      gFiltH: "Filters per system", gFiltHint: "They start from the ones set on the main page; changes here only apply to the gauntlet.",
+      allCatsShort: "All", gGen: "Generate the list", gNoSys: "Pick at least one system.",
+      gShort: (n) => "Only " + n + " games match these filters.", gNoMore: (s) => "No other " + s + " games available with these filters.",
+      gNoMoreAll: "No other games available with these filters.", gMax: (n) => "At most " + n + " games.",
+      gOutH: "The list", gTitleL: "Title", gDefTitle: "Retro Game Gauntlet",
+      gEmpty: "No games yet: pick the systems and press “Generate the list”.",
+      gReroll: (n, t) => "Draw another game instead of no. " + n + " (" + t + ")", gUp: (n, t) => "Move no. " + n + " up (" + t + ")",
+      gDown: (n, t) => "Move no. " + n + " down (" + t + ")", gRemove: (n, t) => "Remove no. " + n + " (" + t + ")",
+      gGenerated: (n) => "List generated: " + n + " games.", gRerolled: (n, t) => "New game at no. " + n + ": " + t + ".",
+      gAdded: (t) => "Added: " + t + ".", gMoved: (t, n) => t + " is now no. " + n + ".", gRemoved: (t) => "Removed: " + t + ".",
+      gAdd: "+ Add a game", gSave: "Save to my gauntlets", gNew: "New", gSavedL: "My gauntlets",
+      gSavedNone: "No saved gauntlets", gSavedPick: (n) => "Open a saved gauntlet (" + n + ")", gDel: "Delete",
+      gSavedMsg: "Gauntlet saved.", gDeleted: "Gauntlet deleted.", gLoaded: "Gauntlet opened.", gNewMsg: "New gauntlet: same settings, empty list.",
+      gImgH: "Image for streaming", gTheme: "Look", gNeutral: "Neutral dark", gPng: "Download PNG (480×1080)",
+      gImgHint: "A column to place next to the game in OBS. On a phone you can also long-press the image to save it.",
+      gImgAlt: (t, n) => "Image preview: " + t + ", " + n + " games", gImgEmpty: "Empty list", gDownloaded: "Image downloaded.",
+      gExported: (n) => " Including " + n + " gauntlets.", gImported: (n) => "Gauntlets imported: " + n + ".",
       helpText: [
         ["Drawing a game", "Pick a system at the top and press “Draw a game”. The filters on the side narrow the draw by category and, where the data allows, by year and publisher. “Random system” switches system and draws right away."],
+        ["Publisher", "Type a name in the “Publisher” field: as you type, the available publishers appear with their number of games. Pick one to draw only its games. If you leave the text without picking, every publisher containing it counts: handy when the same name appears in several forms, such as “Ocean” and “Ocean Software”. “Use the drawn game's publisher” sets it in one click. For some systems the developer is used when the publisher is missing. It isn't available for Atari 2600, Intellivision, ColecoVision and MSX, which lack this data."],
         ["Links", "Below the button you'll find a web search and YouTube videos; for C64 and ZX Spectrum, also the game's page on GameBase64 or Spectrum Computing."],
         ["Ratings and notes", "Below each game you can mark it as “To play”, “Played” or “Dropped”, give it 1 to 5 stars and write a note. Rating a “To play” game turns it into “Played”. Clicking the same star again removes the rating."],
+        ["Retro game gauntlet", "“Gauntlet” builds a list of games to play one after another. Pick one or more systems, how many games and, for each system, the filters (they start from the main page's). “Generate the list” draws them; then you can redraw a single game (↻), move it (↑ ↓), remove it (✕) or add more. Give it a title and download the column image (480×1080) to place next to the game in OBS. Saved gauntlets stay in the browser and are included in the Export file too."],
         ["My list", "Collects every game you've marked, across all systems. You can filter them, sort them by rating or date, open them again or remove them."],
         ["Where your data is saved", "Every change is saved right away, but only in this browser on this device: there are no accounts and no server. If you clear your browsing data, use a private window or open the page in another browser, your list won't be there."],
-        ["Backups and other devices", "In “My list”, “Export” downloads a .json file with all your marked games; “Import” reads it back and merges it with what you already have (for each game, the most recent change wins). Export now and then: it's your backup, and it's how you move your list to another computer or phone."],
+        ["Backups and other devices", "In “My list”, “Export” downloads a .json file with all your marked games and saved gauntlets; “Import” reads it back and merges it with what you already have (for each game, the most recent change wins). Export now and then: it's your backup, and it's how you move your list to another computer or phone."],
         ["History and filters", "“Recently drawn” keeps the last 12 games for each system. History, filters and your chosen language are saved in the browser too."]
       ]
     }
@@ -695,6 +865,7 @@ html[lang="en"] .sito-it, html:not([lang="en"]) .sito-en { display: none; }
     if (c >= 0) { setSystem(st.sys, false, false, true); showGame(c, false); } else setSystem(st.sys, false, false);
     if ($("dlg").open) { renderList(); lmsg(T("lhint")); }
     if ($("help").open) renderHelp();
+    if ($("gnt").open) renderG();
   }
 
   const KEY = "gioco-a-caso-v2";
@@ -714,7 +885,7 @@ html[lang="en"] .sito-it, html:not([lang="en"]) .sito-en { display: none; }
       Object.keys(st.per).forEach((id) => {
         const s = st.per[id];
         const h = s.hist ? s.hist.map((i) => [i, cache[id].G[i][0]]) : (s.h || []);
-        per[id] = { cat: s.cat, sub: s.sub, from: s.from, to: s.to, pub: s.pub, norep: s.norep, h: h };
+        per[id] = { cat: s.cat, sub: s.sub, from: s.from, to: s.to, pub: s.pub, pq: s.pq, px: s.px, norep: s.norep, h: h };
       });
       localStorage.setItem(KEY, JSON.stringify({ sys: st.sys, per: per }));
     } catch (e) {}
@@ -726,7 +897,7 @@ html[lang="en"] .sito-it, html:not([lang="en"]) .sito-en { display: none; }
     } catch (e) {}
   }
   function state(id) {
-    if (!st.per[id]) st.per[id] = { cat: "", sub: "", from: "", to: "", pub: false, norep: true, hist: [] };
+    if (!st.per[id]) st.per[id] = { cat: "", sub: "", from: "", to: "", pub: false, pq: "", px: false, norep: true, hist: [] };
     return st.per[id];
   }
 
@@ -759,6 +930,8 @@ html[lang="en"] .sito-it, html:not([lang="en"]) .sito-en { display: none; }
     if (!D.hasYear || !D.years.includes(+s.from)) s.from = "";
     if (!D.hasYear || !D.years.includes(+s.to)) s.to = "";
     s.pub = D.showPub && s.pub === true;
+    s.pq = D.hasPubInfo && typeof s.pq === "string" ? s.pq.trim().slice(0, 80) : "";
+    s.px = s.px === true && s.pq !== "" && D.U.some((n, i) => D.real[i] && n === s.pq);
     s.norep = s.norep !== false;
     s.cat = String(s.cat); s.sub = String(s.sub);
     if (s.cat === "") s.sub = "";
@@ -780,10 +953,11 @@ html[lang="en"] .sito-it, html:not([lang="en"]) .sito-en { display: none; }
     const a = +s.from || 0, b = +s.to || 0;
     const lo = a && b ? Math.min(a, b) : a, hi = a && b ? Math.max(a, b) : b;
     const cc = new Array(D.P.length).fill(0), sc = new Array(D.S.length).fill(0);
-    let total = 0; const base = [];
+    let total = 0; const base = []; const pm = pubMatch(s);
     for (let i = 0; i < D.G.length; i++) {
       const r = D.G[i];
       if (s.pub && !D.real[r[2]]) continue;
+      if (pm && !pm[r[2]]) continue;
       if (lo || hi) { const y = r[1]; if (!y || (lo && y < lo) || (hi && y > hi)) continue; }
       sc[r[3]]++; cc[D.S[r[3]][0]]++; total++; base.push(i);
     }
@@ -895,7 +1069,7 @@ html[lang="en"] .sito-it, html:not([lang="en"]) .sito-en { display: none; }
   function showGame(i, animate) {
     const r = D.G[i], t = ++token, a = animate && !reduce;
     const view = $("view");
-    cur = i; renderMark();
+    cur = i; renderMark(); updatePqUse();
     view.replaceChildren(sy.ch === "term" ? renderTerm(r, a, t) : sy.ch === "cart" ? renderCart(r) : sy.ch === "lcd" ? renderLcd(r) : sy.ch === "disc" ? renderDisc(r) : renderMarquee(r));
     const q = encodeURIComponent(r[0] + " " + sy.n);
     const main = $("lnkMain");
@@ -908,7 +1082,7 @@ html[lang="en"] .sito-it, html:not([lang="en"]) .sito-en { display: none; }
     $("status").textContent = T("drawn") + r[0] + (r[1] ? ", " + r[1] : "") + ", " + genreLabel(r[3]) + ".";
   }
   function showEmpty() {
-    token++; cur = -1; renderMark();
+    token++; cur = -1; renderMark(); updatePqUse();
     const w = el("div", "term"), scr = el("div", "term-in");
     scr.append(el("div", "ln", T("noPool") + "."));
     w.append(scr); $("view").replaceChildren(w);
@@ -1046,30 +1220,408 @@ html[lang="en"] .sito-it, html:not([lang="en"]) .sito-en { display: none; }
     try { $("stage").scrollIntoView({ block: "center", behavior: reduce ? "auto" : "smooth" }); } catch (x) {}
   }
   function exportList() {
-    const data = JSON.stringify({ app: "gioco-a-caso", version: 1, exported: new Date().toISOString(), list: L }, null, 1);
+    const data = JSON.stringify({ app: "gioco-a-caso", version: 2, exported: new Date().toISOString(), list: L, gauntlets: GS.saved }, null, 1);
     const a = document.createElement("a");
     a.href = URL.createObjectURL(new Blob([data], { type: "application/json" }));
     a.download = "gioco-a-caso-lista-" + new Date().toLocaleDateString("sv-SE") + ".json";
     document.body.append(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(a.href), 5000);
-    lmsg(T("exported", nf.format(listCount())));
+    lmsg(T("exported", nf.format(listCount())) + (GS.saved.length ? T("gExported", GS.saved.length) : ""));
   }
   function importList(file) {
     const rd = new FileReader();
     rd.onerror = () => lmsg(T("readErr"));
     rd.onload = () => {
-      let inc;
-      try { inc = cleanList(JSON.parse(String(rd.result))); } catch (e) { lmsg(T("badJson")); return; }
-      let add = 0, upd = 0;
+      let inc, raw;
+      try { raw = JSON.parse(String(rd.result)); inc = cleanList(raw); } catch (e) { lmsg(T("badJson")); return; }
+      let add = 0, upd = 0, gn = 0;
+      if (raw && Array.isArray(raw.gauntlets)) raw.gauntlets.slice(0, 100).map(cleanG).filter(Boolean).forEach((g) => {
+        const k = GS.saved.findIndex((x) => x.id === g.id);
+        if (k < 0) { GS.saved.push(g); gn++; } else if (g.u > GS.saved[k].u) { GS.saved[k] = g; gn++; }
+      });
+      if (gn) { GS.saved.sort((a, b) => b.u - a.u); GS.saved = GS.saved.slice(0, 100); gStore(); }
       Object.keys(inc).forEach((sid) => Object.keys(inc[sid]).forEach((k) => {
         const e = inc[sid][k], m = L[sid] || (L[sid] = {}), old = m[k];
         if (!old) { m[k] = e; add++; } else if (e.u >= old.u) { m[k] = e; upd++; }
       }));
-      if (!add && !upd) { lmsg(T("nothingNew")); return; }
-      saveList(); renderList(); renderMark();
-      lmsg(T("imported", nf.format(add), nf.format(upd)));
+      if (!add && !upd && !gn) { lmsg(T("nothingNew")); return; }
+      if (add || upd) { saveList(); renderList(); renderMark(); }
+      lmsg([add || upd ? T("imported", nf.format(add), nf.format(upd)) : "", gn ? T("gImported", gn) : ""].filter(Boolean).join(" "));
     };
     rd.readAsText(file);
+  }
+
+
+  /* ---- retro game gauntlet: liste di giochi da giocare uno dopo l'altro ---- */
+  const GKEY = "gioco-a-caso-gauntlet-v1";
+  const GMAX = 30;
+  let GS = { cur: null, saved: [] }, gCanvas = null, gImgTimer = 0, gPqTimer = 0, gImgSeq = 0;
+  const gid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  const ikey = (it) => it.t + "|" + it.y;
+  function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); const t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  function gMsg(t) { $("gMsg").textContent = t || ""; }
+
+  /* filtri: stessi campi della pagina principale */
+  function gRawF(f) {
+    f = f && typeof f === "object" ? f : {};
+    return { cat: String(f.cat == null ? "" : f.cat), sub: String(f.sub == null ? "" : f.sub), from: String(f.from == null ? "" : f.from),
+      to: String(f.to == null ? "" : f.to), pub: f.pub === true, pq: typeof f.pq === "string" ? f.pq.trim().slice(0, 80) : "" };
+  }
+  function gCleanF(d, f) {
+    f = gRawF(f);
+    const o = { cat: "", sub: "", from: "", to: "", pub: false, pq: "" };
+    if (/^\d+$/.test(f.cat) && +f.cat < d.P.length) o.cat = String(+f.cat);
+    if (o.cat !== "" && /^\d+$/.test(f.sub) && d.S[+f.sub] && d.S[+f.sub][0] === +o.cat) o.sub = String(+f.sub);
+    if (d.hasYear && d.years.includes(+f.from)) o.from = String(+f.from);
+    if (d.hasYear && d.years.includes(+f.to)) o.to = String(+f.to);
+    o.pub = d.showPub && f.pub;
+    o.pq = d.hasPubInfo ? f.pq : "";
+    return o;
+  }
+  function gFilterFrom(id) { const s = state(id); return gCleanF(load(id), s); }
+  function gF(id) { const c = GS.cur; c.f[id] = gCleanF(load(id), c.f[id] || gFilterFrom(id)); return c.f[id]; }
+  function gPool(id, f, excl) {
+    const d = load(id), a = +f.from || 0, b = +f.to || 0;
+    const lo = a && b ? Math.min(a, b) : a, hi = a && b ? Math.max(a, b) : b;
+    const cat = f.cat !== "" ? +f.cat : -1, sub = f.sub !== "" ? +f.sub : -1;
+    let pm = null;
+    if (f.pq) {
+      if (!d.Un) d.Un = d.U.map(norm);
+      const q = norm(f.pq), exact = d.U.some((n, i) => d.real[i] && n === f.pq);
+      pm = new Uint8Array(d.U.length);
+      for (let i = 0; i < d.U.length; i++) if (d.real[i] && (exact ? d.U[i] === f.pq : d.Un[i].includes(q))) pm[i] = 1;
+    }
+    const mine = excl ? L[id] : null, out = [];
+    for (let i = 0; i < d.G.length; i++) {
+      const r = d.G[i];
+      if (f.pub && !d.real[r[2]]) continue;
+      if (pm && !pm[r[2]]) continue;
+      if (lo || hi) { const y = r[1]; if (!y || (lo && y < lo) || (hi && y > hi)) continue; }
+      if (sub >= 0) { if (r[3] !== sub) continue; } else if (cat >= 0 && d.S[r[3]][0] !== cat) continue;
+      if (mine) { const e = mine[gkey(r)]; if (e && (e.s === "played" || e.s === "dropped")) continue; }
+      out.push(i);
+    }
+    return out;
+  }
+  const gGenre = (d, si) => { let p = d.P[d.S[si][0]]; const n = d.S[si][1]; if (p === "Non classificato") p = T("uncat"); return n ? p + " / " + n : p; };
+  function gItem(id, i) { const d = load(id), r = d.G[i]; return { s: id, t: r[0], y: r[1], g: gGenre(d, r[3]) }; }
+  function gFree(id) {
+    /* giochi ancora estraibili per un sistema, esclusi quelli già nella lista */
+    const c = GS.cur, d = load(id), used = new Set(c.items.filter((x) => x.s === id).map(ikey));
+    return gPool(id, gF(id), c.excl).filter((i) => !used.has(gkey(d.G[i])));
+  }
+
+  /* stato salvato */
+  function cleanG(g) {
+    if (!g || typeof g !== "object") return null;
+    const sys = Array.isArray(g.sys) ? g.sys.filter((v, i, a) => isSys(v) && a.indexOf(v) === i) : [];
+    const o = {
+      id: typeof g.id === "string" && /^[a-z0-9]{4,24}$/.test(g.id) ? g.id : gid(),
+      title: String(g.title == null ? "" : g.title).slice(0, 60), sys: sys,
+      n: Math.max(1, Math.min(GMAX, Math.round(+g.n) || 10)), order: g.order === "sys" ? "sys" : "mix", excl: g.excl !== false,
+      theme: g.theme === "neutral" || isSys(g.theme) ? g.theme : "", f: {}, items: [], u: +g.u > 0 ? +g.u : Date.now()
+    };
+    if (g.f && typeof g.f === "object") sys.forEach((id) => { if (hasOwn(g.f, id)) o.f[id] = gRawF(g.f[id]); });
+    if (Array.isArray(g.items)) o.items = g.items.filter((x) => x && typeof x === "object" && isSys(x.s) && typeof x.t === "string" && x.t).slice(0, GMAX)
+      .map((x) => ({ s: x.s, t: x.t.slice(0, 200), y: Math.max(0, Math.min(2100, Math.round(+x.y) || 0)), g: String(x.g == null ? "" : x.g).slice(0, 100) }));
+    return o;
+  }
+  function loadG() {
+    try {
+      const raw = JSON.parse(localStorage.getItem(GKEY) || "null");
+      if (raw && typeof raw === "object") {
+        GS.cur = raw.cur ? cleanG(raw.cur) : null;
+        GS.saved = Array.isArray(raw.saved) ? raw.saved.map(cleanG).filter(Boolean).slice(0, 100) : [];
+      }
+    } catch (e) {}
+  }
+  function gStore() { try { localStorage.setItem(GKEY, JSON.stringify(GS)); lsOk = true; } catch (e) { lsOk = false; } }
+  function gNew(from) {
+    const id = st.sys, base = from || { sys: [id], n: 10, order: "mix", excl: true, theme: "", f: {} };
+    const o = cleanG({ id: gid(), title: T("gDefTitle"), sys: base.sys.slice(), n: base.n, order: base.order, excl: base.excl, theme: base.theme, f: JSON.parse(JSON.stringify(base.f)), items: [] });
+    o.sys.forEach((s) => { if (!o.f[s]) o.f[s] = gFilterFrom(s); });
+    return o;
+  }
+
+  /* azioni sulla lista */
+  function gGenerate() {
+    const c = GS.cur, sys = c.sys.filter(isSys);
+    if (!sys.length) { gMsg(T("gNoSys")); return; }
+    const pools = {}; sys.forEach((id) => { pools[id] = shuffle(gPool(id, gF(id), c.excl)); });
+    const order = shuffle(sys.slice()), items = []; let k = 0;
+    while (items.length < c.n && order.some((id) => pools[id].length)) {
+      const id = order[k++ % order.length];
+      if (pools[id].length) items.push(gItem(id, pools[id].pop()));
+    }
+    if (c.order === "mix") shuffle(items); else items.sort((a, b) => c.sys.indexOf(a.s) - c.sys.indexOf(b.s));
+    c.items = items; c.u = Date.now();
+    gMsg(!items.length ? T("gNoMoreAll") : items.length < c.n ? T("gShort", items.length) : "");
+    gStore(); renderGList(); gImgSoon();
+    $("gStatus").textContent = T("gGenerated", items.length);
+    /* su schermi stretti la lista è sotto i filtri: portala in vista */
+    if (items.length && window.matchMedia && matchMedia("(max-width: 860px)").matches) { try { $("gOutH").scrollIntoView({ block: "start", behavior: reduce ? "auto" : "smooth" }); } catch (e) {} }
+  }
+  function gReroll(j) {
+    const c = GS.cur, it = c.items[j]; if (!it) return;
+    const p = gFree(it.s);
+    if (!p.length) { gMsg(T("gNoMore", BY[it.s].s)); return; }
+    c.items[j] = gItem(it.s, p[Math.floor(Math.random() * p.length)]); c.u = Date.now();
+    gMsg(""); gStore(); renderGList(j, "reroll"); gImgSoon();
+    $("gStatus").textContent = T("gRerolled", j + 1, c.items[j].t);
+  }
+  function gAddOne() {
+    const c = GS.cur;
+    if (c.items.length >= GMAX) { gMsg(T("gMax", GMAX)); return; }
+    const sys = c.sys.filter(isSys);
+    if (!sys.length) { gMsg(T("gNoSys")); return; }
+    /* il sistema con meno giochi in lista, a parità a caso */
+    const cnt = (id) => c.items.filter((x) => x.s === id).length;
+    const order = shuffle(sys.slice()).sort((a, b) => cnt(a) - cnt(b));
+    for (const id of order) {
+      const p = gFree(id);
+      if (p.length) {
+        c.items.push(gItem(id, p[Math.floor(Math.random() * p.length)])); c.u = Date.now();
+        gMsg(""); gStore(); renderGList(c.items.length - 1, "reroll"); gImgSoon();
+        $("gStatus").textContent = T("gAdded", c.items[c.items.length - 1].t);
+        return;
+      }
+    }
+    gMsg(T("gNoMoreAll"));
+  }
+  function gMove(j, dir) {
+    const c = GS.cur, k = j + dir; if (k < 0 || k >= c.items.length) return;
+    const t = c.items[j]; c.items[j] = c.items[k]; c.items[k] = t; c.u = Date.now();
+    gStore(); renderGList(k, dir < 0 ? "up" : "down"); gImgSoon();
+    $("gStatus").textContent = T("gMoved", t.t, k + 1);
+  }
+  function gRemove(j) {
+    const c = GS.cur, t = c.items[j]; if (!t) return;
+    c.items.splice(j, 1); c.u = Date.now();
+    gStore(); renderGList(Math.min(j, c.items.length - 1), "del"); gImgSoon();
+    $("gStatus").textContent = T("gRemoved", t.t);
+    if (!c.items.length) $("gGen").focus();
+  }
+
+  /* disegno della finestra */
+  function renderG() {
+    const c = GS.cur;
+    $("gTitle").value = c.title;
+    const box = $("gSys"); box.replaceChildren();
+    SYS.forEach((x) => {
+      const b = el("button", "chip"); b.type = "button"; b.dataset.id = x.id; b.setAttribute("aria-pressed", c.sys.includes(x.id) ? "true" : "false");
+      const dot = el("i"); dot.style.setProperty("--dot", x.dot); dot.setAttribute("aria-hidden", "true");
+      b.append(dot, document.createTextNode(x.s)); box.append(b);
+    });
+    const ns = $("gN"); ns.replaceChildren();
+    for (let n = 1; n <= GMAX; n++) ns.append(opt(String(n), String(n)));
+    ns.value = String(c.n);
+    $("gOrder").value = c.order; $("gExcl").checked = c.excl;
+    renderGFilters(); renderGTheme(); renderGSaved(); renderGList(); gImgSoon();
+  }
+  function gField(label, ctl, id) { const w = el("div", "field"), l = el("label", "", label); l.htmlFor = id; ctl.id = id; w.append(l, ctl); return w; }
+  function gCard(id) {
+    const d = load(id), f = gF(id), card = el("div", "g-card"); card.dataset.s = id;
+    const h = el("div", "g-card-h"); h.append(el("b", "", BY[id].n), el("span", "g-pool")); card.append(h);
+    const cs = el("select"); cs.dataset.k = "cat"; cs.append(opt("", T("allCatsShort")));
+    d.catOrder.forEach((i) => cs.append(opt(String(i), d.P[i] === "Non classificato" ? T("uncat") : d.P[i])));
+    cs.value = f.cat; card.append(gField(T("cat"), cs, "g-" + id + "-cat"));
+    if (d.hasSub) {
+      const ss = el("select"); ss.dataset.k = "sub"; ss.append(opt("", T("allSubs")));
+      if (f.cat !== "") d.subsBy[+f.cat].forEach((i) => ss.append(opt(String(i), d.S[i][1] || T("noSub"))));
+      ss.disabled = f.cat === ""; ss.value = f.sub; card.append(gField(T("sub"), ss, "g-" + id + "-sub"));
+    }
+    if (d.hasYear) {
+      const pr = el("div", "pair");
+      ["from", "to"].forEach((k) => {
+        const s = el("select"); s.dataset.k = k; s.append(opt("", T("any")));
+        d.years.forEach((y) => s.append(opt(String(y), String(y)))); s.value = f[k];
+        pr.append(gField(T(k === "from" ? "gYFrom" : "gYTo"), s, "g-" + id + "-" + k));
+      });
+      card.append(pr);
+    }
+    if (d.hasPubInfo) {
+      const inp = el("input"); inp.type = "text"; inp.dataset.k = "pq"; inp.value = f.pq; inp.maxLength = 80;
+      inp.autocomplete = "off"; inp.spellcheck = false; inp.setAttribute("autocapitalize", "off"); inp.setAttribute("enterkeyhint", "done");
+      inp.placeholder = T("pqPh"); inp.setAttribute("list", "g-" + id + "-pql");
+      const dl = el("datalist"); dl.id = "g-" + id + "-pql";
+      if (!d.pubTop) { const cnt = new Uint32Array(d.U.length); d.G.forEach((r) => { if (d.real[r[2]]) cnt[r[2]]++; }); d.pubTop = d.U.map((n, i) => i).filter((i) => cnt[i] > 0).sort((a, b) => cnt[b] - cnt[a]).slice(0, 400).map((i) => d.U[i]); }
+      d.pubTop.forEach((n) => { const o = el("option"); o.value = n; dl.append(o); });
+      card.append(gField(T("pq"), inp, "g-" + id + "-pq"), dl);
+    }
+    if (d.showPub) {
+      const w = el("div", "check"), cb = el("input"); cb.type = "checkbox"; cb.dataset.k = "pub"; cb.id = "g-" + id + "-pub"; cb.checked = f.pub;
+      const l = el("label", "", T("pub")); l.htmlFor = cb.id; w.append(cb, l); card.append(w);
+    }
+    return card;
+  }
+  function renderGFilters() {
+    const box = $("gFilters"), c = GS.cur; box.replaceChildren();
+    c.sys.forEach((id) => box.append(gCard(id)));
+    $("gFiltWrap").hidden = !c.sys.length;
+    gUpdatePools();
+  }
+  function gUpdatePools() {
+    const c = GS.cur; let any = 0;
+    document.querySelectorAll("#gFilters .g-card").forEach((card) => {
+      const id = card.dataset.s, n = gPool(id, gF(id), c.excl).length; any += n;
+      card.querySelector(".g-pool").textContent = n ? T("pool", n) : T("noPool");
+    });
+    $("gGen").disabled = !c.sys.length || !any;
+  }
+  function renderGTheme() {
+    const c = GS.cur, s = $("gTheme"); s.replaceChildren();
+    c.sys.forEach((id) => s.append(opt(id, BY[id].n)));
+    s.append(opt("neutral", T("gNeutral")));
+    /* "" = automatica: segue il primo sistema della lista */
+    if (!(c.theme === "neutral" || c.sys.includes(c.theme))) c.theme = "";
+    s.value = c.theme || c.sys[0] || "neutral";
+  }
+  function renderGSaved() {
+    const s = $("gSaved"); s.replaceChildren();
+    s.append(opt("", GS.saved.length ? T("gSavedPick", GS.saved.length) : T("gSavedNone")));
+    GS.saved.forEach((g) => s.append(opt(g.id, (g.title || T("gDefTitle")) + " · " + T("games", g.items.length) + " · " + new Date(g.u).toLocaleDateString(lang === "it" ? "it-IT" : "en-GB"))));
+    s.disabled = !GS.saved.length; $("gDel").disabled = true;
+    if (GS.saved.some((g) => g.id === GS.cur.id)) { s.value = GS.cur.id; $("gDel").disabled = false; }
+  }
+  function renderGList(fi, fa) {
+    const c = GS.cur, ol = $("gList"); ol.replaceChildren();
+    $("gEmpty").hidden = c.items.length > 0;
+    $("gCount").textContent = c.items.length ? T("games", c.items.length) : "";
+    $("gAdd").disabled = c.items.length >= GMAX || !c.sys.length;
+    c.items.forEach((it, j) => {
+      const li = el("li"), num = el("span", "g-num", String(j + 1)), tx = el("div", "g-tx"), bt = el("div", "g-btns");
+      num.setAttribute("aria-hidden", "true");
+      tx.append(el("span", "g-t", it.t), el("span", "g-m", (BY[it.s] ? BY[it.s].s : it.s) + (it.y ? " · " + it.y : "") + (it.g ? " · " + it.g : "")));
+      [["reroll", "↻", "gReroll"], ["up", "↑", "gUp"], ["down", "↓", "gDown"], ["del", "✕", "gRemove"]].forEach((x) => {
+        const b = el("button", "ib", x[1]); b.type = "button"; b.dataset.a = x[0]; b.dataset.j = String(j);
+        b.setAttribute("aria-label", T(x[2], j + 1, it.t)); b.title = T(x[2], j + 1, it.t);
+        if ((x[0] === "up" && j === 0) || (x[0] === "down" && j === c.items.length - 1)) b.disabled = true;
+        bt.append(b);
+      });
+      li.append(num, tx, bt); ol.append(li);
+    });
+    if (fi != null && fi >= 0) {
+      let b = ol.querySelector('button[data-j="' + fi + '"][data-a="' + fa + '"]');
+      if (!b || b.disabled) b = ol.querySelector('button[data-j="' + fi + '"][data-a="reroll"]');
+      if (b) b.focus();
+    }
+  }
+
+  /* immagine per la live: colonna 480×1080 con i colori e i font del sistema */
+  const themeCache = {};
+  function gTheme(id) {
+    if (themeCache[id]) return themeCache[id];
+    const keys = ["--bg", "--fg", "--muted", "--accent", "--accent-fg", "--line", "--display", "--ui"], base = {}, over = {};
+    const grab = (o, sty) => keys.forEach((k) => { const v = sty.getPropertyValue(k); if (v && v.trim()) o[k] = v.trim(); });
+    Array.from(document.styleSheets).forEach((sh) => {
+      let rules; try { rules = sh.cssRules; } catch (e) { return; }
+      Array.from(rules || []).forEach((r) => {
+        if (!r.style || !r.selectorText) return;
+        const sel = r.selectorText.replace(/'/g, '"');
+        if (sel === ":root") grab(base, r.style); else if (sel === ':root[data-sys="' + id + '"]') grab(over, r.style);
+      });
+    });
+    const g = (k) => over[k] || base[k];
+    const t = id === "neutral"
+      ? { bg: "#111216", fg: "#f3f3f5", muted: "#a2a4b1", accent: "#ffcc33", accentFg: "#111216", line: "#34363f", display: '"Press Start 2P", monospace', ui: g("--ui") }
+      : { bg: g("--bg"), fg: g("--fg"), muted: g("--muted"), accent: g("--accent"), accentFg: g("--accent-fg"), line: g("--line"), display: g("--display"), ui: g("--ui") };
+    themeCache[id] = t;
+    return t;
+  }
+  function wrapText(x, text, w) {
+    const words = String(text).split(/\s+/).filter(Boolean), lines = []; let line = "";
+    const push = (wd) => {
+      if (x.measureText(wd).width <= w) return wd;
+      let part = ""; /* parola troppo lunga: spezzala */
+      for (const ch of wd) { if (x.measureText(part + ch).width > w && part) { lines.push(part); part = ch; } else part += ch; }
+      return part;
+    };
+    words.forEach((wd) => {
+      const t = line ? line + " " + wd : wd;
+      if (x.measureText(t).width <= w) line = t;
+      else { if (line) lines.push(line); line = push(wd); }
+    });
+    if (line) lines.push(line);
+    return lines;
+  }
+  function fitLine(x, s, w) {
+    if (x.measureText(s).width <= w) return s;
+    while (s && x.measureText(s + "…").width > w) s = s.slice(0, -1);
+    return s.replace(/\s+$/, "") + "…";
+  }
+  async function gDraw() {
+    const c = GS.cur, th = gTheme(c.theme === "neutral" || c.sys.includes(c.theme) ? c.theme : (c.sys[0] || "neutral"));
+    try { await Promise.all([document.fonts.load("40px " + th.display), document.fonts.load("700 20px " + th.ui)]); } catch (e) {}
+    const W = 480, H = 1080, P = 32, cv = document.createElement("canvas"); cv.width = W; cv.height = H;
+    const x = cv.getContext("2d");
+    x.fillStyle = th.bg; x.fillRect(0, 0, W, H);
+    x.fillStyle = th.accent; x.fillRect(0, 0, W, 10);
+    x.textBaseline = "top"; x.textAlign = "left";
+    let y = 10 + P, fs = 46, lines = [];
+    const title = (c.title || "").trim() || T("gDefTitle");
+    for (; fs >= 16; fs -= 2) { x.font = fs + "px " + th.display; lines = wrapText(x, title, W - 2 * P); if (lines.length <= 3) break; }
+    x.fillStyle = th.fg;
+    lines.slice(0, 3).forEach((l, i, a) => { x.fillText(i === 2 && lines.length > 3 ? fitLine(x, l + " …", W - 2 * P) : l, P, y); y += fs * 1.25; });
+    y += 4;
+    const names = c.sys.filter((id) => c.items.some((it) => it.s === id)).map((id) => BY[id].s).join(", ");
+    x.font = "500 18px " + th.ui; x.fillStyle = th.muted;
+    wrapText(x, T("games", c.items.length) + (names ? " · " + names : ""), W - 2 * P).slice(0, 2).forEach((l) => { x.fillText(l, P, y); y += 24; });
+    y += 12; x.fillStyle = th.line; x.fillRect(P, y, W - 2 * P, 2); y += 20;
+    const foot = 44, avail = H - y - foot, n = c.items.length;
+    if (!n) { x.font = "500 20px " + th.ui; x.fillStyle = th.muted; x.fillText(T("gImgEmpty"), P, y + 10); }
+    const rowH = Math.min(104, avail / Math.max(n, 1));
+    const ts = Math.max(12, Math.min(25, Math.floor(rowH * 0.3))), ms = Math.max(10, Math.round(ts * 0.72)), badge = Math.min(42, Math.floor(rowH * 0.62));
+    c.items.forEach((it, j) => {
+      const top = y + j * rowH, by = top + (rowH - badge) / 2;
+      x.fillStyle = th.accent;
+      x.beginPath(); if (x.roundRect) x.roundRect(P, by, badge, badge, Math.min(8, badge / 4)); else x.rect(P, by, badge, badge); x.fill();
+      x.fillStyle = th.accentFg; x.textAlign = "center"; x.textBaseline = "middle";
+      let nf2 = Math.round(badge * 0.46); x.font = nf2 + "px " + th.display;
+      while (x.measureText(String(j + 1)).width > badge * 0.8 && nf2 > 8) { nf2--; x.font = nf2 + "px " + th.display; }
+      x.fillText(String(j + 1), P + badge / 2, by + badge / 2 + 1);
+      x.textAlign = "left"; x.textBaseline = "top";
+      const tx = P + badge + 14, tw = W - P - tx;
+      x.font = "700 " + ts + "px " + th.ui;
+      let tl = wrapText(x, it.t, tw);
+      const maxL = rowH >= ts * 2.5 + ms * 1.5 ? 2 : 1;
+      if (tl.length > maxL) { tl = tl.slice(0, maxL); tl[maxL - 1] = fitLine(x, tl[maxL - 1] + " …", tw); }
+      const meta = (BY[it.s] ? BY[it.s].s : it.s) + (it.y ? " · " + it.y : "");
+      const bh = tl.length * ts * 1.15 + ms * 1.35;
+      let ty = top + (rowH - bh) / 2;
+      x.fillStyle = th.fg; tl.forEach((l) => { x.fillText(l, tx, ty); ty += ts * 1.15; });
+      x.font = "500 " + ms + "px " + th.ui; x.fillStyle = th.muted; x.fillText(fitLine(x, meta, tw), tx, ty + ms * 0.2);
+    });
+    x.font = "500 14px " + th.ui; x.fillStyle = th.muted; x.textBaseline = "bottom";
+    x.fillText(T("h1"), P, H - 18);
+    return cv;
+  }
+  function gImgSoon() {
+    clearTimeout(gImgTimer);
+    gImgTimer = setTimeout(() => {
+      const seq = ++gImgSeq;
+      gDraw().then((cv) => {
+        if (seq !== gImgSeq) return;
+        gCanvas = cv;
+        const img = $("gImg"); img.src = cv.toDataURL("image/png");
+        img.alt = T("gImgAlt", (GS.cur.title || "").trim() || T("gDefTitle"), GS.cur.items.length);
+      });
+    }, 150);
+  }
+  function gDownload() {
+    if (!gCanvas) return;
+    const slug = norm((GS.cur.title || "").trim() || "gauntlet").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40) || "gauntlet";
+    gCanvas.toBlob((b) => {
+      if (!b) return;
+      const a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = slug + "-480x1080.png";
+      document.body.append(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+      gMsg(T("gDownloaded"));
+    }, "image/png");
+  }
+  function openGauntlet() {
+    if (!GS.cur) { GS.cur = gNew(); gStore(); }
+    gMsg(""); renderG();
+    const d = $("gnt"); if (d.showModal) d.showModal(); else d.setAttribute("open", "");
   }
 
   /* ---- scelta del sistema ---- */
@@ -1095,18 +1647,131 @@ html[lang="en"] .sito-it, html:not([lang="en"]) .sito-en { display: none; }
     $("credit").textContent = T("cr_" + sy.src);
     $("sysnote").textContent = sy.note ? T(sy.note) : ""; $("sysnote").hidden = !sy.note;
     $("pubField").hidden = !D.showPub; $("pub").checked = s.pub; $("norep").checked = s.norep;
+    $("pqField").hidden = !D.hasPubInfo; $("pq").value = s.pq; closePq(); updatePqHint();
     recompute(); buildCats(); buildSubs(); buildYears(); updateInfo(); renderHist(); $("note").textContent = "";
     if (noShow) { /* il chiamante mostra un gioco preciso */ }
     else if (s.hist.length && !forceDraw) showGame(s.hist[0], animate); else draw(animate);
     try { history.replaceState(null, "", "#" + id); } catch (e) {}
     store();
   }
-  function change(fn) { const s = state(sy.id); fn(s); recompute(); buildCats(); buildSubs(); updateInfo(); $("note").textContent = ""; store(); }
+  function change(fn) { const s = state(sy.id); fn(s); recompute(); buildCats(); buildSubs(); updateInfo(); updatePqHint(); updatePqUse(); $("note").textContent = ""; store(); }
+
+  /* ---- filtro software house (campo con suggerimenti) ---- */
+  /* schermi touch (telefoni, tablet): lì la tastiera a schermo si chiude togliendo il focus al campo */
+  const touchUI = () => !!(window.matchMedia && matchMedia("(pointer: coarse)").matches);
+  const norm = (x) => String(x).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  let pmKey = "", pmVal = null, pqItems = [], pqAct = -1;
+  function pubMatch(s) {
+    if (!s.pq) return null;
+    const k = sy.id + "\u0001" + s.px + "\u0001" + s.pq;
+    if (k === pmKey) return pmVal;
+    if (!D.Un) D.Un = D.U.map(norm);
+    const q = norm(s.pq), m = new Uint8Array(D.U.length);
+    for (let i = 0; i < D.U.length; i++) if (D.real[i] && (s.px ? D.U[i] === s.pq : D.Un[i].includes(q))) m[i] = 1;
+    pmKey = k; pmVal = m;
+    return m;
+  }
+  function pubCounts(s) {
+    /* quanti giochi per software house con gli altri filtri attivi (categoria, anno), senza questo */
+    const a = +s.from || 0, b = +s.to || 0;
+    const lo = a && b ? Math.min(a, b) : a, hi = a && b ? Math.max(a, b) : b;
+    const c = new Uint32Array(D.U.length), sub = s.sub !== "" ? +s.sub : -1, cat = s.cat !== "" ? +s.cat : -1;
+    for (let i = 0; i < D.G.length; i++) {
+      const r = D.G[i];
+      if (!D.real[r[2]]) continue;
+      if (lo || hi) { const y = r[1]; if (!y || (lo && y < lo) || (hi && y > hi)) continue; }
+      if (sub >= 0) { if (r[3] !== sub) continue; } else if (cat >= 0 && D.S[r[3]][0] !== cat) continue;
+      c[r[2]]++;
+    }
+    return c;
+  }
+  function openPq() { $("pqList").hidden = false; $("pq").setAttribute("aria-expanded", "true"); }
+  function closePq() {
+    $("pqList").hidden = true; pqAct = -1;
+    const inp = $("pq"); inp.setAttribute("aria-expanded", "false"); inp.removeAttribute("aria-activedescendant");
+  }
+  function markAct() {
+    const inp = $("pq");
+    document.querySelectorAll("#pqList [role=option]").forEach((li) => li.setAttribute("aria-selected", +li.dataset.k === pqAct ? "true" : "false"));
+    if (pqAct >= 0) { const li = $("pqo-" + pqAct); inp.setAttribute("aria-activedescendant", li.id); li.scrollIntoView({ block: "nearest" }); }
+    else inp.removeAttribute("aria-activedescendant");
+  }
+  function renderPq() {
+    const s = state(sy.id), ul = $("pqList"), raw = $("pq").value.trim(), q = norm(raw);
+    if (!D.Un) D.Un = D.U.map(norm);
+    const cnt = pubCounts(s), items = [];
+    for (let i = 0; i < D.U.length; i++) {
+      if (!cnt[i]) continue;
+      const at = q ? D.Un[i].indexOf(q) : 0;
+      if (at >= 0) items.push([i, at, cnt[i]]);
+    }
+    items.sort((x, y) => (q ? (x[1] === 0 ? 0 : 1) - (y[1] === 0 ? 0 : 1) : 0) || y[2] - x[2] || D.U[x[0]].localeCompare(D.U[y[0]], lang));
+    pqItems = items.slice(0, 12); pqAct = -1;
+    ul.replaceChildren();
+    if (!pqItems.length) { ul.append(el("li", "none", T("pqNoRes"))); return; }
+    pqItems.forEach((it, k) => {
+      const i = it[0], name = D.U[i], li = el("li"), nm = el("span", "nm");
+      li.id = "pqo-" + k; li.dataset.k = String(k); li.setAttribute("role", "option"); li.setAttribute("aria-selected", "false");
+      if (q && D.Un[i].length === name.length) nm.append(document.createTextNode(name.slice(0, it[1])), el("b", "", name.slice(it[1], it[1] + q.length)), document.createTextNode(name.slice(it[1] + q.length)));
+      else nm.textContent = name;
+      li.append(nm, el("span", "c", nf.format(it[2])));
+      ul.append(li);
+    });
+    if (items.length > pqItems.length) ul.append(el("li", "none", T("pqMore", nf.format(items.length - pqItems.length))));
+  }
+  function pickPq(name) { $("pq").value = name; closePq(); change((s) => { s.pq = name; s.px = true; }); if (touchUI()) $("pq").blur(); }
+  function updatePqHint() {
+    const s = state(sy.id), h = $("pqHint");
+    $("pqClear").hidden = !$("pq").value;
+    if (!s.pq || !D.hasPubInfo) { h.hidden = true; h.textContent = ""; return; }
+    h.hidden = false;
+    if (s.px) { h.textContent = T("pqExact"); return; }
+    const pm = pubMatch(s); let n = 0;
+    for (let i = 0; i < pm.length; i++) if (pm[i]) n++;
+    h.textContent = n ? T("pqSub", s.pq, nf.format(n)) : T("pqNone", s.pq);
+  }
+  function updatePqUse() {
+    const b = $("pqUse"), r = cur >= 0 && D ? D.G[cur] : null;
+    if (!sy || !r || !D.hasPubInfo || !D.real[r[2]]) { b.hidden = true; return; }
+    const s = state(sy.id), name = D.U[r[2]];
+    if (s.px && s.pq === name) { b.hidden = true; return; }
+    b.hidden = false; b.dataset.n = name; b.textContent = T("pqUse", name);
+  }
 
   $("picker").addEventListener("click", (e) => { const b = e.target.closest(".chip"); if (b && b.dataset.id !== st.sys) setSystem(b.dataset.id, true, false); });
   $("rndsys").addEventListener("click", () => { const others = SYS.filter((x) => x.id !== st.sys); setSystem(others[Math.floor(Math.random() * others.length)].id, true, true); });
   $("draw").addEventListener("click", () => draw(true));
   window.addEventListener("hashchange", () => { const h = (location.hash || "").slice(1); if (isSys(h) && h !== st.sys) setSystem(h, true, false); });
+  (function () {
+    const inp = $("pq");
+    inp.addEventListener("input", () => {
+      const v = inp.value.trim().slice(0, 80);
+      change((s) => { s.pq = v; s.px = false; });
+      renderPq(); openPq();
+    });
+    inp.addEventListener("focus", () => { renderPq(); openPq(); });
+    inp.addEventListener("blur", () => setTimeout(() => { if (document.activeElement !== inp) closePq(); }, 120));
+    inp.addEventListener("keydown", (e) => {
+      const open = !$("pqList").hidden;
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        e.preventDefault();
+        if (!open) { renderPq(); openPq(); }
+        const n = pqItems.length; if (!n) return;
+        pqAct = e.key === "ArrowDown" ? (pqAct + 1) % n : (pqAct <= 0 ? n - 1 : pqAct - 1);
+        markAct();
+      } else if (e.key === "Enter") {
+        e.preventDefault();
+        if (open && pqAct >= 0) pickPq(D.U[pqItems[pqAct][0]]); else closePq();
+        if (touchUI()) inp.blur(); /* chiude la tastiera a schermo */
+      } else if (e.key === "Escape") {
+        if (open) { e.preventDefault(); closePq(); }
+      } else if (e.key === "Tab") closePq();
+    });
+    $("pqList").addEventListener("mousedown", (e) => e.preventDefault());
+    $("pqList").addEventListener("click", (e) => { const li = e.target.closest("[role=option]"); if (li) pickPq(D.U[pqItems[+li.dataset.k][0]]); });
+    $("pqClear").addEventListener("click", () => { inp.value = ""; change((s) => { s.pq = ""; s.px = false; }); closePq(); inp.focus(); });
+    $("pqUse").addEventListener("click", () => { const n = $("pqUse").dataset.n; if (n) pickPq(n); });
+  })();
   $("cat").addEventListener("change", (e) => change((s) => { s.cat = e.target.value; s.sub = ""; }));
   $("sub").addEventListener("change", (e) => change((s) => { s.sub = e.target.value; }));
   $("yfrom").addEventListener("change", (e) => change((s) => { s.from = e.target.value; }));
@@ -1130,12 +1795,84 @@ html[lang="en"] .sito-it, html:not([lang="en"]) .sito-en { display: none; }
     if (!curEntry() && !v) return;
     edit((x) => { x.n = v.slice(0, 300); });
   });
+  $("mnote").addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); $("mnote").blur(); }
+  });
+  /* su iOS toccare una zona vuota non toglie il focus al campo di testo: lo togliamo noi */
+  document.addEventListener("pointerdown", (e) => {
+    const a = document.activeElement;
+    if (!a || !a.matches || !a.matches("input[type=text], textarea")) return;
+    const t = e.target;
+    if (t === a || (t.closest && t.closest(".combo-w") && a.id === "pq")) return;
+    a.blur();
+  }, true);
   $("mDel").addEventListener("click", () => { if (cur >= 0) removeEntry(sy.id, gkey(D.G[cur])); });
   $("openList").addEventListener("click", () => {
     const d = $("dlg"); lmsg(T("lhint"));
     renderList(); if (d.showModal) d.showModal(); else d.setAttribute("open", "");
   });
   $("lClose").addEventListener("click", () => $("dlg").close());
+  $("openG").addEventListener("click", openGauntlet);
+  $("gClose").addEventListener("click", () => $("gnt").close());
+  $("gSys").addEventListener("click", (e) => {
+    const b = e.target.closest(".chip"); if (!b) return;
+    const c = GS.cur, id = b.dataset.id, k = c.sys.indexOf(id);
+    if (k >= 0) c.sys.splice(k, 1); else { c.sys.push(id); if (!c.f[id]) c.f[id] = gFilterFrom(id); }
+    c.u = Date.now(); gStore();
+    b.setAttribute("aria-pressed", k >= 0 ? "false" : "true");
+    renderGFilters(); renderGTheme(); renderGList(); gImgSoon(); gMsg("");
+  });
+  $("gN").addEventListener("change", (e) => { GS.cur.n = Math.max(1, Math.min(GMAX, +e.target.value || 10)); gStore(); });
+  $("gOrder").addEventListener("change", (e) => { GS.cur.order = e.target.value === "sys" ? "sys" : "mix"; gStore(); });
+  $("gExcl").addEventListener("change", (e) => { GS.cur.excl = e.target.checked; gStore(); gUpdatePools(); });
+  $("gFilters").addEventListener("change", (e) => {
+    const t = e.target, card = t.closest(".g-card"); if (!card || !t.dataset.k) return;
+    const id = card.dataset.s, f = gF(id), k = t.dataset.k;
+    if (k === "pub") f.pub = t.checked; else if (k === "pq") f.pq = t.value.trim().slice(0, 80); else f[k] = t.value;
+    if (k === "cat") {
+      f.sub = "";
+      const nc = gCard(id); card.replaceWith(nc); const s = nc.querySelector('[data-k="cat"]'); if (s) s.focus();
+    }
+    GS.cur.u = Date.now(); gStore(); gUpdatePools();
+  });
+  $("gFilters").addEventListener("input", (e) => {
+    const t = e.target; if (t.dataset.k !== "pq") return;
+    const id = t.closest(".g-card").dataset.s;
+    clearTimeout(gPqTimer);
+    gPqTimer = setTimeout(() => { gF(id).pq = t.value.trim().slice(0, 80); GS.cur.u = Date.now(); gStore(); gUpdatePools(); }, 200);
+  });
+  $("gnt").addEventListener("keydown", (e) => {
+    const t = e.target;
+    if (e.key === "Enter" && t.matches && t.matches('input[type="text"]')) { e.preventDefault(); t.blur(); }
+  });
+  $("gGen").addEventListener("click", gGenerate);
+  $("gList").addEventListener("click", (e) => {
+    const b = e.target.closest("button"); if (!b || b.disabled) return;
+    const j = +b.dataset.j, a = b.dataset.a;
+    if (a === "reroll") gReroll(j); else if (a === "up") gMove(j, -1); else if (a === "down") gMove(j, 1); else if (a === "del") gRemove(j);
+  });
+  $("gAdd").addEventListener("click", gAddOne);
+  $("gTitle").addEventListener("input", (e) => { GS.cur.title = e.target.value.slice(0, 60); GS.cur.u = Date.now(); gStore(); gImgSoon(); });
+  $("gSave").addEventListener("click", () => {
+    const c = GS.cur, copy = cleanG(JSON.parse(JSON.stringify(c)));
+    const k = GS.saved.findIndex((x) => x.id === c.id);
+    if (k >= 0) GS.saved[k] = copy; else GS.saved.unshift(copy);
+    GS.saved = GS.saved.slice(0, 100); gStore(); renderGSaved(); gMsg(T("gSavedMsg"));
+  });
+  $("gNew").addEventListener("click", () => { GS.cur = gNew(GS.cur); gStore(); renderG(); gMsg(T("gNewMsg")); $("gTitle").focus(); });
+  $("gSaved").addEventListener("change", (e) => {
+    const g = GS.saved.find((x) => x.id === e.target.value);
+    $("gDel").disabled = !g;
+    if (!g) return;
+    GS.cur = cleanG(JSON.parse(JSON.stringify(g))); GS.cur.sys.forEach((id) => { if (!GS.cur.f[id]) GS.cur.f[id] = gFilterFrom(id); });
+    gStore(); renderG(); gMsg(T("gLoaded"));
+  });
+  $("gDel").addEventListener("click", () => {
+    const id = $("gSaved").value, k = GS.saved.findIndex((x) => x.id === id); if (k < 0) return;
+    GS.saved.splice(k, 1); gStore(); renderGSaved(); gMsg(T("gDeleted")); $("gSaved").focus();
+  });
+  $("gTheme").addEventListener("change", (e) => { const v = e.target.value; GS.cur.theme = v === GS.cur.sys[0] ? "" : v; gStore(); gImgSoon(); });
+  $("gPng").addEventListener("click", gDownload);
   $("helpBtn").addEventListener("click", () => { const d = $("help"); renderHelp(); if (d.showModal) d.showModal(); else d.setAttribute("open", ""); });
   $("hClose").addEventListener("click", () => $("help").close());
   $("help").addEventListener("click", (e) => { if (e.target === $("help")) $("help").close(); });
@@ -1155,7 +1892,7 @@ html[lang="en"] .sito-it, html:not([lang="en"]) .sito-en { display: none; }
   setLang(initLang(), false);
   buildPicker();
   const h = (location.hash || "").slice(1);
-  loadList(); updateListBtn();
+  loadList(); updateListBtn(); loadG();
   setSystem(isSys(h) ? h : st.sys, false, false);
 })();
 </script>
