@@ -272,6 +272,8 @@
   {"titolo": "Splatterhouse 2", "piattaforma": "MD", "data": "2026-10-14", "nota": "", "link": ["https://youtu.be/hpvdLRMjaKQ"], "durata": "30m 20s"},
   {"titolo": "Congo's Caper", "piattaforma": "SNES", "data": "2026-10-24", "nota": "", "link": ["https://youtu.be/rZYkFwNFyak"], "durata": "1h 14m 24s"},
   {"titolo": "Jim Power: The Lost Dimension", "piattaforma": "NES", "data": "2026-10-25", "nota": "", "link": ["https://youtu.be/5rTv7gZxOWo"], "durata": "37m 53s"},
-  {"titolo": "Tiny Toon Adventures 2", "piattaforma": "GB", "data": "2026-10-26", "nota": "Hard", "link": ["https://youtu.be/iWioCim13U0"], "durata": "39m 2s"}
+  {"titolo": "Tiny Toon Adventures 2", "piattaforma": "GB", "data": "2026-10-26", "nota": "Hard", "link": ["https://youtu.be/iWioCim13U0"], "durata": "39m 2s"},
+  {"titolo": "Looney Tunes", "piattaforma": "GB", "data": "2026-10-27", "nota": "", "link": ["https://youtu.be/kJpXnJTZpFI"], "durata": "29m 16s"},
+  {"titolo": "Castlevania Legends", "piattaforma": "GB", "data": "2026-10-27", "nota": "All items", "link": [], "durata": ""}
  ]
 }
