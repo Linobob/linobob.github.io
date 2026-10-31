@@ -60,6 +60,10 @@
 /* Su telefono la miniatura occupa metà larghezza e il testo le scorre intorno */
 @media (max-width: 520px) { .card.cover { display: flow-root; } .card.cover img { float: left; width: calc(50% - 0.45rem); margin: 0.2rem 0.9rem 0.5rem 0; } }
 .card .kind { display: block; margin-bottom: 0.25rem; color: var(--muted); font: 500 0.85rem var(--mono); letter-spacing: 0.04em; text-transform: uppercase; }
+.btn.it { background: var(--itch); border-color: var(--itch); color: var(--brand-ink); border-radius: 10px; }
+.btn.it:hover { background: var(--itch-hover); border-color: var(--itch-hover); }
+/* Telefono: Twitch su tutta la riga, YouTube e itch.io affiancati con il nome breve */
+@media (max-width: 520px) { .cta { display: grid; grid-template-columns: 1fr 1fr; } .btn.tw { grid-column: 1 / -1; } .btn.yt .lg, .btn.it .lg { display: none; } .btn.yt, .btn.it { padding: 0 0.8rem; } }
 </style>
 </head>
 <body>
@@ -85,8 +89,9 @@
     <p class="lead">Gioco ai giochi retro in diretta su Twitch, un po' di tutto, dal Commodore 64 al Saturn. A volte per arrivare ai titoli di coda, a volte per provare una curiosità o qualche lavoro nuovo che merita.</p>
     <p class="lead">Le live sono la mia spinta a giocare e un modo per condividerlo con chi ha voglia di farmi compagnia. I giochi che finisco li raccolgo in una lista, e le partite complete finiscono su YouTube.</p>
     <div class="cta">
-      <a class="btn tw" href="https://www.twitch.tv/lino_bob" target="_blank" rel="noopener"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M4.3 2 3 5.4v14h4.6V22h2.6l2.5-2.6h3.8L21.5 14V2H4.3zm15.4 11.1-2.9 2.9h-4.6l-2.5 2.5V16H5.8V3.8h13.9v9.3zM16.9 6.9v5h-1.7v-5h1.7zm-4.6 0v5h-1.7v-5h1.7z"/></svg>Guarda su Twitch <small>lino_bob</small></a>
-      <a class="btn yt" href="https://www.youtube.com/@Lino_bob" target="_blank" rel="noopener"><svg class="ico yt-ico" viewBox="0 0 28 20" aria-hidden="true"><rect width="28" height="20" rx="5" fill="var(--brand-ink)"/><path d="M11.2 5.6v8.8l7.6-4.4z" fill="var(--yt)"/></svg>Video su YouTube</a>
+      <a class="btn tw" href="https://www.twitch.tv/lino_bob" target="_blank" rel="noopener"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M4.3 2 3 5.4v14h4.6V22h2.6l2.5-2.6h3.8L21.5 14V2H4.3zm15.4 11.1-2.9 2.9h-4.6l-2.5 2.5V16H5.8V3.8h13.9v9.3zM16.9 6.9v5h-1.7v-5h1.7zm-4.6 0v5h-1.7v-5h1.7z"/></svg><span><span class="lg">Guarda su </span>Twitch</span> <small>lino_bob</small></a>
+      <a class="btn yt" href="https://www.youtube.com/@Lino_bob" target="_blank" rel="noopener"><svg class="ico yt-ico" viewBox="0 0 28 20" aria-hidden="true"><rect width="28" height="20" rx="5" fill="var(--brand-ink)"/><path d="M11.2 5.6v8.8l7.6-4.4z" fill="var(--yt)"/></svg><span><span class="lg">Video su </span>YouTube</span></a>
+      <a class="btn it" href="https://linobob.itch.io" target="_blank" rel="noopener noreferrer"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="M4 3h16l2.5 5.5a2.1 2.1 0 0 1-4.2 0a2.1 2.1 0 0 1-4.2 0a2.1 2.1 0 0 1-4.2 0a2.1 2.1 0 0 1-4.2 0a2.1 2.1 0 0 1-4.2 0zM3.5 11.5h17V20a1 1 0 0 1-1 1h-15a1 1 0 0 1-1-1zM9.5 21v-4.5a2.5 2.5 0 0 1 5 0V21z"/></svg><span><span class="lg">Giochi su </span>itch.io</span></a>
     </div>
   </header>
 
@@ -140,6 +145,7 @@
   <footer class="foot">
     <a href="https://www.twitch.tv/lino_bob" target="_blank" rel="noopener"><svg class="ico-s" viewBox="0 0 24 24" aria-hidden="true"><path fill="var(--twitch)" d="M4.3 2 3 5.4v14h4.6V22h2.6l2.5-2.6h3.8L21.5 14V2H4.3zm15.4 11.1-2.9 2.9h-4.6l-2.5 2.5V16H5.8V3.8h13.9v9.3zM16.9 6.9v5h-1.7v-5h1.7zm-4.6 0v5h-1.7v-5h1.7z"/></svg>Twitch</a>
     <a href="https://www.youtube.com/@Lino_bob" target="_blank" rel="noopener"><svg class="ico-s yt-ico" viewBox="0 0 28 20" aria-hidden="true"><rect width="28" height="20" rx="5" fill="var(--yt)"/><path d="M11.2 5.6v8.8l7.6-4.4z" fill="var(--brand-ink)"/></svg>YouTube</a>
+    <a href="https://linobob.itch.io" target="_blank" rel="noopener noreferrer"><svg class="ico-s" viewBox="0 0 24 24" aria-hidden="true"><path fill="var(--itch)" fill-rule="evenodd" d="M4 3h16l2.5 5.5a2.1 2.1 0 0 1-4.2 0a2.1 2.1 0 0 1-4.2 0a2.1 2.1 0 0 1-4.2 0a2.1 2.1 0 0 1-4.2 0a2.1 2.1 0 0 1-4.2 0zM3.5 11.5h17V20a1 1 0 0 1-1 1h-15a1 1 0 0 1-1-1zM9.5 21v-4.5a2.5 2.5 0 0 1 5 0V21z"/></svg>itch.io</a>
   </footer>
 </div>
 <script>
