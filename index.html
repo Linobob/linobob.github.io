@@ -54,6 +54,12 @@
 .card .extra { position: relative; z-index: 1; display: block; width: fit-content; margin-top: 0.5rem;
   padding: 0.3rem 0; color: var(--muted); font-size: 0.9rem; }
 .card .extra:hover { color: var(--accent); }
+/* Schede con immagine: miniatura a sinistra, su telefono sopra il testo */
+.card.cover { display: grid; grid-template-columns: 160px minmax(0, 1fr); gap: 0 1.1rem; align-items: start; }
+.card.cover img { width: 160px; height: auto; border-radius: 6px; }
+/* Su telefono la miniatura occupa metà larghezza e il testo le scorre intorno */
+@media (max-width: 520px) { .card.cover { display: flow-root; } .card.cover img { float: left; width: calc(50% - 0.45rem); margin: 0.2rem 0.9rem 0.5rem 0; } }
+.card .kind { display: block; margin-bottom: 0.25rem; color: var(--muted); font: 500 0.85rem var(--mono); letter-spacing: 0.04em; text-transform: uppercase; }
 </style>
 </head>
 <body>
@@ -103,16 +109,31 @@
 
   <h2 id="cose">Cose</h2>
   <ul class="cards">
-    <li class="card">
+    <li class="card cover">
+      <img src="progetti/poeta-elettronico/anteprima.png" width="160" height="127" loading="lazy" alt="Un haiku generato, a lettere bianche su schermo grigio come un Commodore 64">
+      <div>
       <h3><a href="progetti/poeta-elettronico/">Il poeta elettronico</a></h3>
       <p>Un generatore di haiku nato come Il poeta elettronico, programma per Commodore 64 di Stefano Magistretti pubblicato nel 1984 da Edizioni Elettroniche VIFI-Mondadori. L'ho riportato in vita nel browser, con il suo aspetto da C64.</p>
       <span class="go" aria-hidden="true">Apri il poeta →</span>
       <a class="extra" href="https://archive.org/details/ilpoetaelettronico" target="_blank" rel="noopener">L'originale e il manuale su Internet Archive</a>
+      </div>
     </li>
-    <li class="card">
+    <li class="card cover">
+      <img src="progetti/gioco-a-caso/anteprima.png" width="160" height="127" loading="lazy" alt="Un gioco estratto: l'etichetta di una cartuccia Super Nintendo con titolo, anno ed editore">
+      <div>
       <h3><a href="progetti/gioco-a-caso/">Gioco a caso</a></h3>
       <p>Non sai a cosa giocare? Scegli un sistema tra 18, dal Commodore 64 al Saturn, e lascia decidere al caso. Puoi filtrare per genere e anno, e tenere una lista dei giochi da provare, con voti e note.</p>
       <span class="go" aria-hidden="true">Estrai un gioco →</span>
+      </div>
+    </li>
+    <li class="card cover">
+      <img src="progetti/scotogno-soccer/copertina.png" width="160" height="127" loading="lazy" alt="Copertina di Scotogno Soccer: il titolo a lettere pixel e una mischia davanti alla porta">
+      <div>
+      <span class="kind">Commodore 64</span>
+      <h3><a href="https://linobob.itch.io/scotogno-soccer" target="_blank" rel="noopener noreferrer">Scotogno Soccer</a></h3>
+      <p>Calcio uno contro uno, scotognato. Da solo contro il computer o in due sullo stesso C64: 8 nazionali, 9 livelli di difficoltà, la Scotogno Cup e qualche power-up. Gratis su itch.io, si gioca anche nel browser.</p>
+      <span class="go" aria-hidden="true">Gioca su itch.io ↗</span>
+      </div>
     </li>
   </ul>
 
