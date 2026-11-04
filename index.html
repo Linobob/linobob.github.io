@@ -59,6 +59,7 @@
 .card.cover img { width: 160px; height: auto; border-radius: 6px; }
 /* Su telefono la miniatura occupa metà larghezza e il testo le scorre intorno */
 @media (max-width: 520px) { .card.cover { display: flow-root; } .card.cover img { float: left; width: calc(50% - 0.45rem); margin: 0.2rem 0.9rem 0.5rem 0; } }
+.card .ver { color: var(--muted); font: 500 0.85rem var(--mono); white-space: nowrap; }
 .card .kind { display: block; margin-bottom: 0.25rem; color: var(--muted); font: 500 0.85rem var(--mono); letter-spacing: 0.04em; text-transform: uppercase; }
 .btn.it { background: var(--itch); border-color: var(--itch); color: var(--brand-ink); border-radius: 10px; }
 .btn.it:hover { background: var(--itch-hover); border-color: var(--itch-hover); }
@@ -135,9 +136,10 @@
       <img src="progetti/scotogno-soccer/copertina.png" width="160" height="127" loading="lazy" alt="Copertina di Scotogno Soccer: il titolo a lettere pixel e una mischia davanti alla porta">
       <div>
       <span class="kind">Commodore 64</span>
-      <h3><a href="https://linobob.itch.io/scotogno-soccer" target="_blank" rel="noopener noreferrer">Scotogno Soccer</a></h3>
+      <h3><a href="https://linobob.itch.io/scotogno-soccer" target="_blank" rel="noopener noreferrer">Scotogno Soccer</a> <span class="ver">v1.1</span></h3>
       <p>Calcio uno contro uno, scotognato. Da solo contro il computer o in due sullo stesso C64: 8 nazionali, 9 livelli di difficoltà, la Scotogno Cup e qualche power-up. Gratis su itch.io, si gioca anche nel browser.</p>
       <span class="go" aria-hidden="true">Gioca su itch.io ↗</span>
+      <a class="extra" href="progetti/scotogno-soccer/v1.0/">Versione 1.0</a>
       </div>
     </li>
   </ul>
