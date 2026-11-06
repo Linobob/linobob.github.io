@@ -108,6 +108,11 @@ h1 { font-size: clamp(2.4rem, 9vw, 3.8rem); line-height: 1; }
 .run + .run { border-top: 1px dashed var(--line); }
 .run .t { font: inherit; }
 .run .note { margin-left: 0; }
+/* Distintivo Mastery di RetroAchievements: colori dei tasti delle piattaforme */
+.ra { display: inline-block; margin-left: 0.5rem; padding: 0.05rem 0.45rem; border-radius: 4px; background: var(--chip); color: var(--chip-ink); font: 600 0.8rem/1.5 var(--mono); vertical-align: 0.08em; text-decoration: none; white-space: nowrap; }
+a.ra:hover { text-decoration: underline; }
+.run .note + .ra { margin-left: 0.4rem; }
+.run .t > .ra:first-child { margin-left: 0; }
 .empty { padding: 2.5rem 0; color: var(--muted); }
 
 /* Telefono: ogni gioco è una scheda separata */
@@ -225,7 +230,7 @@ h1 { font-size: clamp(2.4rem, 9vw, 3.8rem); line-height: 1; }
       link: g.link || [],
       sec: parseDurata(g.durata),
       anno: g.data.slice(0, 4),
-      chiave: norm([g.titolo, g.nota || '', g.piattaforma, nomi.get(g.piattaforma) || ''].join(' '))
+      chiave: norm([g.titolo, g.nota || '', g.mastery ? 'mastery retroachievements' : '', g.piattaforma, nomi.get(g.piattaforma) || ''].join(' '))
     }));
     const state = { q: '', plat: '', anno: '', ord: 'recenti' };
 
@@ -260,6 +265,10 @@ h1 { font-size: clamp(2.4rem, 9vw, 3.8rem); line-height: 1; }
     const opt = (val, label, n) => '<option value="' + esc(val) + '">' + esc(label) + ' (' + n + ')</option>';
     $('plat').innerHTML = opt('', 'Tutte', games.length) + ordPlat.map(s => opt(s, nomi.get(s) || s, perPlat[s])).join('');
 
+    // Mastery: true = distintivo senza link, altrimenti il link alla pagina di RetroAchievements
+    const raHtml = g => !g.mastery ? '' : g.mastery === true
+      ? '<span class="ra" title="Tutti gli achievement su RetroAchievements">Mastery RA</span>'
+      : '<a class="ra" href="' + esc(g.mastery) + '" target="_blank" rel="noopener noreferrer" title="Tutti gli achievement su RetroAchievements" aria-label="Mastery su RetroAchievements: pagina del gioco">Mastery RA</a>';
     function linksHtml(g) {
       if (!g.link.length) return '<span class="nolink">nessun video</span>';
       const nome = g.titolo + (g.nota ? ' (' + g.nota + ')' : '');
@@ -273,7 +282,7 @@ h1 { font-size: clamp(2.4rem, 9vw, 3.8rem); line-height: 1; }
     }
     const rowHtml = g => '<li class="row">' +
       '<span class="d">' + fmtData(g.data) + '</span>' +
-      '<span class="t">' + esc(g.titolo) + (g.nota ? '<span class="note">' + esc(g.nota) + '</span>' : '') + '</span>' +
+      '<span class="t">' + esc(g.titolo) + (g.nota ? '<span class="note">' + esc(g.nota) + '</span>' : '') + raHtml(g) + '</span>' +
       '<span class="p">' + esc(nomi.get(g.piattaforma) || g.piattaforma) + '</span>' +
       '<span class="u">' + fmtDur(g.sec) + '</span>' +
       '<span class="l">' + linksHtml(g) + '</span></li>';
@@ -288,7 +297,7 @@ h1 { font-size: clamp(2.4rem, 9vw, 3.8rem); line-height: 1; }
         '<span class="u" title="Durata totale">' + fmtDur(tot) + '</span>' +
         '<ol class="runs">' + rs.map(g => '<li class="run">' +
           '<span class="d">' + fmtData(g.data) + '</span>' +
-          '<span class="t">' + (g.nota ? '<span class="note">' + esc(g.nota) + '</span>' : '') + '</span>' +
+          '<span class="t">' + (g.nota ? '<span class="note">' + esc(g.nota) + '</span>' : '') + raHtml(g) + '</span>' +
           '<span class="u">' + fmtDur(g.sec) + '</span>' +
           '<span class="l">' + linksHtml(g) + '</span></li>').join('') +
         '</ol></li>';

@@ -14,7 +14,7 @@ from pathlib import Path
 
 FILE = Path(__file__).resolve().parent.parent / "giochi" / "giochi.json"
 DURATA = re.compile(r"^(?:\d+h)?\s*(?:\d+m)?\s*(?:\d+s)?$")
-CAMPI = {"titolo", "piattaforma", "data", "nota", "link", "durata"}
+CAMPI = {"titolo", "piattaforma", "data", "nota", "link", "durata", "mastery"}
 
 
 def main():
@@ -60,6 +60,10 @@ def main():
                     errori.append(f"{nome}: link non valido '{u}'")
             if not link:
                 avvisi.append(f"{nome}: nessun link al video")
+        # Mastery su RetroAchievements: true, oppure il link a una pagina di retroachievements.org
+        m = g.get("mastery")
+        if m is not None and m is not True and not str(m).startswith("https://retroachievements.org/"):
+            errori.append(f"{nome}: 'mastery' deve essere true o un link https://retroachievements.org/...")
         # Stesso gioco nello stesso giorno va bene se la nota è diversa (es. due difficoltà)
         chiave = (g.get("titolo"), g.get("piattaforma"), g.get("data"), g.get("nota"))
         if chiave in visti:
