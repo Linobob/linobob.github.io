@@ -29,6 +29,10 @@
 .foot a { display: inline-flex; align-items: center; gap: 0.35rem; }
 .foot .ico-s { width: 1rem; height: 1rem; flex: none; }
 .foot .yt-ico { width: 1.2rem; }
+/* Link a RetroAchievements sotto i pulsanti, più discreto; i numeri li scrive ogni giorno la Action in giochi/ra.json */
+.ra { margin: 1rem 0 0; color: var(--muted); font: 400 0.85rem/1.6 var(--mono); }
+.ra a { color: inherit; }
+.ra a:hover { color: var(--accent); }
 .btn small { font: 400 0.75rem var(--mono); opacity: 0.85; }
 
 .facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem;
@@ -94,6 +98,7 @@
       <a class="btn yt" href="https://www.youtube.com/@Lino_bob" target="_blank" rel="noopener"><svg class="ico yt-ico" viewBox="0 0 28 20" aria-hidden="true"><rect width="28" height="20" rx="5" fill="var(--brand-ink)"/><path d="M11.2 5.6v8.8l7.6-4.4z" fill="var(--yt)"/></svg><span><span class="lg">Video su </span>YouTube</span></a>
       <a class="btn it" href="https://linobob.itch.io" target="_blank" rel="noopener noreferrer"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="M4 3h16l2.5 5.5a2.1 2.1 0 0 1-4.2 0a2.1 2.1 0 0 1-4.2 0a2.1 2.1 0 0 1-4.2 0a2.1 2.1 0 0 1-4.2 0a2.1 2.1 0 0 1-4.2 0zM3.5 11.5h17V20a1 1 0 0 1-1 1h-15a1 1 0 0 1-1-1zM9.5 21v-4.5a2.5 2.5 0 0 1 5 0V21z"/></svg><span><span class="lg">Giochi su </span>itch.io</span></a>
     </div>
+    <p class="ra"><a href="https://retroachievements.org/user/Linobob" target="_blank" rel="noopener noreferrer">Profilo su RetroAchievements →</a><span id="ra" hidden></span></p>
   </header>
 
   <!-- Numeri del 23/10/2026: lo script in fondo li aggiorna leggendo giochi/giochi.json.
@@ -148,6 +153,7 @@
     <a href="https://www.twitch.tv/lino_bob" target="_blank" rel="noopener"><svg class="ico-s" viewBox="0 0 24 24" aria-hidden="true"><path fill="var(--twitch)" d="M4.3 2 3 5.4v14h4.6V22h2.6l2.5-2.6h3.8L21.5 14V2H4.3zm15.4 11.1-2.9 2.9h-4.6l-2.5 2.5V16H5.8V3.8h13.9v9.3zM16.9 6.9v5h-1.7v-5h1.7zm-4.6 0v5h-1.7v-5h1.7z"/></svg>Twitch</a>
     <a href="https://www.youtube.com/@Lino_bob" target="_blank" rel="noopener"><svg class="ico-s yt-ico" viewBox="0 0 28 20" aria-hidden="true"><rect width="28" height="20" rx="5" fill="var(--yt)"/><path d="M11.2 5.6v8.8l7.6-4.4z" fill="var(--brand-ink)"/></svg>YouTube</a>
     <a href="https://linobob.itch.io" target="_blank" rel="noopener noreferrer"><svg class="ico-s" viewBox="0 0 24 24" aria-hidden="true"><path fill="var(--itch)" fill-rule="evenodd" d="M4 3h16l2.5 5.5a2.1 2.1 0 0 1-4.2 0a2.1 2.1 0 0 1-4.2 0a2.1 2.1 0 0 1-4.2 0a2.1 2.1 0 0 1-4.2 0a2.1 2.1 0 0 1-4.2 0zM3.5 11.5h17V20a1 1 0 0 1-1 1h-15a1 1 0 0 1-1-1zM9.5 21v-4.5a2.5 2.5 0 0 1 5 0V21z"/></svg>itch.io</a>
+    <a href="https://retroachievements.org/user/Linobob" target="_blank" rel="noopener noreferrer"><svg class="ico-s" viewBox="0 0 24 24" aria-hidden="true"><path fill="var(--detail)" d="M7 3h10v2h3.5v2.5a4 4 0 0 1-4 4h-.2A5 5 0 0 1 13 14.8V18h3v3H8v-3h3v-3.2a5 5 0 0 1-3.3-3.3h-.2a4 4 0 0 1-4-4V5H7zm0 4H5.5v.5a2 2 0 0 0 1.6 2zm10 0v2.5a2 2 0 0 0 1.5-2V7z"/></svg>RetroAchievements</a>
   </footer>
 </div>
 <script>
@@ -160,6 +166,18 @@ fetch('giochi/giochi.json', { cache: 'no-cache' })
     document.getElementById('n-giochi').textContent = new Set(g.map(x => norm(x.titolo) + '|' + x.piattaforma)).size;
     document.getElementById('n-piatt').textContent = new Set(g.map(x => x.piattaforma)).size;
     document.getElementById('n-prima').textContent = g.map(x => x.data).sort()[0].slice(0, 4);
+  })
+  .catch(() => {});
+/* Riga piccola con i numeri di RetroAchievements; se il file non c'è resta nascosta. */
+fetch('giochi/ra.json', { cache: 'no-cache' })
+  .then(r => r.ok ? r.json() : Promise.reject())
+  .then(ra => {
+    const n = x => Number(x).toLocaleString('it-IT');
+    const [a, m, g] = ra.aggiornato.split('-');
+    const el = document.getElementById('ra');
+    el.textContent = ' · ' + n(ra.mastery) + ' mastery · ' + n(ra.punti) + ' punti';
+    el.title = 'Aggiornato il ' + g + '/' + m + '/' + a;
+    el.hidden = false;
   })
   .catch(() => {});
 </script>

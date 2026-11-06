@@ -1,0 +1,35 @@
+# Ogni giorno legge i numeri del profilo RetroAchievements e, se sono cambiati,
+# fa un commit di giochi/ra.json. La chiave dell'API è il secret RA_API_KEY del repository.
+name: Aggiorna RetroAchievements
+
+on:
+  schedule:
+    - cron: "17 5 * * *"   # ogni giorno alle 5:17 UTC
+  workflow_dispatch:         # pulsante "Run workflow" nella scheda Actions
+
+permissions:
+  contents: write
+
+concurrency:
+  group: retroachievements
+  cancel-in-progress: false
+
+jobs:
+  aggiorna:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Scarica i numeri
+        env:
+          RA_API_KEY: ${{ secrets.RA_API_KEY }}
+        run: python3 strumenti/aggiorna_ra.py
+      - name: Commit se cambiati
+        run: |
+          if git diff --quiet -- giochi/ra.json && git ls-files --error-unmatch giochi/ra.json >/dev/null 2>&1; then
+            echo "Niente da aggiornare"; exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add giochi/ra.json
+          git commit -m "Aggiornate le statistiche di RetroAchievements"
+          git push
