@@ -64,6 +64,8 @@
 /* Su telefono la miniatura occupa metà larghezza e il testo le scorre intorno */
 @media (max-width: 520px) { .card.cover { display: flow-root; } .card.cover img { float: left; width: calc(50% - 0.45rem); margin: 0.2rem 0.9rem 0.5rem 0; } }
 .card .ver { color: var(--muted); font: 500 0.85rem var(--mono); white-space: nowrap; }
+/* Etichetta del tipo di cosa (Gioco, Strumento, Porting): colori dei tasti delle piattaforme */
+.card .tag { display: inline-block; margin-right: 0.5rem; padding: 0 0.4rem; border-radius: 4px; background: var(--chip); color: var(--chip-ink); font: 600 0.85rem/1.5 var(--mono); letter-spacing: 0.02em; text-transform: none; }
 .card .kind { display: block; margin-bottom: 0.25rem; color: var(--muted); font: 500 0.85rem var(--mono); letter-spacing: 0.04em; text-transform: uppercase; }
 .btn.it { background: var(--itch); border-color: var(--itch); color: var(--brand-ink); border-radius: 10px; }
 .btn.it:hover { background: var(--itch-hover); border-color: var(--itch-hover); }
@@ -91,8 +93,7 @@
   <header class="hero">
     <p class="kicker">Giochi retro in diretta</p>
     <h1>Linobob</h1>
-    <p class="lead">Gioco ai giochi retro in diretta su Twitch, un po' di tutto, dal Commodore 64 al Saturn. A volte per arrivare ai titoli di coda, a volte per provare una curiosità o qualche lavoro nuovo che merita.</p>
-    <p class="lead">Le live sono la mia spinta a giocare e un modo per condividerlo con chi ha voglia di farmi compagnia. I giochi che finisco li raccolgo in una lista, e le partite complete finiscono su YouTube.</p>
+    <p class="lead">Retrogiochi in diretta, giochi finiti e cose fatte in casa. Su Twitch gioco quasi di tutto, su YouTube lascio i video delle run, e qui raccolgo anche quello che costruisco.</p>
     <div class="cta">
       <a class="btn tw" href="https://www.twitch.tv/lino_bob" target="_blank" rel="noopener"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M4.3 2 3 5.4v14h4.6V22h2.6l2.5-2.6h3.8L21.5 14V2H4.3zm15.4 11.1-2.9 2.9h-4.6l-2.5 2.5V16H5.8V3.8h13.9v9.3zM16.9 6.9v5h-1.7v-5h1.7zm-4.6 0v5h-1.7v-5h1.7z"/></svg><span><span class="lg">Guarda su </span>Twitch</span> <small>lino_bob</small></a>
       <a class="btn yt" href="https://www.youtube.com/@Lino_bob" target="_blank" rel="noopener"><svg class="ico yt-ico" viewBox="0 0 28 20" aria-hidden="true"><rect width="28" height="20" rx="5" fill="var(--brand-ink)"/><path d="M11.2 5.6v8.8l7.6-4.4z" fill="var(--yt)"/></svg><span><span class="lg">Video su </span>YouTube</span></a>
@@ -121,26 +122,18 @@
   <h2 id="cose">Cose</h2>
   <ul class="cards">
     <li class="card cover">
-      <img src="progetti/poeta-elettronico/anteprima.png" width="160" height="127" loading="lazy" alt="Un haiku generato, a lettere bianche su schermo grigio come un Commodore 64">
+      <img src="progetti/avventure/anteprima.png" width="160" height="127" loading="lazy" alt="L'editor di avventure: le schede Stanze, Mappa, Oggetti e Regole e l'elenco delle stanze di un gioco di esempio">
       <div>
-      <h3><a href="progetti/poeta-elettronico/">Il poeta elettronico</a></h3>
-      <p>Un generatore di haiku nato come Il poeta elettronico, programma per Commodore 64 di Stefano Magistretti pubblicato nel 1984 da Edizioni Elettroniche VIFI-Mondadori. L'ho riportato in vita nel browser, con il suo aspetto da C64.</p>
-      <span class="go" aria-hidden="true">Apri il poeta →</span>
-      <a class="extra" href="https://archive.org/details/ilpoetaelettronico" target="_blank" rel="noopener">L'originale e il manuale su Internet Archive</a>
-      </div>
-    </li>
-    <li class="card cover">
-      <img src="progetti/gioco-a-caso/anteprima.png" width="160" height="127" loading="lazy" alt="Un gioco estratto: l'etichetta di una cartuccia Super Nintendo con titolo, anno ed editore">
-      <div>
-      <h3><a href="progetti/gioco-a-caso/">Gioco a caso</a></h3>
-      <p>Non sai a cosa giocare? Scegli un sistema tra 18, dal Commodore 64 al Saturn, e lascia decidere al caso. Puoi filtrare per genere e anno, e tenere una lista dei giochi da provare, con voti e note.</p>
-      <span class="go" aria-hidden="true">Estrai un gioco →</span>
+      <span class="kind"><span class="tag">Strumento</span>Web · Commodore 64 · ZX Spectrum</span>
+      <h3><a href="avventure/">Authoring avventure</a> <span class="ver">In sviluppo</span></h3>
+      <p>Un editor per scrivere avventure testuali: stanze, mappa, oggetti e regole, da provare subito nel browser e da compilare per Web, Commodore 64 e ZX Spectrum. I progetti restano salvati nel tuo browser.</p>
+      <span class="go" aria-hidden="true">Apri l'editor →</span>
       </div>
     </li>
     <li class="card cover">
       <img src="progetti/scotogno-soccer/copertina.png" width="160" height="127" loading="lazy" alt="Copertina di Scotogno Soccer: il titolo a lettere pixel e una mischia davanti alla porta">
       <div>
-      <span class="kind">Commodore 64</span>
+      <span class="kind"><span class="tag">Gioco</span>Commodore 64</span>
       <h3><a href="https://linobob.itch.io/scotogno-soccer" target="_blank" rel="noopener noreferrer">Scotogno Soccer</a> <span class="ver">v1.1</span></h3>
       <p>Calcio uno contro uno, scotognato. Da solo contro il computer o in due sullo stesso C64: 8 nazionali, 9 livelli di difficoltà, la Scotogno Cup e qualche power-up. Gratis su itch.io, si gioca anche nel browser.</p>
       <span class="go" aria-hidden="true">Gioca su itch.io ↗</span>
@@ -148,12 +141,22 @@
       </div>
     </li>
     <li class="card cover">
-      <img src="progetti/avventure/anteprima.png" width="160" height="127" loading="lazy" alt="L'editor di avventure: le schede Stanze, Mappa, Oggetti e Regole e l'elenco delle stanze di un gioco di esempio">
+      <img src="progetti/gioco-a-caso/anteprima.png" width="160" height="127" loading="lazy" alt="Un gioco estratto: l'etichetta di una cartuccia Super Nintendo con titolo, anno ed editore">
       <div>
-      <span class="kind">Web · Commodore 64 · ZX Spectrum</span>
-      <h3><a href="avventure/">Authoring avventure</a> <span class="ver">In sviluppo</span></h3>
-      <p>Un editor per scrivere avventure testuali: stanze, mappa, oggetti e regole, da provare subito nel browser e da compilare per Web, Commodore 64 e ZX Spectrum. I progetti restano salvati nel tuo browser.</p>
-      <span class="go" aria-hidden="true">Apri l'editor →</span>
+      <span class="kind"><span class="tag">Strumento</span></span>
+      <h3><a href="progetti/gioco-a-caso/">Gioco a caso</a></h3>
+      <p>Non sai a cosa giocare? Scegli un sistema tra 18, dal Commodore 64 al Saturn, e lascia decidere al caso. Puoi filtrare per genere e anno, e tenere una lista dei giochi da provare, con voti e note.</p>
+      <span class="go" aria-hidden="true">Estrai un gioco →</span>
+      </div>
+    </li>
+    <li class="card cover">
+      <img src="progetti/poeta-elettronico/anteprima.png" width="160" height="127" loading="lazy" alt="Un haiku generato, a lettere bianche su schermo grigio come un Commodore 64">
+      <div>
+      <span class="kind"><span class="tag">Porting</span></span>
+      <h3><a href="progetti/poeta-elettronico/">Il poeta elettronico</a></h3>
+      <p>Un generatore di haiku nato come Il poeta elettronico, programma per Commodore 64 di Stefano Magistretti pubblicato nel 1984 da Edizioni Elettroniche VIFI-Mondadori. L'ho riportato in vita nel browser, con il suo aspetto da C64.</p>
+      <span class="go" aria-hidden="true">Apri il poeta →</span>
+      <a class="extra" href="https://archive.org/details/ilpoetaelettronico" target="_blank" rel="noopener">L'originale e il manuale su Internet Archive</a>
       </div>
     </li>
   </ul>
