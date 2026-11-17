@@ -100,7 +100,7 @@
 // ---------------------------------------------------------------- impostazioni
 const STUN_SERVERS = ["stun:stun.l.google.com:19302", "stun:stun.cloudflare.com:3478"];
 const GATHER_TIMEOUT_MS = 6000;     // attesa massima per raccogliere gli indirizzi
-const CONNECT_TIMEOUT_MS = 25000;   // dopo questo tempo senza collegamento: fallito
+const CONNECT_TIMEOUT_MS = 60000;   // chi crea: dopo "Collega", questo tempo senza collegamento = fallito
 const PING_EVERY_MS = 200;          // 5 misure al secondo
 const FRAME_MS = 20;                // un fotogramma PAL a 50 Hz
 const MAX_CODE_LEN = 12000;         // codici più lunghi vengono rifiutati
@@ -334,9 +334,9 @@ async function rispondi() {
   } catch (e) { stato("Codice non valido: " + e.message + ".", "err"); return; }
   $("tAnswer").value = await encodeCode({ v: 1, t: "a", stun: o.stun, sdp: pc.localDescription.sdp });
   $("cAnswer").disabled = $("sAnswer").disabled = false;
-  stato("Risposta pronta: rimandala a chi ha creato. Il collegamento parte da solo.");
+  // chi risponde non ha un tempo massimo: aspetta finche' l'altro incolla la risposta (anche minuti)
+  stato("Risposta pronta: rimandala a chi ha creato e aspetta. Il collegamento parte da solo quando l'altro preme Collega.");
   log("risposta creata (" + $("tAnswer").value.length + " caratteri)");
-  armTimeout();
 }
 
 async function collega() {
