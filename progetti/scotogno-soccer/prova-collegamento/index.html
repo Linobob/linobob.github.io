@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SCOTOGNO - prova di collegamento</title>
+<style>
+  :root { --bg:#14161c; --pan:#1f232c; --tx:#e8e8ea; --dim:#9aa0ab; --acc:#4fc36b; --err:#e5534b; --warn:#e0b341; }
+  * { box-sizing:border-box; }
+  body { margin:0; font:16px/1.4 system-ui, sans-serif; background:var(--bg); color:var(--tx); }
+  main { max-width:640px; margin:0 auto; padding:14px; }
+  h1 { font-size:20px; margin:4px 0 2px; }
+  .sub { color:var(--dim); font-size:14px; margin-bottom:12px; }
+  section { background:var(--pan); border-radius:10px; padding:12px; margin:12px 0; }
+  h2 { font-size:17px; margin:0 0 8px; }
+  p { margin:6px 0; }
+  textarea { width:100%; height:86px; background:#0f1116; color:var(--tx); border:1px solid #3a3f4b;
+             border-radius:6px; font:12px/1.3 ui-monospace, monospace; padding:6px; word-break:break-all; }
+  button { font:inherit; padding:10px 14px; margin:4px 4px 4px 0; border:0; border-radius:8px;
+           background:#3a64c8; color:#fff; cursor:pointer; }
+  button.sec { background:#454b58; }
+  button:disabled { opacity:.4; cursor:default; }
+  label { display:flex; gap:8px; align-items:center; margin:6px 0; }
+  input[type=checkbox] { width:20px; height:20px; }
+  .tabs { display:flex; gap:6px; }
+  .tabs button { flex:1; background:#454b58; }
+  .tabs button.on { background:#3a64c8; }
+  #stato { font-weight:600; }
+  .ok { color:var(--acc); } .err { color:var(--err); } .warn { color:var(--warn); }
+  table { width:100%; border-collapse:collapse; font-size:15px; }
+  td { padding:4px 2px; border-bottom:1px solid #2e333d; vertical-align:top; }
+  td:first-child { color:var(--dim); width:48%; }
+  #log { height:110px; font-size:11px; }
+  .hide { display:none; }
+  .nota { color:var(--dim); font-size:13px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>SCOTOGNO Soccer - prova di collegamento</h1>
+  <div class="sub">Prova se due dispositivi riescono a collegarsi direttamente (WebRTC). Nessun gioco: solo il collegamento e il ritardo.</div>
+
+  <section>
+    <div class="tabs">
+      <button id="tabCrea" class="on">Creo io</button>
+      <button id="tabRisp">Rispondo io</button>
+    </div>
+    <label><input type="checkbox" id="stun"> Usa STUN pubblico (Google, Cloudflare)</label>
+    <p class="nota">Senza STUN funziona solo sulla stessa rete. Chi risponde usa la scelta di chi crea.</p>
+  </section>
+
+  <section id="pCrea">
+    <h2>1. Crea il codice</h2>
+    <button id="bCrea">Crea codice</button>
+    <textarea id="tOffer" readonly placeholder="Il codice comparirà qui"></textarea>
+    <button class="sec" id="cOffer" disabled>Copia</button>
+    <button class="sec" id="sOffer" disabled>Condividi</button>
+    <h2 style="margin-top:12px">2. Incolla la risposta</h2>
+    <textarea id="tAnswerIn" placeholder="Incolla qui il codice di risposta"></textarea>
+    <button id="bCollega" disabled>Collega</button>
+  </section>
+
+  <section id="pRisp" class="hide">
+    <h2>1. Incolla il codice ricevuto</h2>
+    <textarea id="tOfferIn" placeholder="Incolla qui il codice di chi crea"></textarea>
+    <button id="bRisp">Rispondi</button>
+    <h2 style="margin-top:12px">2. Rimanda questo codice</h2>
+    <textarea id="tAnswer" readonly placeholder="Il codice di risposta comparirà qui"></textarea>
+    <button class="sec" id="cAnswer" disabled>Copia</button>
+    <button class="sec" id="sAnswer" disabled>Condividi</button>
+  </section>
+
+  <section>
+    <h2>Stato</h2>
+    <p id="stato">Pronto.</p>
+    <table id="tab">
+      <tr><td>Indirizzi trovati</td><td id="vCand">-</td></tr>
+      <tr><td>Router (NAT)</td><td id="vNat">-</td></tr>
+      <tr><td>Tipo di collegamento</td><td id="vTipo">-</td></tr>
+      <tr><td>Andata e ritorno (media)</td><td id="vRtt">-</td></tr>
+      <tr><td>Minimo / massimo</td><td id="vMinMax">-</td></tr>
+      <tr><td>Pacchetti persi</td><td id="vPersi">-</td></tr>
+      <tr><td>Ritardo comandi consigliato</td><td id="vD">-</td></tr>
+    </table>
+    <button id="bSaluta" disabled>Manda un saluto</button>
+    <button class="sec" id="bRapporto">Copia rapporto</button>
+    <button class="sec" id="bReset">Ricomincia</button>
+    <p class="nota">Il rapporto non contiene indirizzi IP: si può incollare in chat.</p>
+  </section>
+
+  <section>
+    <h2>Registro</h2>
+    <textarea id="log" readonly></textarea>
+  </section>
+</main>
+
+<script>
+"use strict";
+// ---------------------------------------------------------------- impostazioni
+const STUN_SERVERS = ["stun:stun.l.google.com:19302", "stun:stun.cloudflare.com:3478"];
+const GATHER_TIMEOUT_MS = 6000;     // attesa massima per raccogliere gli indirizzi
+const CONNECT_TIMEOUT_MS = 25000;   // dopo questo tempo senza collegamento: fallito
+const PING_EVERY_MS = 200;          // 5 misure al secondo
+const FRAME_MS = 20;                // un fotogramma PAL a 50 Hz
+const MAX_CODE_LEN = 12000;         // codici più lunghi vengono rifiutati
+const MSG_PING = 1, MSG_PONG = 2, MSG_HELLO = 3;
+
+const $ = id => document.getElementById(id);
+let pc = null, chan = null, mode = "crea", connected = false, connectTimer = null, pingTimer = null;
+let seq = 0, sent = new Map(), rtts = [], lostCount = 0, sentCount = 0;
+let candInfo = { host: 0, mdns: 0, srflx: 0, relay: 0 }, srflxByBase = new Map(), natText = "-", tipoText = "-";
+let usedStun = false;
+
+function log(s) {
+  const t = new Date().toLocaleTimeString();
+  $("log").value += "[" + t + "] " + s + "\n";
+  $("log").scrollTop = $("log").scrollHeight;
+}
+function stato(s, cls) { $("stato").textContent = s; $("stato").className = cls || ""; }
+
+// ---------------------------------------------------------------- codici: JSON -> deflate -> base64url
+async function deflate(bytes) {
+  if (typeof CompressionStream === "undefined") return null;
+  const cs = new CompressionStream("deflate-raw");
+  const out = new Response(new Blob([bytes]).stream().pipeThrough(cs));
+  return new Uint8Array(await out.arrayBuffer());
+}
+async function inflate(bytes) {
+  const ds = new DecompressionStream("deflate-raw");
+  const out = new Response(new Blob([bytes]).stream().pipeThrough(ds));
+  return new Uint8Array(await out.arrayBuffer());
+}
+function b64u(bytes) {
+  let s = ""; for (const b of bytes) s += String.fromCharCode(b);
+  return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+function unb64u(s) {
+  s = s.replace(/-/g, "+").replace(/_/g, "/"); while (s.length % 4) s += "=";
+  const bin = atob(s), out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+}
+// formato: "SC1" + "Z" (compresso) o "P" (non compresso) + base64url del JSON
+async function encodeCode(obj) {
+  const raw = new TextEncoder().encode(JSON.stringify(obj));
+  const z = await deflate(raw);
+  return z ? "SC1Z" + b64u(z) : "SC1P" + b64u(raw);
+}
+async function decodeCode(code, wantType) {
+  code = (code || "").replace(/\s+/g, "");
+  if (code.length < 10 || code.length > MAX_CODE_LEN) throw new Error("codice di lunghezza non valida");
+  if (!code.startsWith("SC1")) throw new Error("non è un codice di questa pagina");
+  const kind = code[3], body = unb64u(code.slice(4));
+  const raw = kind === "Z" ? await inflate(body) : kind === "P" ? body : null;
+  if (!raw || raw.length > 20000) throw new Error("codice non valido");
+  const obj = JSON.parse(new TextDecoder().decode(raw));
+  if (!obj || obj.v !== 1 || obj.t !== wantType || typeof obj.sdp !== "string" || typeof obj.stun !== "boolean")
+    throw new Error(wantType === "o" ? "serve il codice di chi crea" : "serve il codice di risposta");
+  return obj;
+}
+
+// ---------------------------------------------------------------- collegamento
+function newPeer(withStun) {
+  usedStun = withStun;
+  const conf = { iceServers: withStun ? [{ urls: STUN_SERVERS }] : [] };
+  pc = new RTCPeerConnection(conf);
+  pc.onicecandidate = e => { if (e.candidate) noteCandidate(e.candidate); };
+  pc.onconnectionstatechange = () => {
+    log("stato collegamento: " + pc.connectionState);
+    if (pc.connectionState === "connected") onConnected();
+    if (pc.connectionState === "failed") onFailed("il collegamento non è riuscito");
+    if (pc.connectionState === "disconnected" && connected) stato("Collegamento interrotto (forse momentaneo)...", "warn");
+  };
+  pc.oniceconnectionstatechange = () => log("stato ICE: " + pc.iceConnectionState);
+  pc.ondatachannel = e => setupChannel(e.channel);
+}
+
+function noteCandidate(c) {
+  const typ = c.type || (/ typ (\w+)/.exec(c.candidate) || [])[1];
+  const addr = c.address || (c.candidate.split(" ")[4] || "");
+  if (typ === "host") { if (addr.endsWith(".local")) candInfo.mdns++; else candInfo.host++; }
+  else if (typ === "srflx") {
+    candInfo.srflx++;
+    const base = (c.relatedAddress || "?") + ":" + (c.relatedPort || "?") + "/" + (c.protocol || "udp");
+    if (!srflxByBase.has(base)) srflxByBase.set(base, new Set());
+    srflxByBase.get(base).add(String(c.port || c.candidate.split(" ")[5]));
+  } else if (typ === "relay") candInfo.relay++;
+  showCandidates();
+}
+
+function showCandidates() {
+  const p = [];
+  if (candInfo.host) p.push(candInfo.host + " locali");
+  if (candInfo.mdns) p.push(candInfo.mdns + " locali nascosti");
+  if (candInfo.srflx) p.push(candInfo.srflx + " pubblici (STUN)");
+  $("vCand").textContent = p.length ? p.join(", ") : "-";
+  if (usedStun) {
+    let sym = false;
+    for (const ports of srflxByBase.values()) if (ports.size > 1) sym = true;
+    if (sym) { natText = "simmetrico: via internet probabilmente non passa"; $("vNat").className = "err"; }
+    else if (candInfo.srflx) { natText = "normale: via internet dovrebbe passare"; $("vNat").className = "ok"; }
+    else { natText = "STUN non ha risposto"; $("vNat").className = "warn"; }
+  } else { natText = "non misurato (STUN spento)"; $("vNat").className = ""; }
+  $("vNat").textContent = natText;
+}
+
+function waitGathering() {
+  return new Promise(res => {
+    if (pc.iceGatheringState === "complete") return res();
+    const t = setTimeout(() => { log("raccolta indirizzi: tempo scaduto, si procede"); res(); }, GATHER_TIMEOUT_MS);
+    pc.addEventListener("icegatheringstatechange", () => {
+      if (pc.iceGatheringState === "complete") { clearTimeout(t); res(); }
+    });
+  });
+}
+
+function setupChannel(ch) {
+  chan = ch;
+  chan.binaryType = "arraybuffer";
+  chan.onopen = () => { log("canale dati aperto"); startPing(); $("bSaluta").disabled = false; };
+  chan.onclose = () => { log("canale dati chiuso"); stopPing(); $("bSaluta").disabled = true; };
+  chan.onmessage = e => onMessage(e.data);
+}
+
+function armTimeout() {
+  clearTimeout(connectTimer);
+  connectTimer = setTimeout(() => { if (!connected) onFailed("nessun collegamento dopo " + CONNECT_TIMEOUT_MS / 1000 + " secondi"); }, CONNECT_TIMEOUT_MS);
+}
+
+async function onConnected() {
+  if (connected) return;
+  connected = true; clearTimeout(connectTimer);
+  stato("Collegati!", "ok");
+  await readPairType();
+}
+
+function onFailed(why) {
+  clearTimeout(connectTimer);
+  stato("Non collegati: " + why + ".", "err");
+  log("fallito: " + why);
+  if (!usedStun) log("suggerimento: se non siete sulla stessa rete, ricominciate con STUN attivo");
+  else if (/simmetrico/.test(natText)) log("suggerimento: un router con NAT simmetrico richiede un server di inoltro (TURN)");
+}
+
+async function readPairType() {
+  try {
+    const st = await pc.getStats();
+    let pair = null;
+    st.forEach(r => { if (r.type === "transport" && r.selectedCandidatePairId) pair = st.get(r.selectedCandidatePairId); });
+    if (!pair) st.forEach(r => { if (r.type === "candidate-pair" && (r.selected || (r.nominated && r.state === "succeeded"))) pair = pair || r; });
+    if (!pair) return;
+    const lc = st.get(pair.localCandidateId), rc = st.get(pair.remoteCandidateId);
+    const lt = lc && lc.candidateType, rt = rc && rc.candidateType, proto = lc && lc.protocol;
+    if (lt === "relay" || rt === "relay") tipoText = "tramite server di inoltro";
+    else if (lt === "host" && rt === "host") tipoText = "diretto, stessa rete";
+    else tipoText = "diretto via internet";
+    tipoText += " (" + lt + " / " + rt + ", " + (proto || "?") + ")";
+    $("vTipo").textContent = tipoText; $("vTipo").className = "ok";
+    log("coppia scelta: " + tipoText);
+  } catch (e) { log("statistiche non disponibili: " + e.message); }
+}
+
+// ---------------------------------------------------------------- misura del ritardo
+function startPing() {
+  stopPing();
+  pingTimer = setInterval(() => {
+    if (!chan || chan.readyState !== "open") return;
+    const b = new DataView(new ArrayBuffer(13));
+    b.setUint8(0, MSG_PING); b.setUint32(1, ++seq); b.setFloat64(5, performance.now());
+    sent.set(seq, performance.now()); sentCount++;
+    chan.send(b.buffer);
+    for (const [s, t] of sent) if (performance.now() - t > 2000) { sent.delete(s); lostCount++; }
+    showStats();
+  }, PING_EVERY_MS);
+}
+function stopPing() { clearInterval(pingTimer); pingTimer = null; }
+
+function onMessage(data) {
+  // dall'altro accettiamo solo messaggi binari di forma esatta: tutto il resto viene ignorato
+  if (!(data instanceof ArrayBuffer)) return;
+  const v = new DataView(data);
+  if (data.byteLength === 13 && v.getUint8(0) === MSG_PING) {
+    const r = new DataView(data.slice(0)); r.setUint8(0, MSG_PONG);
+    if (chan && chan.readyState === "open") chan.send(r.buffer);
+  } else if (data.byteLength === 13 && v.getUint8(0) === MSG_PONG) {
+    const s = v.getUint32(1);
+    if (sent.has(s)) { rtts.push(performance.now() - sent.get(s)); sent.delete(s); if (rtts.length > 300) rtts.shift(); }
+  } else if (data.byteLength === 1 && v.getUint8(0) === MSG_HELLO) {
+    stato("Collegati! L'altro giocatore ti saluta.", "ok");
+    log("ricevuto un saluto");
+  }
+}
+
+function showStats() {
+  if (!rtts.length) return;
+  const avg = rtts.reduce((a, b) => a + b, 0) / rtts.length;
+  const sorted = [...rtts].sort((a, b) => a - b);
+  const p95 = sorted[Math.floor(sorted.length * 0.95)];
+  $("vRtt").textContent = avg.toFixed(1) + " ms (" + rtts.length + " misure)";
+  $("vMinMax").textContent = sorted[0].toFixed(1) + " / " + sorted[sorted.length - 1].toFixed(1) + " ms";
+  $("vPersi").textContent = sentCount ? (100 * lostCount / sentCount).toFixed(1) + " %" : "-";
+  // il tasto deve arrivare entro D fotogrammi: metà del giro (p95) + un fotogramma di margine
+  const D = Math.max(2, Math.ceil((p95 / 2) / FRAME_MS) + 1);
+  $("vD").textContent = D + " fotogrammi (" + D * FRAME_MS + " ms)";
+}
+
+// ---------------------------------------------------------------- pulsanti
+async function creaCodice() {
+  reset(false);
+  newPeer($("stun").checked);
+  setupChannel(pc.createDataChannel("prova", { ordered: false, maxRetransmits: 0 }));
+  stato("Raccolgo gli indirizzi...");
+  await pc.setLocalDescription(await pc.createOffer());
+  await waitGathering();
+  $("tOffer").value = await encodeCode({ v: 1, t: "o", stun: usedStun, sdp: pc.localDescription.sdp });
+  $("cOffer").disabled = $("sOffer").disabled = false; $("bCollega").disabled = false;
+  stato("Codice pronto: mandalo all'altro giocatore e aspetta la risposta.");
+  log("codice creato (" + $("tOffer").value.length + " caratteri)");
+}
+
+async function rispondi() {
+  let o;
+  try { o = await decodeCode($("tOfferIn").value, "o"); }
+  catch (e) { stato("Codice non valido: " + e.message + ".", "err"); return; }
+  reset(false);
+  $("stun").checked = o.stun;
+  newPeer(o.stun);
+  try {
+    await pc.setRemoteDescription({ type: "offer", sdp: o.sdp });
+    stato("Raccolgo gli indirizzi...");
+    await pc.setLocalDescription(await pc.createAnswer());
+    await waitGathering();
+  } catch (e) { stato("Codice non valido: " + e.message + ".", "err"); return; }
+  $("tAnswer").value = await encodeCode({ v: 1, t: "a", stun: o.stun, sdp: pc.localDescription.sdp });
+  $("cAnswer").disabled = $("sAnswer").disabled = false;
+  stato("Risposta pronta: rimandala a chi ha creato. Il collegamento parte da solo.");
+  log("risposta creata (" + $("tAnswer").value.length + " caratteri)");
+  armTimeout();
+}
+
+async function collega() {
+  let a;
+  try { a = await decodeCode($("tAnswerIn").value, "a"); }
+  catch (e) { stato("Codice non valido: " + e.message + ".", "err"); return; }
+  try { await pc.setRemoteDescription({ type: "answer", sdp: a.sdp }); }
+  catch (e) { stato("Risposta non accettata: " + e.message + ".", "err"); return; }
+  stato("Collegamento in corso...");
+  armTimeout();
+}
+
+async function copia(id) {
+  const t = $(id);
+  try { await navigator.clipboard.writeText(t.value); }
+  catch (e) { t.removeAttribute("readonly"); t.select(); document.execCommand("copy"); t.setAttribute("readonly", ""); }
+  log("copiato negli appunti");
+}
+async function condividi(id) {
+  const text = $(id).value;
+  if (navigator.share) { try { await navigator.share({ text }); return; } catch (e) { if (e.name === "AbortError") return; } }
+  copia(id); stato("Condivisione non disponibile: il codice è stato copiato.", "warn");
+}
+
+function rapporto() {
+  const ua = navigator.userAgent;
+  return [
+    "SCOTOGNO prova collegamento",
+    "Ruolo: " + (mode === "crea" ? "crea" : "risponde") + ", STUN: " + (usedStun ? "sì" : "no"),
+    "Stato: " + $("stato").textContent,
+    "Indirizzi: " + $("vCand").textContent,
+    "NAT: " + natText,
+    "Tipo: " + tipoText,
+    "Andata e ritorno: " + $("vRtt").textContent + ", min/max " + $("vMinMax").textContent,
+    "Persi: " + $("vPersi").textContent,
+    "Ritardo consigliato: " + $("vD").textContent,
+    "Browser: " + ua,
+  ].join("\n");
+}
+
+function reset(full) {
+  stopPing(); clearTimeout(connectTimer);
+  try { if (chan) chan.close(); if (pc) pc.close(); } catch (e) {}
+  pc = chan = null; connected = false; seq = 0; sent.clear(); rtts = []; lostCount = sentCount = 0;
+  candInfo = { host: 0, mdns: 0, srflx: 0, relay: 0 }; srflxByBase.clear(); natText = tipoText = "-";
+  for (const id of ["vCand", "vNat", "vTipo", "vRtt", "vMinMax", "vPersi", "vD"]) { $(id).textContent = "-"; $(id).className = ""; }
+  $("bSaluta").disabled = true;
+  if (full) {
+    for (const id of ["tOffer", "tAnswerIn", "tOfferIn", "tAnswer"]) $(id).value = "";
+    for (const id of ["cOffer", "sOffer", "bCollega", "cAnswer", "sAnswer"]) $(id).disabled = true;
+    stato("Pronto.");
+  }
+}
+
+function setMode(m) {
+  mode = m;
+  $("tabCrea").className = m === "crea" ? "on" : ""; $("tabRisp").className = m === "risp" ? "on" : "";
+  $("pCrea").className = m === "crea" ? "" : "hide"; $("pRisp").className = m === "risp" ? "" : "hide";
+}
+
+$("tabCrea").onclick = () => setMode("crea");
+$("tabRisp").onclick = () => setMode("risp");
+$("bCrea").onclick = () => creaCodice().catch(e => { stato("Errore: " + e.message, "err"); log(e.stack || e); });
+$("bRisp").onclick = () => rispondi().catch(e => { stato("Errore: " + e.message, "err"); log(e.stack || e); });
+$("bCollega").onclick = () => collega().catch(e => { stato("Errore: " + e.message, "err"); log(e.stack || e); });
+$("cOffer").onclick = () => copia("tOffer");
+$("cAnswer").onclick = () => copia("tAnswer");
+$("sOffer").onclick = () => condividi("tOffer");
+$("sAnswer").onclick = () => condividi("tAnswer");
+$("bSaluta").onclick = () => { if (chan && chan.readyState === "open") { chan.send(new Uint8Array([MSG_HELLO]).buffer); log("saluto mandato"); } };
+$("bRapporto").onclick = async () => {
+  const r = rapporto();
+  try { await navigator.clipboard.writeText(r); stato("Rapporto copiato: incollalo in chat."); }
+  catch (e) { $("log").value += "\n" + r + "\n"; stato("Rapporto aggiunto al registro: copialo da lì.", "warn"); }
+};
+$("bReset").onclick = () => { reset(true); log("ricominciato"); };
+
+if (typeof RTCPeerConnection === "undefined") stato("Questo browser non supporta WebRTC.", "err");
+log("pagina pronta" + (typeof CompressionStream === "undefined" ? " (codici non compressi: browser vecchio)" : ""));
+</script>
+</body>
+</html>
