@@ -1870,9 +1870,12 @@ window.makeLockstep = makeLockstep;
     try { avviaPartita(m, sym, Object.assign({}, c, { cointeam })); } catch (e) {
       sopra(`<div class="grande err">${tt("errore")}</div><div>${esc(e.message)}</div>`); return;
     }
-    if (audioSi) sid.sync(m.mem);
+    // durante il lancio della moneta l'emulatore e' fermo: silenzio, e i registri del SID si mandano solo quando
+    // la partita riparte (prima restava accesa la nota della presentazione per tutto il lancio)
+    sid.silenzia();
     await moneta(c, cointeam);
     if (!inGioco) return;
+    if (audioSi) sid.sync(m.mem);
     acc = 0; attivo = true;
   }
   async function giocaOnline(c, cointeam, D) {
@@ -1890,9 +1893,11 @@ window.makeLockstep = makeLockstep;
       mandaCtl: (o) => rete.manda(o),
       onDesync: (f) => fermaOnline(tt("eDesync") + f + ")"),
     });
-    if (audioSi) { try { await sid.start(); sid.sync(m.mem); } catch (e) { audioSi = false; } }
+    if (audioSi) { try { await sid.start(); } catch (e) { audioSi = false; } }
+    sid.silenzia();                                  // come sopra: silenzio durante il lancio della moneta
     await moneta(c, cointeam);
     if (!inGioco) return;
+    if (audioSi) sid.sync(m.mem);
     acc = 0; ferme = 0; attivo = true;
   }
   function fine(g) {
@@ -1955,7 +1960,7 @@ window.makeLockstep = makeLockstep;
   $("bEsci").onclick = esci;
   $("bAudio").onclick = async () => {
     audioSi = !audioSi; salva("audio", audioSi);
-    if (audioSi) { await sid.start(); sid.sync(m.mem); } else sid.stop();
+    if (audioSi) { await sid.start(); if (attivo && !finito) sid.sync(m.mem); } else { sid.silenzia(); sid.stop(); }
     $("bAudio").textContent = audioSi ? tt("audioSi") : tt("audioNo");
   };
   $("bFull").onclick = () => { const s = $("schermo"); (s.requestFullscreen || s.webkitRequestFullscreen || (() => {})).call(s); };
