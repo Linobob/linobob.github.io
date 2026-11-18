@@ -600,7 +600,8 @@ const SYMS_PARTENZA = ["start", "main", "lsel", "lbusy", "trans", "dq", "dn", "b
   "precup", "gotostate", "cointeam", "startmatch", "sprset", "sprtoggle", "sprstep", "spi", "spn", "field", "slmode",
   "abil", "pu_on", "copt", "bsel"];
 
-const SCELTE_BASE = { lang: 0, p1: 0, p2: 1, field: 0, kickmode: 0, slmode: 2, abil: 1, pu_on: 0, sprset: 0, copt: 0,
+// valori di base = quelli del gioco dopo l'avvio (BATTUTA: AREA, scivolata NORMALE e non quella nuova)
+const SCELTE_BASE = { lang: 0, p1: 0, p2: 1, field: 0, kickmode: 1, slmode: 2, abil: 1, pu_on: 0, sprset: 0, copt: 0,
   bsel: 0, cointeam: 1 };
 
 function avviaPartita(m, sym, scelte) {
@@ -1336,8 +1337,10 @@ window.makeLockstep = makeLockstep;
   // ------------------------------------------------------------------ stato salvato
   const salva = (k, v) => { try { localStorage.setItem("scotogno." + k, JSON.stringify(v)); } catch (e) { /* niente */ } };
   const leggi = (k, d) => { try { const v = localStorage.getItem("scotogno." + k); return v ? JSON.parse(v) : d; } catch (e) { return d; } };
-  const BASE = { lang: 0, p1: 0, p2: 1, field: 0, slmode: 2, abil: 1, pu_on: 0, sprset: 0, kickmode: 0, copt: 0, bsel: 0 };
-  const scelte = Object.assign({}, BASE, leggi("scelte", {}));
+  // valori di base = quelli del gioco dopo l'avvio: BATTUTA AREA, scivolata NORMALE (non la SCIVOLATA NUOVA sperimentale)
+  const BASE = { lang: 0, p1: 0, p2: 1, field: 0, slmode: 2, abil: 1, pu_on: 0, sprset: 0, kickmode: 1, copt: 0, bsel: 0 };
+  // "scelte2": la prima versione salvava la battuta sbagliata (CENTROCAMPO) come valore di base
+  const scelte = Object.assign({}, BASE, leggi("scelte2", {}));
   let modo = leggi("modo", "locale");
   let segreti = null;                                // { teams: [[indice, it, en]], field: [it, en] } se sbloccati
   const tt = (k) => T[scelte.lang ? "en" : "it"][k];
@@ -1404,13 +1407,13 @@ window.makeLockstep = makeLockstep;
     const col = modo === "online" && ON.collegato;
     if (!col || chiave === "lang") {
       scelte[chiave] = val;
-      salva("scelte", scelte);
+      salva("scelte2", scelte);
     }
     if (col) {
       if (ON.ruolo !== "crea") { disegnaSala(); return; }
       ON.comuni[chiave] = val;
       scelte[chiave] = val;
-      salva("scelte", scelte);
+      salva("scelte2", scelte);
       ON.pronti = [false, false];
       mandaSala();
     }
@@ -1420,7 +1423,7 @@ window.makeLockstep = makeLockstep;
     const col = modo === "online" && ON.collegato;
     if (col && pl !== mioPL()) return;
     scelte[pl === 1 ? "p1" : "p2"] = val;
-    salva("scelte", scelte);
+    salva("scelte2", scelte);
     if (!col) return;
     if (ON.ruolo === "crea") { ON.sq[pl - 1] = val; ON.pronti = [false, false]; mandaSala(); disegnaSala(); }
     else rete.manda({ t: "squadra", p: val });
@@ -1481,9 +1484,10 @@ window.makeLockstep = makeLockstep;
     opzioni("sAbil", "abil", [[1, "si"], [0, "no"]], fermo);
     opzioni("sPu", "pu_on", [[0, "no"], [1, "si"]], fermo);
     opzioni("sSpr", "sprset", [[0, "classici"], [1, "dinamici"]], fermo);
-    const extra = !!segreti || (fermo && (v.kickmode || v.copt || v.bsel));
+    // chi entra senza password vede le opzioni extra solo se chi crea le ha cambiate
+    const extra = !!segreti || (fermo && (v.kickmode !== BASE.kickmode || v.copt !== BASE.copt || v.bsel !== BASE.bsel));
     $("extra").classList.toggle("hide", !extra);
-    if (!segreti && !col) { scelte.kickmode = 0; scelte.copt = 0; scelte.bsel = 0; }
+    if (!segreti && !col) { scelte.kickmode = BASE.kickmode; scelte.copt = BASE.copt; scelte.bsel = BASE.bsel; }
     opzioni("sKick", "kickmode", [[0, "centrocampo"], [1, "area"]], fermo);
     opzioni("sCopt", "copt", [[0, "no"], [1, "si"]], fermo);
     opzioni("sBall", "bsel", [[0, "classico"], [1, "pillola"]], fermo);
