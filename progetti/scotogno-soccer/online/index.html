@@ -45,6 +45,16 @@
   #fuoco.on { background:#e44; } #croce.on::before { background:#566; }
   table.tasti { border-collapse:collapse; font-size:14px; }
   table.tasti td { padding:2px 10px 2px 0; }
+  textarea { width:100%; height:70px; background:#0d0f14; color:var(--tx); border:1px solid #3a3f4b; border-radius:6px;
+    font:11px/1.3 ui-monospace, monospace; padding:6px; word-break:break-all; }
+  #chatLista { height:140px; overflow-y:auto; background:#0d0f14; border:1px solid #3a3f4b; border-radius:6px; padding:6px;
+    font-size:14px; margin-bottom:6px; }
+  #chatLista div { margin:2px 0; word-wrap:break-word; } #chatLista .io { color:#9cc4ff; } #chatLista .lui { color:#ffd27a; }
+  #chatLista .sis { color:var(--dim); font-style:italic; }
+  .chatRiga { display:flex; gap:6px; } .chatRiga input { flex:1; min-width:0; }
+  select:disabled, .scelta.ferma button { opacity:.55; pointer-events:none; }
+  .pronto { font-weight:700; } .pronto.si { color:var(--ok); } .pronto.no { color:var(--dim); }
+  #gioco #chatBox { margin-top:10px; }
   kbd { background:#2a2f3a; border-radius:4px; padding:1px 6px; font-family:inherit; font-size:13px; }
 </style>
 </head>
@@ -54,6 +64,41 @@
   <div class="sub" data-t="sottotitolo"></div>
 
   <div id="salaAttesa">
+    <section>
+      <div class="riga"><label data-t="modo"></label><span class="scelta" id="sModo"></span></div>
+    </section>
+
+    <section id="online" class="hide">
+      <div id="collega">
+        <h2 data-t="collegamento"></h2>
+        <div class="riga"><span class="scelta" id="sRuolo"></span></div>
+        <label class="riga"><input type="checkbox" id="stun" checked> <span data-t="usaStun"></span></label>
+        <div id="pCrea">
+          <button id="bCrea" data-t="creaCodice"></button>
+          <textarea id="tOffer" readonly></textarea>
+          <button class="sec" id="cOffer" data-t="copia"></button><button class="sec" id="sOffer" data-t="condividi"></button>
+          <p class="nota" data-t="incollaRisposta"></p>
+          <textarea id="tAnswerIn"></textarea>
+          <button id="bCollega" data-t="collegaBtn"></button>
+        </div>
+        <div id="pEntra" class="hide">
+          <p class="nota" data-t="incollaCodice"></p>
+          <textarea id="tOfferIn"></textarea>
+          <button id="bRisp" data-t="rispondi"></button>
+          <p class="nota" data-t="rimanda"></p>
+          <textarea id="tAnswer" readonly></textarea>
+          <button class="sec" id="cAnswer" data-t="copia"></button><button class="sec" id="sAnswer" data-t="condividi"></button>
+        </div>
+      </div>
+      <div id="collegati" class="hide">
+        <h2 data-t="collegati"></h2>
+        <div class="riga" id="ruoli"></div>
+        <div class="riga nota" id="rete"></div>
+        <div class="riga"><button class="sec" id="bScambia" data-t="scambia"></button><button class="sec" id="bScollega" data-t="scollega"></button></div>
+      </div>
+      <p class="nota" id="statoRete"></p>
+    </section>
+
     <section>
       <h2 data-t="sala"></h2>
       <div class="riga"><label data-t="lingua"></label><span class="scelta" id="sLang"></span></div>
@@ -69,8 +114,11 @@
         <div class="riga"><label data-t="scivnuova"></label><span class="scelta" id="sCopt"></span></div>
         <div class="riga"><label data-t="pallone"></label><span class="scelta" id="sBall"></span></div>
       </div>
-      <div class="riga" style="margin-top:14px"><button class="big" id="bGioca" data-t="gioca"></button></div>
+      <div class="riga" style="margin-top:14px"><button class="big" id="bGioca" data-t="gioca"></button>
+        <span id="pronti" class="nota"></span></div>
     </section>
+
+    <section id="chatSala" class="hide"></section>
 
     <section>
       <h2 data-t="comandi"></h2>
@@ -99,10 +147,17 @@
       <button class="sec" id="bFull" data-t="schermoIntero"></button>
       <span class="nota" id="info" style="align-self:center"></span>
     </div>
+    <div id="attesa" class="nota"></div>
     <div id="tocco" class="hide">
       <div id="croce"></div>
       <div id="fuoco">FIRE</div>
     </div>
+    <div id="chatGioco"></div>
+  </div>
+  <div id="chatBox" class="hide">
+    <h2 data-t="chat"></h2>
+    <div id="chatLista"></div>
+    <div class="chatRiga"><input type="text" id="chatIn" maxlength="200" autocomplete="off"><button id="bChat" data-t="manda"></button></div>
   </div>
   <p class="nota" data-t="piede"></p>
 </main>
@@ -458,6 +513,7 @@ function makeMachine(prg, sym) {
 
   m.boot = function () {
     mem.fill(0);
+    io.joy2 = io.joy1 = 0xff;                         // joystick a riposo (prima restava l'ultimo tasto della partita)
     const load = prg[0] | (prg[1] << 8);
     mem.set(prg.subarray(2), load);
     mem[0x00] = 0x2f; mem[0x01] = 0x37;               // porta del processore dopo il reset
@@ -801,8 +857,10 @@ registerProcessor("sid-proc", SidProc);
 function makeSidAudio() {
   // ritorna { start(): Promise, frame(writes, passiAlSecondo), stop() }; i tempi sono in secondi dell'AudioContext
   const A = { ctx: null, node: null, core: null, t: 0, ok: false };
+  // non aspetta mai resume(): senza un gesto dell'utente (per esempio quando la partita parte da un messaggio della
+  // rete) la promessa puo' restare in sospeso; il suono riparte da solo al primo gesto utile
   A.start = async function () {
-    if (A.ctx) { await A.ctx.resume(); return; }
+    if (A.ctx) { A.ctx.resume().catch(() => {}); return; }
     const Ctx = window.AudioContext || window.webkitAudioContext;
     if (!Ctx) return;
     A.ctx = new Ctx();
@@ -818,8 +876,8 @@ function makeSidAudio() {
       };
     }
     A.node.connect(A.ctx.destination);
-    await A.ctx.resume();
     A.ok = true;
+    A.ctx.resume().catch(() => {});
   };
   // un passo dell'emulatore: le sue scritture nel SID (cicli, registro, valore) vanno suonate nel prossimo 1/50 s
   A.frame = function (writes, hz) {
@@ -851,27 +909,378 @@ window.makeSidAudio = makeSidAudio;
 })();
 </script>
 <script>
+// ---- segreti.js
+(function () {
+// Segreti della sala d'attesa: nomi delle squadre e del campo segreti, cifrati da costruisci.py con la password.
+// Flusso SHA-256(sale + password + numero del blocco) in XOR; il testo in chiaro comincia con "SCOT".
+// SHA-256 scritto qui (e non crypto.subtle) perche' funzioni anche aprendo il file dal disco.
+"use strict";
+
+function sha256(bytes) {
+  const K = new Uint32Array([0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4,
+    0xab1c5ed5, 0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
+    0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da, 0x983e5152,
+    0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967, 0x27b70a85, 0x2e1b2138,
+    0x4d2c6dfc, 0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85, 0xa2bfe8a1, 0xa81a664b, 0xc24b8b70,
+    0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070, 0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5,
+    0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3, 0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa,
+    0xa4506ceb, 0xbef9a3f7, 0xc67178f2]);
+  const h = new Uint32Array([0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19]);
+  const l = bytes.length, n = ((l + 9 + 63) >> 6) << 6, m = new Uint8Array(n);
+  m.set(bytes); m[l] = 0x80;
+  const dv = new DataView(m.buffer);
+  dv.setUint32(n - 4, l * 8);
+  const w = new Uint32Array(64);
+  const r = (x, k) => (x >>> k) | (x << (32 - k));
+  for (let o = 0; o < n; o += 64) {
+    for (let i = 0; i < 16; i++) w[i] = dv.getUint32(o + 4 * i);
+    for (let i = 16; i < 64; i++) {
+      const s0 = r(w[i - 15], 7) ^ r(w[i - 15], 18) ^ (w[i - 15] >>> 3), s1 = r(w[i - 2], 17) ^ r(w[i - 2], 19) ^ (w[i - 2] >>> 10);
+      w[i] = (w[i - 16] + s0 + w[i - 7] + s1) | 0;
+    }
+    let [a, b, c, d, e, f, g, hh] = h;
+    for (let i = 0; i < 64; i++) {
+      const t1 = (hh + (r(e, 6) ^ r(e, 11) ^ r(e, 25)) + ((e & f) ^ (~e & g)) + K[i] + w[i]) | 0;
+      const t2 = ((r(a, 2) ^ r(a, 13) ^ r(a, 22)) + ((a & b) ^ (a & c) ^ (b & c))) | 0;
+      hh = g; g = f; f = e; e = (d + t1) | 0; d = c; c = b; b = a; a = (t1 + t2) | 0;
+    }
+    h[0] += a; h[1] += b; h[2] += c; h[3] += d; h[4] += e; h[5] += f; h[6] += g; h[7] += hh;
+  }
+  const out = new Uint8Array(32);
+  for (let i = 0; i < 8; i++) new DataView(out.buffer).setUint32(4 * i, h[i]);
+  return out;
+}
+const b64 = (s) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
+function apriSegreti(DATI, pw) {
+  const enc = new TextEncoder();
+  const salt = b64(DATI.sale), blob = b64(DATI.segreti), p = enc.encode(pw.trim().toUpperCase());
+  const out = new Uint8Array(blob.length);
+  for (let blk = 0; blk * 32 < blob.length; blk++) {
+    const inp = new Uint8Array(salt.length + p.length + 4);
+    inp.set(salt); inp.set(p, salt.length);
+    new DataView(inp.buffer).setUint32(salt.length + p.length, blk);
+    const ks = sha256(inp);
+    for (let i = 0; i < 32 && blk * 32 + i < blob.length; i++) out[blk * 32 + i] = blob[blk * 32 + i] ^ ks[i];
+  }
+  const txt = new TextDecoder().decode(out);
+  if (!txt.startsWith("SCOT")) return null;
+  try { return JSON.parse(txt.slice(4)); } catch (e) { return null; }
+}
+
+
+if (typeof module !== "undefined") module.exports = { sha256, apriSegreti };
+
+window.sha256 = sha256;
+window.apriSegreti = apriSegreti;
+})();
+</script>
+<script>
+// ---- rete.js
+(function () {
+// Collegamento diretto tra due browser (WebRTC), senza server: i "codici" si scambiano a mano.
+// Generico, non sa niente del gioco: lo usa la pagina e si potra' riusare (seguito, Skunny Kart).
+// Due canali sullo stesso collegamento:
+//   "ctl": affidabile e ordinato, messaggi JSON (sala d'attesa, chat, partenza, controlli);
+//   "inp": non affidabile e senza ordine, messaggi binari brevi (i tasti, gia' ridondanti).
+// Codice = JSON (tipo, STUN, SDP) compresso (deflate-raw) in base64url, prefisso "SC1Z" o "SC1P".
+"use strict";
+
+const RETE_STUN = ["stun:stun.l.google.com:19302", "stun:stun.cloudflare.com:3478"];
+const RETE_MAX_CODICE = 12000, RETE_MAX_CTL = 4000, RETE_RACCOLTA_MS = 6000;
+
+function makeRete() {
+  const R = {
+    stato: "fermo",                                 // fermo, preparo, attesa, collegato, chiuso, errore
+    stun: true, ruolo: null, pc: null, ctl: null, inp: null,
+    indirizzi: { locali: 0, nascosti: 0, pubblici: 0 },
+    // eventi (la pagina li sostituisce)
+    onStato: () => {}, onMessaggio: () => {}, onTasti: () => {},
+    // prove: perdita (0..1) e ritardo in ms dei pacchetti dei tasti in uscita
+    simula: { perdita: 0, ritardo: 0, variabile: 0 },
+  };
+  const cambia = (s, dettaglio) => { R.stato = s; R.onStato(s, dettaglio || ""); };
+
+  // ---- codici
+  async function deflate(bytes) {
+    if (typeof CompressionStream === "undefined") return null;
+    const out = new Response(new Blob([bytes]).stream().pipeThrough(new CompressionStream("deflate-raw")));
+    return new Uint8Array(await out.arrayBuffer());
+  }
+  async function inflate(bytes) {
+    const out = new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream("deflate-raw")));
+    return new Uint8Array(await out.arrayBuffer());
+  }
+  const b64u = (b) => { let s = ""; for (const x of b) s += String.fromCharCode(x); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
+  const unb64u = (s) => { s = s.replace(/-/g, "+").replace(/_/g, "/"); while (s.length % 4) s += "="; return Uint8Array.from(atob(s), (c) => c.charCodeAt(0)); };
+  async function codifica(obj) {
+    const raw = new TextEncoder().encode(JSON.stringify(obj));
+    const z = await deflate(raw);
+    return z ? "SC1Z" + b64u(z) : "SC1P" + b64u(raw);
+  }
+  async function decodifica(code, tipo) {
+    code = (code || "").replace(/\s+/g, "");
+    if (code.length < 10 || code.length > RETE_MAX_CODICE || !code.startsWith("SC1")) throw new Error("codice non valido");
+    const body = unb64u(code.slice(4));
+    const raw = code[3] === "Z" ? await inflate(body) : code[3] === "P" ? body : null;
+    if (!raw || raw.length > 20000) throw new Error("codice non valido");
+    const o = JSON.parse(new TextDecoder().decode(raw));
+    if (!o || o.v !== 1 || o.t !== tipo || typeof o.sdp !== "string" || typeof o.stun !== "boolean")
+      throw new Error(tipo === "o" ? "serve il codice di chi crea" : "serve il codice di risposta");
+    return o;
+  }
+
+  // ---- collegamento
+  function nuovo(stun) {
+    R.stun = stun;
+    R.indirizzi = { locali: 0, nascosti: 0, pubblici: 0 };
+    const pc = new RTCPeerConnection({ iceServers: stun ? [{ urls: RETE_STUN }] : [] });
+    R.pc = pc;
+    pc.onicecandidate = (e) => {
+      if (!e.candidate) return;
+      const c = e.candidate, typ = c.type || (/ typ (\w+)/.exec(c.candidate) || [])[1];
+      const addr = c.address || c.candidate.split(" ")[4] || "";
+      if (typ === "host") { if (addr.endsWith(".local")) R.indirizzi.nascosti++; else R.indirizzi.locali++; }
+      else if (typ === "srflx") R.indirizzi.pubblici++;
+    };
+    pc.onconnectionstatechange = () => {
+      if (pc !== R.pc) return;
+      if (pc.connectionState === "failed") cambia("errore", "collegamento non riuscito");
+      if (pc.connectionState === "disconnected" && R.stato === "collegato") cambia("collegato", "interrotto?");
+      if (pc.connectionState === "closed") cambia("chiuso");
+    };
+    pc.ondatachannel = (e) => canale(e.channel);
+    return pc;
+  }
+  function canale(ch) {
+    ch.binaryType = "arraybuffer";
+    if (ch.label === "ctl") {
+      R.ctl = ch;
+      ch.onmessage = (e) => {
+        if (typeof e.data !== "string" || e.data.length > RETE_MAX_CTL) return;
+        let o; try { o = JSON.parse(e.data); } catch (x) { return; }
+        if (o && typeof o.t === "string") R.onMessaggio(o);
+      };
+      ch.onclose = () => { if (R.stato !== "fermo") cambia("chiuso"); };
+    } else if (ch.label === "inp") {
+      R.inp = ch;
+      ch.onmessage = (e) => { if (e.data instanceof ArrayBuffer && e.data.byteLength <= 512) R.onTasti(e.data); };
+    }
+    ch.onopen = () => { if (R.ctl && R.inp && R.ctl.readyState === "open" && R.inp.readyState === "open") cambia("collegato"); };
+    if (ch.readyState === "open") ch.onopen();
+  }
+  async function raccogli() {
+    const pc = R.pc;
+    if (pc.iceGatheringState === "complete") return;
+    await new Promise((ok) => {
+      const t = setTimeout(ok, RETE_RACCOLTA_MS);
+      pc.addEventListener("icegatheringstatechange", () => { if (pc.iceGatheringState === "complete") { clearTimeout(t); ok(); } });
+    });
+  }
+
+  // chi crea: ritorna il codice da mandare
+  R.crea = async function (stun) {
+    R.chiudi();
+    R.ruolo = "crea";
+    cambia("preparo");
+    const pc = nuovo(stun);
+    canale(pc.createDataChannel("ctl", { ordered: true }));
+    canale(pc.createDataChannel("inp", { ordered: false, maxRetransmits: 0 }));
+    await pc.setLocalDescription(await pc.createOffer());
+    await raccogli();
+    cambia("attesa");
+    return codifica({ v: 1, t: "o", stun, sdp: pc.localDescription.sdp });
+  };
+  // chi entra: dal codice ricevuto, ritorna il codice di risposta
+  R.rispondi = async function (codice) {
+    const o = await decodifica(codice, "o");
+    R.chiudi();
+    R.ruolo = "entra";
+    cambia("preparo");
+    const pc = nuovo(o.stun);
+    await pc.setRemoteDescription({ type: "offer", sdp: o.sdp });
+    await pc.setLocalDescription(await pc.createAnswer());
+    await raccogli();
+    cambia("attesa");
+    return codifica({ v: 1, t: "a", stun: o.stun, sdp: pc.localDescription.sdp });
+  };
+  // chi crea: incolla la risposta
+  R.collega = async function (codice) {
+    const a = await decodifica(codice, "a");
+    await R.pc.setRemoteDescription({ type: "answer", sdp: a.sdp });
+  };
+  R.manda = function (obj) {
+    if (R.ctl && R.ctl.readyState === "open") R.ctl.send(JSON.stringify(obj));
+  };
+  R.mandaTasti = function (buf) {
+    if (!R.inp || R.inp.readyState !== "open") return;
+    const s = R.simula;
+    if (s.perdita && Math.random() < s.perdita) return;
+    if (s.ritardo || s.variabile) {
+      const ch = R.inp;
+      setTimeout(() => { if (ch.readyState === "open") ch.send(buf); }, s.ritardo + Math.random() * s.variabile);
+    } else R.inp.send(buf);
+  };
+  // tipo di collegamento scelto (per la sala d'attesa): "stessa rete", "internet", "inoltro"
+  R.tipo = async function () {
+    try {
+      const st = await R.pc.getStats();
+      let pair = null;
+      st.forEach((r) => { if (r.type === "transport" && r.selectedCandidatePairId) pair = st.get(r.selectedCandidatePairId); });
+      if (!pair) st.forEach((r) => { if (r.type === "candidate-pair" && r.nominated && r.state === "succeeded") pair = pair || r; });
+      if (!pair) return "";
+      const l = st.get(pair.localCandidateId), r = st.get(pair.remoteCandidateId);
+      const lt = l && l.candidateType, rt = r && r.candidateType;
+      return lt === "relay" || rt === "relay" ? "inoltro" : lt === "host" && rt === "host" ? "stessa rete" : "internet";
+    } catch (e) { return ""; }
+  };
+  R.chiudi = function () {
+    const pc = R.pc;
+    R.pc = R.ctl = R.inp = null;
+    R.stato = "fermo";
+    try { if (pc) pc.close(); } catch (e) { /* niente */ }
+  };
+  return R;
+}
+
+if (typeof module !== "undefined") module.exports = { makeRete };
+
+window.makeRete = makeRete;
+})();
+</script>
+<script>
+// ---- lockstep.js
+(function () {
+// Gioco in rete "a passi uguali" (lockstep) con ritardo dei comandi: generico, non sa niente del gioco.
+// Ogni giocatore ha un posto (0 o 1). Il tasto premuto quando la partita e' al passo f vale al passo f + D:
+// cosi' ha D passi di tempo (D * 20 ms) per arrivare all'altro. Un passo si esegue solo quando si hanno i tasti di
+// tutti e due; se manca quello dell'altro si aspetta.
+// Pacchetti dei tasti (canale non affidabile): ogni volta si rimandano tutti i tasti non ancora confermati
+// dall'altro, quindi un pacchetto perso non conta. Formato: [1, conferma u32, primo u32, n u8, n tasti].
+// Ogni OGNI_HASH passi i due si mandano l'hash dello stato (canale affidabile) e lo confrontano.
+"use strict";
+
+const LS_NEUTRO = 0xff, LS_MAX_INVIO = 120, LS_OGNI_HASH = 60;
+
+function makeLockstep(o) {
+  // o: { posto: 0|1, ritardo: D, passo(t0, t1), hash(), mandaTasti(ArrayBuffer), mandaCtl(obj), onDesync(f, mio, suo) }
+  const D = o.ritardo;
+  const tasti = [new Map(), new Map()];             // passo -> tasto, per posto
+  const io = o.posto, lui = 1 - o.posto;
+  const S = {
+    f: 0,                                           // passi eseguiti
+    mioProssimo: D,                                 // primo passo a cui assegnare il prossimo tasto locale
+    suoContiguo: D,                                 // primo passo di cui manca ancora il tasto dell'altro
+    suoMax: D - 1,                                  // passo piu' alto ricevuto dall'altro
+    confermatoDaLui: D,                             // primo passo dei miei che lui non ha ancora
+    attese: 0, desync: false,
+  };
+  for (let k = 0; k < D; k++) { tasti[0].set(k, LS_NEUTRO); tasti[1].set(k, LS_NEUTRO); }
+  const hashMiei = new Map(), hashSuoi = new Map();
+
+  function invia() {
+    const da = Math.max(S.confermatoDaLui, S.mioProssimo - LS_MAX_INVIO);
+    const n = S.mioProssimo - da;
+    const buf = new ArrayBuffer(10 + n), dv = new DataView(buf);
+    dv.setUint8(0, 1); dv.setUint32(1, S.suoContiguo); dv.setUint32(5, da); dv.setUint8(9, n);
+    for (let i = 0; i < n; i++) dv.setUint8(10 + i, tasti[io].get(da + i));
+    o.mandaTasti(buf);
+  }
+  function controlla(f) {
+    if (!hashMiei.has(f) || !hashSuoi.has(f)) return;
+    if (hashMiei.get(f) !== hashSuoi.get(f) && !S.desync) { S.desync = true; o.onDesync(f, hashMiei.get(f), hashSuoi.get(f)); }
+    hashMiei.delete(f); hashSuoi.delete(f);
+  }
+
+  // un "battito" del tempo locale: registra il tasto locale (se c'e' posto) e prova a eseguire un passo
+  S.battito = function (tastoLocale) {
+    if (S.desync) return false;
+    if (S.mioProssimo <= S.f + D) tasti[io].set(S.mioProssimo++, tastoLocale & 0xff);
+    invia();
+    if (!tasti[lui].has(S.f)) { S.attese++; return false; }
+    const t = [tasti[0].get(S.f), tasti[1].get(S.f)];
+    o.passo(t[0], t[1]);
+    tasti[lui].delete(S.f - 1);                     // i miei si tengono finche' lui non li conferma (vedi invia)
+    if (S.f - 1 < S.confermatoDaLui) tasti[io].delete(S.f - 1);
+    S.f++;
+    if (S.f % LS_OGNI_HASH === 0) {
+      const h = o.hash();
+      hashMiei.set(S.f, h);
+      o.mandaCtl({ t: "hash", f: S.f, h });
+      controlla(S.f);
+    }
+    return true;
+  };
+  // dopo la fine della partita: continuare a rimandare i tasti per un po', se all'altro ne manca qualcuno
+  S.invia = invia;
+  // quanti passi l'altro e' avanti (per recuperare se si resta indietro)
+  S.indietro = () => S.suoMax - (S.f + D);
+
+  S.riceviTasti = function (buf) {
+    if (buf.byteLength < 10) return;
+    const dv = new DataView(buf);
+    if (dv.getUint8(0) !== 1) return;
+    const conf = dv.getUint32(1), da = dv.getUint32(5), n = dv.getUint8(9);
+    if (buf.byteLength !== 10 + n) return;
+    if (conf > S.confermatoDaLui && conf <= S.mioProssimo) {
+      for (let k = S.confermatoDaLui; k < conf; k++) if (k < S.f) tasti[io].delete(k);
+      S.confermatoDaLui = conf;
+    }
+    for (let i = 0; i < n; i++) {
+      const k = da + i;
+      if (k >= S.f && !tasti[lui].has(k) && k < S.f + 4 * D + 400) tasti[lui].set(k, dv.getUint8(10 + i));
+      if (k > S.suoMax) S.suoMax = k;
+    }
+    while (tasti[lui].has(S.suoContiguo)) S.suoContiguo++;
+  };
+  S.riceviHash = function (m) {
+    if (typeof m.f !== "number" || typeof m.h !== "number") return;
+    hashSuoi.set(m.f, m.h);
+    controlla(m.f);
+  };
+  return S;
+}
+
+if (typeof module !== "undefined") module.exports = { makeLockstep, LS_NEUTRO };
+
+window.makeLockstep = makeLockstep;
+})();
+</script>
+<script>
 // ---- pagina.js
-// SCOTOGNO Soccer, pagina web (passo 3): sala d'attesa locale, partita PL1 contro PL2 sullo stesso dispositivo.
-// Usa (dagli altri file, inclusi prima): makeMachine, avviaPartita, renderVIC, PAL_RGB, makeSidAudio.
-// DATI (scritto da costruisci.py): prg in base64, simboli, nomi delle squadre, segreti cifrati.
+// SCOTOGNO Soccer, pagina web: sala d'attesa, partita PL1 contro PL2 sullo stesso dispositivo oppure online.
+// Usa (dagli altri file, inclusi prima): makeMachine, avviaPartita, renderVIC, PAL_RGB, makeSidAudio, apriSegreti,
+// makeRete, makeLockstep. DATI (scritto da costruisci.py): prg in base64, simboli, nomi delle squadre, segreti cifrati.
+// Online: chi crea decide le impostazioni comuni; ognuno sceglie la propria squadra; quando tutti e due sono pronti chi
+// crea lancia la moneta e manda "via"; la partita va avanti a passi uguali (lockstep) con il ritardo dei comandi.
 "use strict";
 
 (function () {
   const HZ = 985248 / 19656;                         // fotogrammi PAL al secondo (50,12)
-  const PERIODO = 1000 / HZ;
+  let PERIODO = 1000 / HZ;
   const GSTATE = 0xa0, SCOREP = 0x63, SCOREO = 0x64, ENDCNT = 0xaa;
+  const CHIAVI = { lang: [0, 1], field: [0, 2], slmode: [2, 4], abil: [0, 1], pu_on: [0, 1], sprset: [0, 1],
+    kickmode: [0, 1], copt: [0, 1], bsel: [0, 1] };   // impostazioni comuni e valori ammessi
 
   // ------------------------------------------------------------------ testi
   const T = {
     it: {
-      titolo: "- partita a due", sottotitolo: "Il gioco per Commodore 64, nel browser. Per ora due giocatori sullo stesso dispositivo.",
+      titolo: "- partita a due", sottotitolo: "Il gioco per Commodore 64, nel browser: in due sullo stesso dispositivo o online.",
+      modo: "Si gioca", locale: "Stesso dispositivo", online: "Online",
+      collegamento: "Collegamento", creo: "Creo io la partita", entro: "Entro in una partita",
+      usaStun: "Usa STUN pubblico (serve via internet)", creaCodice: "Crea il codice", copia: "Copia", condividi: "Condividi",
+      incollaRisposta: "Manda il codice all'altro giocatore, poi incolla qui la sua risposta:", collegaBtn: "Collega",
+      incollaCodice: "Incolla qui il codice di chi crea la partita:", rispondi: "Rispondi",
+      rimanda: "Rimanda questo codice a chi ha creato la partita, poi aspetta:",
+      collegati: "Collegati", scambia: "Scambia PL1 e PL2", scollega: "Scollega", tu: "Tu", altro: "L'altro",
+      ritardo: "andata e ritorno", ritardoCmd: "ritardo dei comandi", stessaRete: "stessa rete", internet: "via internet",
+      inoltro: "tramite inoltro",
       sala: "Scelte della partita", lingua: "Lingua", campo: "Campo", scivolata: "Scivolata", abilita: "Abilità",
       powerup: "Power-up", giocatori: "Giocatori", battuta: "Battuta", scivnuova: "Scivolata nuova", pallone: "Pallone",
-      gioca: "Gioca", comandi: "Comandi", segreti: "Password", sblocca: "Sblocca",
+      gioca: "Gioca", pronto: "Pronto", nonPronto: "Non sono più pronto", comandi: "Comandi", segreti: "Password",
+      sblocca: "Sblocca", chat: "Chat", manda: "Manda",
       tastiPL1: "<kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd> e <kbd>Invio</kbd> (o <kbd>Ctrl</kbd> destro); primo gamepad",
       tastiPL2: "<kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> e <kbd>Spazio</kbd> (o <kbd>Shift</kbd> sinistro); secondo gamepad",
-      notaComandi: "Sul telefono compaiono una croce e un pulsante FIRE: comandano PL1.",
+      notaComandi: "Online vanno bene tutti e due i gruppi di tasti e il primo gamepad. Sul telefono compaiono una croce e un pulsante FIRE.",
       esci: "Esci", schermoIntero: "Schermo intero", audioSi: "Audio: sì", audioNo: "Audio: no",
       erba: "Erba", indoor: "Indoor", si: "Sì", no: "No", classici: "Classici", dinamici: "Dinamici",
       normale: "Normale", esperto: "Esperto", estremo: "Estremo", centrocampo: "Centrocampo", area: "Area",
@@ -880,16 +1289,31 @@ window.makeSidAudio = makeSidAudio;
       vince: "vince", rivincita: "Rivincita", torna: "Scelte della partita",
       pwOk: "Sbloccato.", pwNo: "Password sbagliata.", pwGia: "Già sbloccato.",
       piede: "SCOTOGNO Soccer di LINOBOB. Versione web: il programma C64 originale in un piccolo emulatore.",
-      errore: "Errore: ",
+      errore: "Errore: ", attendo: "Aspetto l'altro giocatore…", decideCrea: "Le impostazioni le sceglie chi ha creato la partita.",
+      sProntoIo: "tu sei pronto", sProntoLui: "l'altro è pronto", sAttesaLui: "l'altro non è ancora pronto",
+      cPreparo: "Preparo il codice…", cAttesa: "In attesa dell'altro…", cCollegato: "Collegati.", cChiuso: "Collegamento chiuso.",
+      cErrore: "Collegamento non riuscito.", cNessuno: "Il browser non ha dato nessun indirizzo: controlla VPN, estensioni o le impostazioni WebRTC (Opera), oppure prova un altro browser.",
+      eCollegato: "collegati", eUscito: "l'altro giocatore è uscito dalla partita", eChiuso: "collegamento chiuso",
+      eDesync: "le due partite sono diverse: partita fermata (passo ", ePronto: "l'altro giocatore è pronto",
     },
     en: {
-      titolo: "- two-player match", sottotitolo: "The Commodore 64 game, in the browser. For now, two players on the same device.",
+      titolo: "- two-player match", sottotitolo: "The Commodore 64 game in the browser: two players on one device or online.",
+      modo: "Play", locale: "Same device", online: "Online",
+      collegamento: "Connection", creo: "I create the match", entro: "I join a match",
+      usaStun: "Use public STUN (needed over the internet)", creaCodice: "Create the code", copia: "Copy", condividi: "Share",
+      incollaRisposta: "Send the code to the other player, then paste their answer here:", collegaBtn: "Connect",
+      incollaCodice: "Paste the code of whoever created the match:", rispondi: "Answer",
+      rimanda: "Send this code back to whoever created the match, then wait:",
+      collegati: "Connected", scambia: "Swap PL1 and PL2", scollega: "Disconnect", tu: "You", altro: "The other",
+      ritardo: "round trip", ritardoCmd: "input delay", stessaRete: "same network", internet: "over the internet",
+      inoltro: "through a relay",
       sala: "Match options", lingua: "Language", campo: "Field", scivolata: "Slide tackle", abilita: "Abilities",
       powerup: "Power-ups", giocatori: "Players", battuta: "Kick-off", scivnuova: "New slide tackle", pallone: "Ball",
-      gioca: "Play", comandi: "Controls", segreti: "Password", sblocca: "Unlock",
+      gioca: "Play", pronto: "Ready", nonPronto: "Not ready any more", comandi: "Controls", segreti: "Password",
+      sblocca: "Unlock", chat: "Chat", manda: "Send",
       tastiPL1: "<kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd> and <kbd>Enter</kbd> (or right <kbd>Ctrl</kbd>); first gamepad",
       tastiPL2: "<kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> and <kbd>Space</kbd> (or left <kbd>Shift</kbd>); second gamepad",
-      notaComandi: "On a phone a pad and a FIRE button appear: they control PL1.",
+      notaComandi: "Online both key sets and the first gamepad work. On a phone a pad and a FIRE button appear.",
       esci: "Quit", schermoIntero: "Full screen", audioSi: "Sound: on", audioNo: "Sound: off",
       erba: "Grass", indoor: "Indoor", si: "Yes", no: "No", classici: "Classic", dinamici: "Dynamic",
       normale: "Normal", esperto: "Expert", estremo: "Extreme", centrocampo: "Centre circle", area: "Penalty area",
@@ -898,82 +1322,60 @@ window.makeSidAudio = makeSidAudio;
       vince: "wins", rivincita: "Rematch", torna: "Match options",
       pwOk: "Unlocked.", pwNo: "Wrong password.", pwGia: "Already unlocked.",
       piede: "SCOTOGNO Soccer by LINOBOB. Web version: the original C64 program in a small emulator.",
-      errore: "Error: ",
+      errore: "Error: ", attendo: "Waiting for the other player…", decideCrea: "The match creator chooses the options.",
+      sProntoIo: "you are ready", sProntoLui: "the other player is ready", sAttesaLui: "the other player is not ready yet",
+      cPreparo: "Preparing the code…", cAttesa: "Waiting for the other player…", cCollegato: "Connected.", cChiuso: "Connection closed.",
+      cErrore: "Connection failed.", cNessuno: "The browser gave no address: check VPN, extensions or WebRTC settings (Opera), or try another browser.",
+      eCollegato: "connected", eUscito: "the other player left the match", eChiuso: "connection closed",
+      eDesync: "the two matches differ: match stopped (step ", ePronto: "the other player is ready",
     },
   };
   const $ = (id) => document.getElementById(id);
+  const b64 = (s) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
 
-  // ------------------------------------------------------------------ stato salvato (scelte, segreti)
+  // ------------------------------------------------------------------ stato salvato
   const salva = (k, v) => { try { localStorage.setItem("scotogno." + k, JSON.stringify(v)); } catch (e) { /* niente */ } };
   const leggi = (k, d) => { try { const v = localStorage.getItem("scotogno." + k); return v ? JSON.parse(v) : d; } catch (e) { return d; } };
   const BASE = { lang: 0, p1: 0, p2: 1, field: 0, slmode: 2, abil: 1, pu_on: 0, sprset: 0, kickmode: 0, copt: 0, bsel: 0 };
   const scelte = Object.assign({}, BASE, leggi("scelte", {}));
+  let modo = leggi("modo", "locale");
   let segreti = null;                                // { teams: [[indice, it, en]], field: [it, en] } se sbloccati
+  const tt = (k) => T[scelte.lang ? "en" : "it"][k];
 
-  // ------------------------------------------------------------------ segreti: SHA-256 e cifratura a flusso
-  function sha256(bytes) {
-    const K = new Uint32Array([0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4,
-      0xab1c5ed5, 0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
-      0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da, 0x983e5152,
-      0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967, 0x27b70a85, 0x2e1b2138,
-      0x4d2c6dfc, 0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85, 0xa2bfe8a1, 0xa81a664b, 0xc24b8b70,
-      0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070, 0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5,
-      0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3, 0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa,
-      0xa4506ceb, 0xbef9a3f7, 0xc67178f2]);
-    const h = new Uint32Array([0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19]);
-    const l = bytes.length, n = ((l + 9 + 63) >> 6) << 6, m = new Uint8Array(n);
-    m.set(bytes); m[l] = 0x80;
-    const dv = new DataView(m.buffer);
-    dv.setUint32(n - 4, l * 8);
-    const w = new Uint32Array(64);
-    const r = (x, k) => (x >>> k) | (x << (32 - k));
-    for (let o = 0; o < n; o += 64) {
-      for (let i = 0; i < 16; i++) w[i] = dv.getUint32(o + 4 * i);
-      for (let i = 16; i < 64; i++) {
-        const s0 = r(w[i - 15], 7) ^ r(w[i - 15], 18) ^ (w[i - 15] >>> 3), s1 = r(w[i - 2], 17) ^ r(w[i - 2], 19) ^ (w[i - 2] >>> 10);
-        w[i] = (w[i - 16] + s0 + w[i - 7] + s1) | 0;
-      }
-      let [a, b, c, d, e, f, g, hh] = h;
-      for (let i = 0; i < 64; i++) {
-        const t1 = (hh + (r(e, 6) ^ r(e, 11) ^ r(e, 25)) + ((e & f) ^ (~e & g)) + K[i] + w[i]) | 0;
-        const t2 = ((r(a, 2) ^ r(a, 13) ^ r(a, 22)) + ((a & b) ^ (a & c) ^ (b & c))) | 0;
-        hh = g; g = f; f = e; e = (d + t1) | 0; d = c; c = b; b = a; a = (t1 + t2) | 0;
-      }
-      h[0] += a; h[1] += b; h[2] += c; h[3] += d; h[4] += e; h[5] += f; h[6] += g; h[7] += hh;
-    }
-    const out = new Uint8Array(32);
-    for (let i = 0; i < 8; i++) new DataView(out.buffer).setUint32(4 * i, h[i]);
-    return out;
+  // ------------------------------------------------------------------ stato online
+  const rete = makeRete();
+  const ON = {
+    ruolo: null, ruoloScelto: "crea", collegato: false, hostPL: 1,   // hostPL: PL di chi crea (1 o 2)
+    comuni: Object.assign({}, BASE),                  // impostazioni comuni (decise da chi crea)
+    sq: [BASE.p1, BASE.p2],                           // squadre di PL1 e PL2
+    pronti: [false, false],                           // [chi crea, chi entra]
+    nomi: {},                                         // nomi delle squadre segrete mandati da chi crea
+    rtt: [], tipo: "",
+  };
+  const mioPL = () => (ON.ruolo === "crea" ? ON.hostPL : 3 - ON.hostPL);
+
+  // ------------------------------------------------------------------ chat
+  function chat(testo, chi) {
+    const l = $("chatLista"), d = document.createElement("div");
+    d.className = chi;
+    d.textContent = (chi === "io" ? tt("tu") + ": " : chi === "lui" ? tt("altro") + ": " : "— ") + testo;
+    l.appendChild(d);
+    while (l.children.length > 200) l.removeChild(l.firstChild);
+    l.scrollTop = l.scrollHeight;
   }
-  const b64 = (s) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
-  function apriSegreti(pw) {
-    const enc = new TextEncoder();
-    const salt = b64(DATI.sale), blob = b64(DATI.segreti), p = enc.encode(pw.trim().toUpperCase());
-    const out = new Uint8Array(blob.length);
-    for (let blk = 0; blk * 32 < blob.length; blk++) {
-      const inp = new Uint8Array(salt.length + p.length + 4);
-      inp.set(salt); inp.set(p, salt.length);
-      new DataView(inp.buffer).setUint32(salt.length + p.length, blk);
-      const ks = sha256(inp);
-      for (let i = 0; i < 32 && blk * 32 + i < blob.length; i++) out[blk * 32 + i] = blob[blk * 32 + i] ^ ks[i];
-    }
-    const txt = new TextDecoder().decode(out);
-    if (!txt.startsWith("SCOT")) return null;
-    try { return JSON.parse(txt.slice(4)); } catch (e) { return null; }
+  let chatRicevuti = [];
+  function mandaChat() {
+    const x = $("chatIn").value.trim().slice(0, 200);
+    if (!x || !ON.collegato) return;
+    rete.manda({ t: "chat", x });
+    chat(x, "io");
+    $("chatIn").value = "";
   }
 
   // ------------------------------------------------------------------ sala d'attesa
-  const tt = (k) => T[scelte.lang ? "en" : "it"][k];
-  function opzioni(id, chiave, voci) {             // voci: [[valore, chiave del testo o testo]]
-    const el = $(id);
-    el.innerHTML = "";
-    for (const [v, k] of voci) {
-      const b = document.createElement("button");
-      b.textContent = T.it[k] !== undefined ? tt(k) : k;
-      b.className = scelte[chiave] === v ? "on" : "";
-      b.onclick = () => { scelte[chiave] = v; salva("scelte", scelte); disegnaSala(); };
-      el.appendChild(b);
-    }
+  function vista() {                                 // valori mostrati: locali, oppure comuni + squadre online
+    if (modo === "online" && ON.collegato) return Object.assign({}, ON.comuni, { p1: ON.sq[0], p2: ON.sq[1] });
+    return scelte;
   }
   function squadre() {
     const l = scelte.lang;
@@ -981,37 +1383,133 @@ window.makeSidAudio = makeSidAudio;
     if (segreti) for (const [i, it, en] of segreti.teams) out.push([i, l ? en : it]);
     return out;
   }
+  const nome = (i) => {
+    const s = squadre().find(([k]) => k === i);
+    return s ? s[1] : (ON.nomi[i] || "?");
+  };
+  function opzioni(id, chiave, voci, fermo) {
+    const el = $(id), v = vista();
+    el.innerHTML = "";
+    el.classList.toggle("ferma", !!fermo);
+    for (const [val, k] of voci) {
+      const b = document.createElement("button");
+      b.textContent = T.it[k] !== undefined ? tt(k) : k;
+      b.className = v[chiave] === val ? "on" : "";
+      b.onclick = () => cambiaScelta(chiave, val);
+      el.appendChild(b);
+    }
+    return el;
+  }
+  function cambiaScelta(chiave, val) {
+    const col = modo === "online" && ON.collegato;
+    if (!col || chiave === "lang") {
+      scelte[chiave] = val;
+      salva("scelte", scelte);
+    }
+    if (col) {
+      if (ON.ruolo !== "crea") { disegnaSala(); return; }
+      ON.comuni[chiave] = val;
+      scelte[chiave] = val;
+      salva("scelte", scelte);
+      ON.pronti = [false, false];
+      mandaSala();
+    }
+    disegnaSala();
+  }
+  function cambiaSquadra(pl, val) {                  // pl: 1 o 2
+    const col = modo === "online" && ON.collegato;
+    if (col && pl !== mioPL()) return;
+    scelte[pl === 1 ? "p1" : "p2"] = val;
+    salva("scelte", scelte);
+    if (!col) return;
+    if (ON.ruolo === "crea") { ON.sq[pl - 1] = val; ON.pronti = [false, false]; mandaSala(); disegnaSala(); }
+    else rete.manda({ t: "squadra", p: val });
+  }
   function disegnaSala() {
     document.documentElement.lang = scelte.lang ? "en" : "it";
     for (const el of document.querySelectorAll("[data-t]")) el.innerHTML = tt(el.dataset.t);
-    const sq = squadre();
-    if (!sq.some(([i]) => i === scelte.p1)) scelte.p1 = 0;
-    if (!sq.some(([i]) => i === scelte.p2)) scelte.p2 = 1;
-    for (const [id, k] of [["sP1", "p1"], ["sP2", "p2"]]) {
-      const s = $(id);
-      s.innerHTML = "";
-      for (const [i, nome] of sq) { const o = document.createElement("option"); o.value = i; o.textContent = nome; s.appendChild(o); }
-      s.value = scelte[k];
-      s.onchange = () => { scelte[k] = +s.value; salva("scelte", scelte); };
+    const online = modo === "online", col = online && ON.collegato, fermo = col && ON.ruolo === "entra", v = vista();
+    const sm = $("sModo");
+    sm.innerHTML = "";
+    for (const [mm, k] of [["locale", "locale"], ["online", "online"]]) {
+      const b = document.createElement("button");
+      b.textContent = tt(k);
+      b.className = modo === mm ? "on" : "";
+      b.onclick = () => { if (inGioco) return; modo = mm; salva("modo", modo); disegnaSala(); };
+      sm.appendChild(b);
     }
-    opzioni("sLang", "lang", [[0, "Italiano"], [1, "English"]]);
+    $("online").classList.toggle("hide", !online);
+    $("collega").classList.toggle("hide", col);
+    $("collegati").classList.toggle("hide", !col);
+    $("chatSala").classList.toggle("hide", !col);
+    $("chatBox").classList.toggle("hide", !col);
+    if (!inGioco) $("chatSala").appendChild($("chatBox"));
+    const sr = $("sRuolo");
+    sr.innerHTML = "";
+    for (const [r, k] of [["crea", "creo"], ["entra", "entro"]]) {
+      const b = document.createElement("button");
+      b.textContent = tt(k);
+      b.className = ON.ruoloScelto === r ? "on" : "";
+      b.onclick = () => { ON.ruoloScelto = r; disegnaSala(); };
+      sr.appendChild(b);
+    }
+    $("pCrea").classList.toggle("hide", ON.ruoloScelto !== "crea");
+    $("pEntra").classList.toggle("hide", ON.ruoloScelto !== "entra");
+    // squadre: online ognuno cambia solo la sua; si mostrano anche i nomi segreti mandati da chi crea
+    const sq = squadre();
+    if (!col) {
+      if (!sq.some(([i]) => i === scelte.p1)) scelte.p1 = 0;
+      if (!sq.some(([i]) => i === scelte.p2)) scelte.p2 = 1;
+    }
+    for (const [id, pl] of [["sP1", 1], ["sP2", 2]]) {
+      const s = $(id), val = pl === 1 ? vista().p1 : vista().p2;
+      s.innerHTML = "";
+      const voci = sq.slice();
+      if (!voci.some(([i]) => i === val)) voci.push([val, nome(val)]);
+      for (const [i, n] of voci) { const o = document.createElement("option"); o.value = i; o.textContent = n; s.appendChild(o); }
+      s.value = val;
+      s.disabled = col && pl !== mioPL();
+      s.onchange = () => cambiaSquadra(pl, +s.value);
+    }
+    opzioni("sLang", "lang", [[0, "Italiano"], [1, "English"]]).querySelectorAll("button")
+      .forEach((b, i) => { b.className = scelte.lang === i ? "on" : ""; });
     const campi = [[0, "erba"], [1, "indoor"]];
-    if (segreti) campi.push([2, segreti.field[scelte.lang]]);
-    if (!campi.some(([v]) => v === scelte.field)) scelte.field = 0;
-    opzioni("sField", "field", campi);
-    opzioni("sSlide", "slmode", [[2, "normale"], [3, "esperto"], [4, "estremo"]]);
-    opzioni("sAbil", "abil", [[1, "si"], [0, "no"]]);
-    opzioni("sPu", "pu_on", [[0, "no"], [1, "si"]]);
-    opzioni("sSpr", "sprset", [[0, "classici"], [1, "dinamici"]]);
-    $("extra").classList.toggle("hide", !segreti);
-    if (!segreti) { scelte.kickmode = 0; scelte.copt = 0; scelte.bsel = 0; }
-    opzioni("sKick", "kickmode", [[0, "centrocampo"], [1, "area"]]);
-    opzioni("sCopt", "copt", [[0, "no"], [1, "si"]]);
-    opzioni("sBall", "bsel", [[0, "classico"], [1, "pillola"]]);
+    if (segreti || v.field === 2) campi.push([2, segreti ? segreti.field[scelte.lang] : (ON.nomi.campo || "?")]);
+    if (!col && !campi.some(([x]) => x === scelte.field)) scelte.field = 0;
+    opzioni("sField", "field", campi, fermo);
+    opzioni("sSlide", "slmode", [[2, "normale"], [3, "esperto"], [4, "estremo"]], fermo);
+    opzioni("sAbil", "abil", [[1, "si"], [0, "no"]], fermo);
+    opzioni("sPu", "pu_on", [[0, "no"], [1, "si"]], fermo);
+    opzioni("sSpr", "sprset", [[0, "classici"], [1, "dinamici"]], fermo);
+    const extra = !!segreti || (fermo && (v.kickmode || v.copt || v.bsel));
+    $("extra").classList.toggle("hide", !extra);
+    if (!segreti && !col) { scelte.kickmode = 0; scelte.copt = 0; scelte.bsel = 0; }
+    opzioni("sKick", "kickmode", [[0, "centrocampo"], [1, "area"]], fermo);
+    opzioni("sCopt", "copt", [[0, "no"], [1, "si"]], fermo);
+    opzioni("sBall", "bsel", [[0, "classico"], [1, "pillola"]], fermo);
     $("bAudio").textContent = audioSi ? tt("audioSi") : tt("audioNo");
+    // collegati: ruoli, rete, pronti
+    $("pronti").innerHTML = "";
+    if (col) {
+      const io = mioPL(), vv = vista();
+      $("ruoli").textContent = `${tt("tu")}: PL${io} (${nome(io === 1 ? vv.p1 : vv.p2)}) — ${tt("altro")}: PL${3 - io} (${nome(io === 1 ? vv.p2 : vv.p1)})`;
+      const r = ON.rtt.length ? Math.round(ON.rtt.reduce((a, b) => a + b, 0) / ON.rtt.length) : null;
+      const tipo = { "stessa rete": "stessaRete", internet: "internet", inoltro: "inoltro" }[ON.tipo];
+      $("rete").textContent = (tipo ? tt(tipo) + " · " : "") +
+        (r !== null ? `${tt("ritardo")} ${r} ms · ${tt("ritardoCmd")} ${calcolaRitardo() * 20} ms` : "");
+      $("bScambia").classList.toggle("hide", ON.ruolo !== "crea");
+      const ioPronto = ON.pronti[ON.ruolo === "crea" ? 0 : 1], luiPronto = ON.pronti[ON.ruolo === "crea" ? 1 : 0];
+      $("bGioca").textContent = ioPronto ? tt("nonPronto") : tt("pronto");
+      const sp = document.createElement("span");
+      sp.textContent = (ioPronto ? tt("sProntoIo") + " · " : "") + (luiPronto ? tt("sProntoLui") : tt("sAttesaLui"));
+      sp.className = "pronto " + (luiPronto ? "si" : "no");
+      $("pronti").appendChild(sp);
+      if (fermo) { const n = document.createElement("div"); n.className = "nota"; n.textContent = tt("decideCrea"); $("pronti").appendChild(n); }
+    } else $("bGioca").textContent = tt("gioca");
+    $("bGioca").disabled = online && !col;
   }
   function provaPassword(pw, silenzioso) {
-    const s = pw ? apriSegreti(pw) : null;
+    const s = pw ? apriSegreti(DATI, pw) : null;
     if (!s) { if (!silenzioso) { $("pwStato").textContent = tt("pwNo"); $("pwStato").className = "nota err"; } return; }
     const gia = !!segreti;
     segreti = s;
@@ -1021,55 +1519,182 @@ window.makeSidAudio = makeSidAudio;
     disegnaSala();
   }
 
+  // ------------------------------------------------------------------ messaggi online
+  const intero = (x, a, b) => Number.isInteger(x) && x >= a && x <= b;
+  function pulisciComuni(c) {
+    if (!c || typeof c !== "object") return null;
+    const out = {};
+    for (const [k, [a, b]] of Object.entries(CHIAVI)) { if (!intero(c[k], a, b)) return null; out[k] = c[k]; }
+    return out;
+  }
+  function nomiSegreti() {                           // nomi delle squadre/campo segreti in uso, per chi entra
+    const n = {};
+    if (segreti) {
+      for (const [i, it, en] of segreti.teams) if (ON.sq.includes(i)) n[i] = scelte.lang ? en : it;
+      if (ON.comuni.field === 2) n.campo = segreti.field[scelte.lang];
+    }
+    return n;
+  }
+  function mandaSala() {
+    if (ON.ruolo !== "crea" || !ON.collegato) return;
+    rete.manda({ t: "sala", c: ON.comuni, sq: ON.sq, hostPL: ON.hostPL, pronti: ON.pronti, nomi: nomiSegreti() });
+  }
+  function calcolaRitardo() {
+    if (!ON.rtt.length) return 3;
+    const s = ON.rtt.slice().sort((a, b) => a - b), p90 = s[Math.floor(s.length * 0.9)];
+    return Math.max(2, Math.min(8, Math.ceil(p90 / 2 / 20) + 1));
+  }
+  let pingN = 0, pingTimer = null;
+  const pingInviati = new Map();
+  function avviaPing() {
+    clearInterval(pingTimer);
+    pingTimer = setInterval(() => {
+      if (!ON.collegato) return;
+      pingN++;
+      pingInviati.set(pingN, performance.now());
+      rete.manda({ t: "ping", n: pingN });
+      if (pingN % 3 === 0 && !inGioco) disegnaSala();
+    }, 1000);
+  }
+  rete.onStato = (s) => {
+    const st = $("statoRete");
+    st.className = "nota";
+    if (s === "preparo") st.textContent = tt("cPreparo");
+    if (s === "attesa") {
+      st.textContent = tt("cAttesa");
+      const ind = rete.indirizzi;
+      if (!ind.locali && !ind.nascosti && !ind.pubblici) { st.textContent = tt("cNessuno"); st.className = "nota err"; }
+    }
+    if (s === "collegato" && !ON.collegato) {
+      ON.collegato = true; ON.ruolo = rete.ruolo; ON.rtt = []; ON.pronti = [false, false]; ON.nomi = {}; ON.tipo = "";
+      if (ON.ruolo === "crea") {
+        ON.hostPL = 1;
+        ON.comuni = {};
+        for (const k of Object.keys(CHIAVI)) ON.comuni[k] = scelte[k];
+        ON.sq = [scelte.p1, scelte.p2];
+      }
+      st.textContent = tt("cCollegato");
+      chat(tt("eCollegato"), "sis");
+      if (ON.ruolo === "entra") rete.manda({ t: "squadra", p: scelte.p2 });
+      mandaSala();
+      avviaPing();
+      setTimeout(async () => { ON.tipo = await rete.tipo(); if (!inGioco) disegnaSala(); }, 1500);
+      disegnaSala();
+    }
+    if ((s === "chiuso" || s === "errore") && (ON.collegato || s === "errore")) {
+      const era = ON.collegato;
+      ON.collegato = false;
+      st.textContent = s === "errore" ? tt("cErrore") : tt("cChiuso");
+      st.className = "nota err";
+      if (era) chat(tt("eChiuso"), "sis");
+      if (inGioco && partitaOnline) fermaOnline(tt("eChiuso"));
+      if (!inGioco) disegnaSala();
+    }
+  };
+  rete.onMessaggio = (o) => {
+    if (o.t === "ping" && intero(o.n, 0, 1e9)) rete.manda({ t: "pong", n: o.n });
+    else if (o.t === "pong" && pingInviati.has(o.n)) {
+      ON.rtt.push(performance.now() - pingInviati.get(o.n));
+      pingInviati.delete(o.n);
+      if (ON.rtt.length > 20) ON.rtt.shift();
+    } else if (o.t === "chat" && typeof o.x === "string") {
+      const ora = Date.now();
+      chatRicevuti = chatRicevuti.filter((t) => ora - t < 3000);
+      if (chatRicevuti.length < 6) { chatRicevuti.push(ora); chat(o.x.slice(0, 200), "lui"); }
+    } else if (o.t === "sala" && ON.ruolo === "entra") {
+      const c = pulisciComuni(o.c);
+      if (!c || !Array.isArray(o.sq) || !intero(o.sq[0], 0, 13) || !intero(o.sq[1], 0, 13) || !intero(o.hostPL, 1, 2) ||
+          !Array.isArray(o.pronti)) return;
+      const eraPronto = ON.pronti[0];
+      ON.comuni = c; ON.sq = [o.sq[0], o.sq[1]]; ON.hostPL = o.hostPL; ON.pronti = [!!o.pronti[0], !!o.pronti[1]];
+      ON.nomi = {};
+      if (o.nomi && typeof o.nomi === "object")
+        for (const [k, n] of Object.entries(o.nomi)) if (typeof n === "string" && n.length <= 20) ON.nomi[k === "campo" ? k : +k] = n;
+      if (ON.pronti[0] && !eraPronto) chat(tt("ePronto"), "sis");
+      if (!inGioco) disegnaSala();
+    } else if (o.t === "squadra" && ON.ruolo === "crea" && intero(o.p, 0, 13)) {
+      // chi entra puo' scegliere una squadra segreta solo se l'ha sbloccata lui (lo controlla la sua pagina)
+      ON.sq[(3 - ON.hostPL) - 1] = o.p;
+      ON.pronti = [false, false];
+      mandaSala();
+      if (!inGioco) disegnaSala();
+    } else if (o.t === "pronto" && ON.ruolo === "crea") {
+      ON.pronti[1] = !!o.v;
+      if (o.v) chat(tt("ePronto"), "sis");
+      mandaSala();
+      if (!inGioco) disegnaSala();
+      provaVia();
+    } else if (o.t === "via" && ON.ruolo === "entra" && !inGioco) {
+      const c = pulisciComuni(o.c);
+      if (!c || !intero(o.p1, 0, 13) || !intero(o.p2, 0, 13) || !intero(o.cointeam, 1, 2) || !intero(o.D, 2, 8) ||
+          !intero(o.hostPL, 1, 2)) return;
+      ON.hostPL = o.hostPL;
+      ON.pronti = [false, false];
+      giocaOnline(Object.assign(c, { p1: o.p1, p2: o.p2 }), o.cointeam, o.D);
+    } else if (o.t === "hash" && ls) ls.riceviHash(o);
+    else if (o.t === "esci" && inGioco && partitaOnline) fermaOnline(tt("eUscito"));
+  };
+  rete.onTasti = (buf) => { if (ls) ls.riceviTasti(buf); };
+
+  function provaVia() {                              // chi crea: tutti e due pronti -> moneta e partenza
+    if (ON.ruolo !== "crea" || !ON.pronti[0] || !ON.pronti[1] || inGioco) return;
+    const r = new Uint8Array(1);
+    crypto.getRandomValues(r);
+    const cointeam = 1 + (r[0] & 1), D = calcolaRitardo();
+    rete.manda({ t: "via", c: ON.comuni, p1: ON.sq[0], p2: ON.sq[1], cointeam, D, hostPL: ON.hostPL });
+    ON.pronti = [false, false];
+    giocaOnline(Object.assign({}, ON.comuni, { p1: ON.sq[0], p2: ON.sq[1] }), cointeam, D);
+  }
+
   // ------------------------------------------------------------------ comandi
   const tasti = new Set();
   const K1 = { ArrowUp: 1, ArrowDown: 2, ArrowLeft: 4, ArrowRight: 8, Enter: 16, ControlRight: 16 };
   const K2 = { KeyW: 1, KeyS: 2, KeyA: 4, KeyD: 8, Space: 16, ShiftLeft: 16 };
+  const scrivendo = (e) => e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA");
   addEventListener("keydown", (e) => {
-    if (!inGioco) return;
+    if (!inGioco || scrivendo(e)) return;
     if (K1[e.code] || K2[e.code]) { tasti.add(e.code); e.preventDefault(); }
   });
   addEventListener("keyup", (e) => { tasti.delete(e.code); });
   addEventListener("blur", () => tasti.clear());
   let toccoBits = 0, toccoFire = 0;
-  function joystick(mappa, pad) {
-    let bits = 0;
-    for (const c of tasti) if (mappa[c]) bits |= mappa[c];
+  function bits(mappa, pad) {
+    let b = 0;
+    for (const c of tasti) if (mappa[c]) b |= mappa[c];
     if (pad) {
       const ax = pad.axes || [], bt = pad.buttons || [];
       const p = (i) => bt[i] && bt[i].pressed;
-      if ((ax[1] || 0) < -0.5 || p(12)) bits |= 1;
-      if ((ax[1] || 0) > 0.5 || p(13)) bits |= 2;
-      if ((ax[0] || 0) < -0.5 || p(14)) bits |= 4;
-      if ((ax[0] || 0) > 0.5 || p(15)) bits |= 8;
-      if (p(0) || p(1) || p(2) || p(3)) bits |= 16;
+      if ((ax[1] || 0) < -0.5 || p(12)) b |= 1;
+      if ((ax[1] || 0) > 0.5 || p(13)) b |= 2;
+      if ((ax[0] || 0) < -0.5 || p(14)) b |= 4;
+      if ((ax[0] || 0) > 0.5 || p(15)) b |= 8;
+      if (p(0) || p(1) || p(2) || p(3)) b |= 16;
     }
-    return 0xff & ~bits;
+    return b;
   }
   function pads() {
     const out = [];
     try { for (const g of navigator.getGamepads ? navigator.getGamepads() : []) if (g) out.push(g); } catch (e) { /* niente */ }
     return out;
   }
-  // tocco: croce a 8 direzioni + FIRE (comandano PL1)
   function croce() {
     const el = $("croce");
     const aggiorna = (e) => {
       e.preventDefault();
-      let bits = 0;
+      let b = 0;
       const r = el.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
       for (const t of e.touches) {
         if (t.target !== el) continue;
         const dx = t.clientX - cx, dy = t.clientY - cy;
         if (Math.hypot(dx, dy) < r.width * 0.13) continue;
         const a = Math.atan2(dy, dx) * 180 / Math.PI;           // 0 = destra, 90 = giu'
-        if (a > -67.5 && a < 67.5) bits |= 8;
-        if (a > 112.5 || a < -112.5) bits |= 4;
-        if (a > 22.5 && a < 157.5) bits |= 2;
-        if (a < -22.5 && a > -157.5) bits |= 1;
+        if (a > -67.5 && a < 67.5) b |= 8;
+        if (a > 112.5 || a < -112.5) b |= 4;
+        if (a > 22.5 && a < 157.5) b |= 2;
+        if (a < -22.5 && a > -157.5) b |= 1;
       }
-      toccoBits = bits;
-      el.classList.toggle("on", !!bits);
+      toccoBits = b;
+      el.classList.toggle("on", !!b);
     };
     for (const ev of ["touchstart", "touchmove", "touchend", "touchcancel"]) el.addEventListener(ev, aggiorna, { passive: false });
     const f = $("fuoco");
@@ -1093,6 +1718,7 @@ window.makeSidAudio = makeSidAudio;
   const pix = new Uint32Array(img.data.buffer);
   // inGioco: si vede lo schermo del gioco; attivo: l'emulatore avanza (non durante il lancio e a fine partita)
   let inGioco = false, attivo = false, acc = 0, ultimo = 0, finito = false, ultimeScelte = null;
+  let partitaOnline = false, ls = null, ferme = 0, inviaDopo = null;
 
   function disegna() {
     renderVIC(m.mem, pix);
@@ -1100,21 +1726,39 @@ window.makeSidAudio = makeSidAudio;
     const [r, g, b] = PAL_RGB[m.mem[0xd020] & 15];
     $("schermo").style.background = `rgb(${r},${g},${b})`;
   }
-  function passo() {
-    const ps = pads();
-    const j2 = joystick(K1, ps[0]) & ~(toccoBits | toccoFire);   // porta 2 = PL1
-    const j1 = joystick(K2, ps[1]);                               // porta 1 = PL2
-    m.step(j2, j1);
+  function dopoPasso() {                             // dopo ogni passo: suono e fine partita
     if (audioSi) sid.frame(m.sidWrites, HZ);
     const g = m.mem[GSTATE];
-    if ((g === 2 || g === 3) && m.mem[ENDCNT] === 0) fine(g);
+    if ((g === 2 || g === 3) && m.mem[ENDCNT] === 0 && !finito) fine(g);
   }
-  function ciclo(t) {                              // un solo ciclo per tutta la vita della pagina
+  function passoLocale() {
+    const ps = pads();
+    const j2 = 0xff & ~(bits(K1, ps[0]) | toccoBits | toccoFire);   // porta 2 = PL1
+    const j1 = 0xff & ~bits(K2, ps[1]);                               // porta 1 = PL2
+    m.step(j2, j1);
+    dopoPasso();
+  }
+  function battitoOnline() {
+    const ps = pads();
+    const mio = 0xff & ~(bits(K1, ps[0]) | bits(K2, null) | toccoBits | toccoFire);
+    const fatto = ls.battito(mio);
+    if (fatto && ls.indietro() > 2 && !finito) ls.battito(mio);     // recupero se si resta indietro
+    ferme = fatto ? 0 : ferme + 1;
+    $("attesa").textContent = ferme > 25 ? tt("attendo") : "";
+    return fatto;
+  }
+  function ciclo(t) {                                // un solo ciclo per tutta la vita della pagina
     if (attivo && !finito) {
       acc += Math.min(250, t - (ultimo || t));
       let n = 0;
-      while (acc >= PERIODO && n < 5 && !finito) { passo(); acc -= PERIODO; n++; }
-      if (n === 5) acc = 0;
+      while (acc >= PERIODO && n < 5 && !finito) {
+        if (partitaOnline) {
+          // se manca il tasto dell'altro il tempo non si perde: si recupera appena arriva (al massimo 6 passi)
+          if (!battitoOnline()) { acc = Math.min(acc, 6 * PERIODO); break; }
+        } else passoLocale();
+        acc -= PERIODO; n++;
+      }
+      if (n === 5) acc = partitaOnline ? Math.min(acc, 6 * PERIODO) : 0;
       disegna();
     }
     ultimo = t;
@@ -1126,55 +1770,103 @@ window.makeSidAudio = makeSidAudio;
     s.innerHTML = html;
     s.classList.remove("hide");
   }
-  const nome = (i) => (squadre().find(([k]) => k === i) || [0, "?"])[1];
-
-  async function gioca(stesse) {
-    const c = stesse && ultimeScelte ? ultimeScelte : Object.assign({}, scelte);
-    ultimeScelte = c;
+  function mostraGioco() {
     $("salaAttesa").classList.add("hide");
     $("gioco").classList.remove("hide");
     inGioco = true; finito = false; attivo = false;
-    if (audioSi) { try { await sid.start(); } catch (e) { audioSi = false; } }
-    // lancio della moneta della pagina
-    const r = new Uint8Array(1);
-    (window.crypto || {}).getRandomValues ? crypto.getRandomValues(r) : (r[0] = Math.random() * 256);
-    const cointeam = 1 + (r[0] & 1);
-    try {
-      avviaPartita(m, sym, Object.assign({}, c, { cointeam }));
-    } catch (e) {
-      sopra(`<div class="grande err">${tt("errore")}</div><div>${e.message}</div>`);
-      return;
-    }
-    if (audioSi) sid.sync(m.mem);
+    if (ON.collegato && modo === "online") { $("chatGioco").appendChild($("chatBox")); $("chatBox").classList.remove("hide"); }
+  }
+  async function moneta(c, cointeam) {
     disegna();
     sopra(`<div class="grande">${tt("moneta")}</div><div>${tt("batte")} ${cointeam === 1 ? "PL1" : "PL2"} (${nome(cointeam === 1 ? c.p1 : c.p2)})</div>`);
     await new Promise((ok) => setTimeout(ok, 1600));
-    if (!inGioco) return;
     sopra(null);
-    acc = 0;
-    attivo = true;
+  }
+  async function gioca(stesse) {
+    const c = stesse && ultimeScelte ? ultimeScelte : Object.assign({}, scelte);
+    ultimeScelte = c;
+    partitaOnline = false; ls = null;
+    mostraGioco();
+    if (audioSi) { try { await sid.start(); } catch (e) { audioSi = false; } }
+    const r = new Uint8Array(1);
+    crypto.getRandomValues(r);
+    const cointeam = 1 + (r[0] & 1);
+    try { avviaPartita(m, sym, Object.assign({}, c, { cointeam })); } catch (e) {
+      sopra(`<div class="grande err">${tt("errore")}</div><div>${e.message}</div>`); return;
+    }
+    if (audioSi) sid.sync(m.mem);
+    await moneta(c, cointeam);
+    if (!inGioco) return;
+    acc = 0; attivo = true;
+  }
+  async function giocaOnline(c, cointeam, D) {
+    ultimeScelte = c;
+    partitaOnline = true;
+    clearInterval(inviaDopo);
+    mostraGioco();
+    try { avviaPartita(m, sym, Object.assign({}, c, { cointeam })); } catch (e) { fermaOnline(tt("errore") + e.message); return; }
+    ls = makeLockstep({
+      posto: mioPL() - 1, ritardo: D,
+      passo: (t0, t1) => { m.step(t0, t1); dopoPasso(); },
+      hash: () => m.hash(),
+      mandaTasti: (buf) => rete.mandaTasti(buf),
+      mandaCtl: (o) => rete.manda(o),
+      onDesync: (f) => fermaOnline(tt("eDesync") + f + ")"),
+    });
+    if (audioSi) { try { await sid.start(); sid.sync(m.mem); } catch (e) { audioSi = false; } }
+    await moneta(c, cointeam);
+    if (!inGioco) return;
+    acc = 0; ferme = 0; attivo = true;
   }
   function fine(g) {
     finito = true;
     const p = m.mem[SCOREP], o = m.mem[SCOREO], c = ultimeScelte;
     const esito = p === o ? tt("pareggio") : `${p > o ? "PL1" : "PL2"} (${nome(p > o ? c.p1 : c.p2)}) ${tt("vince")}`;
+    const riv = partitaOnline ? "" : `<button id="bRiv">${tt("rivincita")}</button>`;
     sopra(`<div class="grande">${g === 3 ? tt("cappotto") : tt("fine")}</div>
       <div style="font-size:22px;margin:4px 0">PL1 ${p} - ${o} PL2</div><div>${esito}</div>
-      <div style="margin-top:12px"><button id="bRiv">${tt("rivincita")}</button><button class="sec" id="bSala">${tt("torna")}</button></div>`);
-    $("bRiv").onclick = () => { sopra(null); gioca(true); };
+      <div style="margin-top:12px">${riv}<button class="sec" id="bSala">${tt("torna")}</button></div>`);
+    if (!partitaOnline) $("bRiv").onclick = () => { sopra(null); gioca(true); };
+    $("bSala").onclick = esci;
+    if (partitaOnline) dopoLaFine();
+  }
+  function dopoLaFine() {                            // per qualche secondo si rimandano i tasti, se all'altro ne mancano
+    const l = ls;
+    let n = 0;
+    clearInterval(inviaDopo);
+    inviaDopo = setInterval(() => { if (++n > 60 || !ON.collegato) clearInterval(inviaDopo); else l.invia(); }, 50);
+  }
+  function fermaOnline(motivo) {
+    if (!inGioco) return;
+    finito = true;
+    if (ls) dopoLaFine();
+    sopra(`<div class="grande">${motivo}</div><div style="margin-top:12px"><button class="sec" id="bSala">${tt("torna")}</button></div>`);
     $("bSala").onclick = esci;
   }
   function esci() {
+    if (partitaOnline && inGioco && !finito && ON.collegato) rete.manda({ t: "esci" });
     inGioco = false; attivo = false; finito = true;
+    partitaOnline = false;
     sopra(null);
     sid.stop();
+    $("attesa").textContent = "";
     $("gioco").classList.add("hide");
     $("salaAttesa").classList.remove("hide");
+    if (ON.collegato) ON.pronti = [false, false];
+    if (ON.ruolo === "crea") mandaSala();
     disegnaSala();
   }
 
-  // ------------------------------------------------------------------ avvio della pagina
-  $("bGioca").onclick = () => gioca(false);
+  // ------------------------------------------------------------------ pulsanti
+  $("bGioca").onclick = () => {
+    if (audioSi) sid.start().catch(() => {});        // il gesto dell'utente serve a far partire l'audio
+    if (modo === "locale") { gioca(false); return; }
+    if (!ON.collegato) return;
+    const i = ON.ruolo === "crea" ? 0 : 1;
+    ON.pronti[i] = !ON.pronti[i];
+    if (ON.ruolo === "crea") { mandaSala(); provaVia(); } else rete.manda({ t: "pronto", v: ON.pronti[1] });
+    if (!inGioco) disegnaSala();
+  };
   $("bEsci").onclick = esci;
   $("bAudio").onclick = async () => {
     audioSi = !audioSi; salva("audio", audioSi);
@@ -1184,6 +1876,39 @@ window.makeSidAudio = makeSidAudio;
   $("bFull").onclick = () => { const s = $("schermo"); (s.requestFullscreen || s.webkitRequestFullscreen || (() => {})).call(s); };
   $("bPw").onclick = () => provaPassword($("pw").value, false);
   $("pw").addEventListener("keydown", (e) => { if (e.key === "Enter") provaPassword($("pw").value, false); });
+  $("bChat").onclick = mandaChat;
+  $("chatIn").addEventListener("keydown", (e) => { if (e.key === "Enter") mandaChat(); });
+  const errRete = (e) => { $("statoRete").textContent = tt("errore") + e.message; $("statoRete").className = "nota err"; };
+  $("bCrea").onclick = async () => { try { $("tOffer").value = await rete.crea($("stun").checked); } catch (e) { errRete(e); } };
+  $("bCollega").onclick = async () => { try { await rete.collega($("tAnswerIn").value); } catch (e) { errRete(e); } };
+  $("bRisp").onclick = async () => { try { $("tAnswer").value = await rete.rispondi($("tOfferIn").value); } catch (e) { errRete(e); } };
+  const copia = async (id) => {
+    const t = $(id);
+    try { await navigator.clipboard.writeText(t.value); } catch (e) { t.removeAttribute("readonly"); t.select(); document.execCommand("copy"); t.setAttribute("readonly", ""); }
+  };
+  const condividi = async (id) => {
+    if (navigator.share) { try { await navigator.share({ text: $(id).value }); return; } catch (e) { if (e.name === "AbortError") return; } }
+    copia(id);
+  };
+  $("cOffer").onclick = () => copia("tOffer");
+  $("cAnswer").onclick = () => copia("tAnswer");
+  $("sOffer").onclick = () => condividi("tOffer");
+  $("sAnswer").onclick = () => condividi("tAnswer");
+  $("bScambia").onclick = () => {
+    if (ON.ruolo !== "crea") return;
+    ON.hostPL = 3 - ON.hostPL; ON.sq = [ON.sq[1], ON.sq[0]]; ON.pronti = [false, false];
+    mandaSala(); disegnaSala();
+  };
+  $("bScollega").onclick = () => { rete.chiudi(); ON.collegato = false; disegnaSala(); };
+
+  // errori imprevisti: si mostrano invece di bloccare la pagina in silenzio
+  addEventListener("unhandledrejection", (e) => {
+    if (inGioco) sopra(`<div class="grande err">${tt("errore")}</div><div>${String(e.reason && e.reason.message || e.reason)}</div>
+      <div style="margin-top:12px"><button class="sec" id="bSala">${tt("torna")}</button></div>`);
+    const b = $("bSala"); if (b) b.onclick = esci;
+  });
+
+  // ------------------------------------------------------------------ avvio della pagina
   if ("ontouchstart" in window || (window.matchMedia && matchMedia("(pointer: coarse)").matches)) $("tocco").classList.remove("hide");
   croce();
   requestAnimationFrame(ciclo);
@@ -1191,8 +1916,12 @@ window.makeSidAudio = makeSidAudio;
   if (pw) provaPassword(pw, true);
   disegnaSala();
   // per le prove automatiche e per curiosare dalla console
-  window.SCOTOGNO = { m, scelte, gioca, esci, avanti: (n) => { for (let i = 0; i < n && !finito; i++) passo(); disegna(); },
-    stato: () => ({ inGioco, attivo, finito, gstate: m.mem[GSTATE], frames: m.frames, segreti: !!segreti }) };
+  window.SCOTOGNO = { m, scelte, ON, rete, gioca, esci,
+    avanti: (n) => { for (let i = 0; i < n && !finito; i++) passoLocale(); disegna(); },
+    veloce: (k) => { PERIODO = 1000 / HZ / k; },
+    stato: () => ({ inGioco, attivo, finito, online: partitaOnline, gstate: m.mem[GSTATE], frames: m.frames, segreti: !!segreti,
+      passi: ls ? ls.f : 0, attese: ls ? ls.attese : 0, desync: ls ? ls.desync : false, hash: m.hash(),
+      punti: [m.mem[SCOREP], m.mem[SCOREO]] }) };
 })();
 
 </script>
