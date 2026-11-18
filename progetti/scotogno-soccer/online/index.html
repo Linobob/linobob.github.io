@@ -1441,11 +1441,12 @@ window.makeLockstep = makeLockstep;
   // ------------------------------------------------------------------ chat
   function chat(testo, chi) {
     const l = $("chatLista"), d = document.createElement("div");
+    const inFondo = l.scrollHeight - l.scrollTop - l.clientHeight < 30;
     d.className = chi;
     d.textContent = (chi === "io" ? chiIo() + ": " : chi === "lui" ? chiLui() + ": " : "— ") + testo;
     l.appendChild(d);
     while (l.children.length > 200) l.removeChild(l.firstChild);
-    l.scrollTop = l.scrollHeight;
+    if (inFondo || chi === "io") l.scrollTop = l.scrollHeight;   // se si sta leggendo piu' su, non si salta in fondo
   }
   let chatRicevuti = [];
   function mandaChat() {
@@ -1527,7 +1528,7 @@ window.makeLockstep = makeLockstep;
     $("collegati").classList.toggle("hide", !col);
     $("chatSala").classList.toggle("hide", !col);
     $("chatBox").classList.toggle("hide", !col);
-    if (!inGioco) $("chatSala").appendChild($("chatBox"));
+    if (!inGioco && $("chatBox").parentNode !== $("chatSala")) $("chatSala").appendChild($("chatBox"));
     const sr = $("sRuolo");
     sr.innerHTML = "";
     for (const [r, k] of [["crea", "creo"], ["entra", "entro"]]) {
@@ -1578,10 +1579,7 @@ window.makeLockstep = makeLockstep;
     if (col) {
       const io = mioPL(), vv = vista();
       $("ruoli").textContent = `${chiIo()}: PL${io} (${nome(io === 1 ? vv.p1 : vv.p2)}) — ${chiLui()}: PL${3 - io} (${nome(io === 1 ? vv.p2 : vv.p1)})`;
-      const r = ON.rtt.length ? Math.round(ON.rtt.reduce((a, b) => a + b, 0) / ON.rtt.length) : null;
-      const tipo = { "stessa rete": "stessaRete", internet: "internet", inoltro: "inoltro" }[ON.tipo];
-      $("rete").textContent = (tipo ? tt(tipo) + " · " : "") +
-        (r !== null ? `${tt("ritardo")} ${r} ms · ${tt("ritardoCmd")} ${calcolaRitardo() * 20} ms` : "");
+      aggiornaRete();
       $("bScambia").classList.toggle("hide", ON.ruolo !== "crea");
       const ioPronto = ON.pronti[ON.ruolo === "crea" ? 0 : 1], luiPronto = ON.pronti[ON.ruolo === "crea" ? 1 : 0];
       $("bGioca").textContent = ioPronto ? tt("nonPronto") : tt("pronto");
@@ -1592,6 +1590,12 @@ window.makeLockstep = makeLockstep;
       if (fermo) { const n = document.createElement("div"); n.className = "nota"; n.textContent = tt("decideCrea"); $("pronti").appendChild(n); }
     } else $("bGioca").textContent = tt("gioca");
     $("bGioca").disabled = online && !col;
+  }
+  function aggiornaRete() {                         // solo la riga con tipo di collegamento e ritardi
+    const r = ON.rtt.length ? Math.round(ON.rtt.reduce((a, b) => a + b, 0) / ON.rtt.length) : null;
+    const tipo = { "stessa rete": "stessaRete", internet: "internet", inoltro: "inoltro" }[ON.tipo];
+    $("rete").textContent = (tipo ? tt(tipo) + " · " : "") +
+      (r !== null ? `${tt("ritardo")} ${r} ms · ${tt("ritardoCmd")} ${calcolaRitardo() * 20} ms` : "");
   }
   function provaPassword(pw, silenzioso) {
     const s = pw ? apriSegreti(DATI, pw) : null;
@@ -1638,7 +1642,9 @@ window.makeLockstep = makeLockstep;
       pingN++;
       pingInviati.set(pingN, performance.now());
       rete.manda({ t: "ping", n: pingN });
-      if (pingN % 3 === 0 && !inGioco) disegnaSala();
+      // ogni 3 secondi si aggiorna solo la riga dei ritardi: ridisegnare tutta la sala spostava la chat
+      // (perdeva il cursore e tornava in cima) e chiudeva le liste aperte
+      if (pingN % 3 === 0 && !inGioco) aggiornaRete();
     }, 1000);
   }
   rete.onStato = (s) => {
@@ -1666,7 +1672,7 @@ window.makeLockstep = makeLockstep;
       if (ON.ruolo === "entra") rete.manda({ t: "squadra", p: scelte.p2 });
       mandaSala();
       avviaPing();
-      setTimeout(async () => { ON.tipo = await rete.tipo(); if (!inGioco) disegnaSala(); }, 1500);
+      setTimeout(async () => { ON.tipo = await rete.tipo(); if (!inGioco) aggiornaRete(); }, 1500);
       disegnaSala();
     }
     if ((s === "chiuso" || s === "errore") && (ON.collegato || s === "errore")) {
@@ -1879,7 +1885,10 @@ window.makeLockstep = makeLockstep;
     $("salaAttesa").classList.add("hide");
     $("gioco").classList.remove("hide");
     inGioco = true; finito = false; attivo = false;
-    if (ON.collegato && modo === "online") { $("chatGioco").appendChild($("chatBox")); $("chatBox").classList.remove("hide"); }
+    if (ON.collegato && modo === "online") {
+      if ($("chatBox").parentNode !== $("chatGioco")) $("chatGioco").appendChild($("chatBox"));
+      $("chatBox").classList.remove("hide");
+    }
   }
   async function moneta(c, cointeam) {
     disegna();
