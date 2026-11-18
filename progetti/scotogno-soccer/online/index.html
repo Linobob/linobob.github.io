@@ -1998,6 +1998,14 @@ window.makeLockstep = makeLockstep;
   };
   $("bScollega").onclick = () => { rete.chiudi(); ON.collegato = false; disegnaSala(); };
 
+  // conferma prima di ricaricare o chiudere la pagina se si e' collegati o c'e' una partita in corso
+  // (il browser mostra un suo messaggio standard; il testo non si puo' scegliere)
+  addEventListener("beforeunload", (e) => {
+    if (!(inGioco || ON.collegato)) return;
+    e.preventDefault();
+    e.returnValue = "";
+  });
+
   // errori imprevisti: si mostrano invece di bloccare la pagina in silenzio
   addEventListener("unhandledrejection", (e) => {
     if (inGioco) sopra(`<div class="grande err">${tt("errore")}</div><div>${esc(e.reason && e.reason.message || e.reason)}</div>
