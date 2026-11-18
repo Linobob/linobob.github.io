@@ -888,8 +888,14 @@ function makeSidAudio() {
   const A = { ctx: null, node: null, core: null, t: 0, ok: false };
   // non aspetta mai resume(): senza un gesto dell'utente (per esempio quando la partita parte da un messaggio della
   // rete) la promessa puo' restare in sospeso; il suono riparte da solo al primo gesto utile
-  A.start = async function () {
-    if (A.ctx) { A.ctx.resume().catch(() => {}); return; }
+  // piu' chiamate a start() mentre l'audio si sta ancora preparando aspettano tutte la stessa preparazione:
+  // prima la seconda chiamata tornava subito, la partita partiva con l'audio non pronto e il volume iniziale del
+  // gioco ($D418) non arrivava mai al SID (niente suono finche' non si spegneva e riaccendeva l'audio)
+  A.start = function () {
+    if (!A.preparazione) A.preparazione = prepara();
+    return A.preparazione.then(() => { if (A.ctx) A.ctx.resume().catch(() => {}); });
+  };
+  async function prepara() {
     const Ctx = window.AudioContext || window.webkitAudioContext;
     if (!Ctx) return;
     A.ctx = new Ctx();
@@ -906,15 +912,17 @@ function makeSidAudio() {
     }
     A.node.connect(A.ctx.destination);
     A.ok = true;
-    A.ctx.resume().catch(() => {});
-  };
+  }
   // un passo dell'emulatore: le sue scritture nel SID (cicli, registro, valore) vanno suonate nel prossimo 1/50 s
   A.frame = function (writes, hz) {
     if (!A.ok) return;
     const now = A.ctx.currentTime;
     if (A.t < now + 0.02 || A.t > now + 0.3) A.t = now + 0.06;
     const ev = [];
-    for (let i = 0; i < writes.length; i += 3) ev.push(A.t + writes[i] / 985248, writes[i + 1], writes[i + 2]);
+    for (let i = 0; i < writes.length; i += 3) {
+      ev.push(A.t + writes[i] / 985248, writes[i + 1], writes[i + 2]);
+      if (writes[i + 1] === 24) A.volume = writes[i + 2] & 15;
+    }
     A.t += 1 / hz;
     if (!ev.length) return;
     if (A.core) A.core.post(ev); else A.node.port.postMessage(ev);
@@ -925,9 +933,11 @@ function makeSidAudio() {
     A.t = A.ctx.currentTime + 0.06;
     const ev = [];
     for (let r = 0; r < 25; r++) ev.push(A.t, r, mem[0xd400 + r]);
+    A.volume = mem[0xd418] & 15;
     if (A.core) A.core.post(ev); else A.node.port.postMessage(ev);
   };
   A.silenzia = function () {
+    A.volume = 0;
     if (!A.ok) return;
     if (A.core) A.core.silenzia(); else A.node.port.postMessage({ silenzia: true });
     A.t = 0;
@@ -2003,7 +2013,7 @@ window.makeLockstep = makeLockstep;
   if (pw) provaPassword(pw, true);
   disegnaSala();
   // per le prove automatiche e per curiosare dalla console
-  window.SCOTOGNO = { m, scelte, ON, rete, gioca, esci,
+  window.SCOTOGNO = { m, scelte, ON, rete, sid, gioca, esci,
     avanti: (n) => { for (let i = 0; i < n && !finito; i++) passoLocale(); disegna(); },
     veloce: (k) => { PERIODO = 1000 / HZ / k; },
     stato: () => ({ inGioco, attivo, finito, online: partitaOnline, gstate: m.mem[GSTATE], frames: m.frames, segreti: !!segreti,
