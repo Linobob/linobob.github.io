@@ -1043,6 +1043,10 @@ function makeRete() {
     simula: { perdita: 0, ritardo: 0, variabile: 0 },
   };
   const cambia = (s, dettaglio) => { R.stato = s; R.onStato(s, dettaglio || ""); };
+  // errori con un codice, perche' la pagina possa spiegarli nella sua lingua
+  const errore = (codice, msg) => { const e = new Error(msg); e.codice = codice; return e; };
+  // ogni codice di chi crea ha un numero suo, ripetuto nella risposta: cosi' si riconosce una risposta a un codice vecchio
+  const nuovoId = () => Math.random().toString(36).slice(2, 8);
 
   // ---- codici
   async function deflate(bytes) {
@@ -1063,13 +1067,13 @@ function makeRete() {
   }
   async function decodifica(code, tipo) {
     code = (code || "").replace(/\s+/g, "");
-    if (code.length < 10 || code.length > RETE_MAX_CODICE || !code.startsWith("SC1")) throw new Error("codice non valido");
+    if (code.length < 10 || code.length > RETE_MAX_CODICE || !code.startsWith("SC1")) throw errore("codice", "codice non valido");
     const body = unb64u(code.slice(4));
     const raw = code[3] === "Z" ? await inflate(body) : code[3] === "P" ? body : null;
-    if (!raw || raw.length > 20000) throw new Error("codice non valido");
+    if (!raw || raw.length > 20000) throw errore("codice", "codice non valido");
     const o = JSON.parse(new TextDecoder().decode(raw));
-    if (!o || o.v !== 1 || o.t !== tipo || typeof o.sdp !== "string" || typeof o.stun !== "boolean")
-      throw new Error(tipo === "o" ? "serve il codice di chi crea" : "serve il codice di risposta");
+    if (!o || o.v !== 1 || typeof o.sdp !== "string" || typeof o.stun !== "boolean") throw errore("codice", "codice non valido");
+    if (o.t !== tipo) throw errore(tipo === "o" ? "serveOfferta" : "serveRisposta", tipo === "o" ? "serve il codice di chi crea" : "serve il codice di risposta");
     return o;
   }
 
@@ -1131,8 +1135,9 @@ function makeRete() {
     canale(pc.createDataChannel("inp", { ordered: false, maxRetransmits: 0 }));
     await pc.setLocalDescription(await pc.createOffer());
     await raccogli();
+    R.id = nuovoId();
     cambia("attesa");
-    return codifica({ v: 1, t: "o", stun, sdp: pc.localDescription.sdp });
+    return codifica({ v: 1, t: "o", id: R.id, stun, sdp: pc.localDescription.sdp });
   };
   // chi entra: dal codice ricevuto, ritorna il codice di risposta
   R.rispondi = async function (codice) {
@@ -1145,12 +1150,21 @@ function makeRete() {
     await pc.setLocalDescription(await pc.createAnswer());
     await raccogli();
     cambia("attesa");
-    return codifica({ v: 1, t: "a", stun: o.stun, sdp: pc.localDescription.sdp });
+    return codifica({ v: 1, t: "a", id: typeof o.id === "string" ? o.id : "", stun: o.stun, sdp: pc.localDescription.sdp });
   };
-  // chi crea: incolla la risposta
+  // chi crea: incolla la risposta. Ritorna "gia'" se quella risposta e' gia' stata usata (Collega premuto due volte).
   R.collega = async function (codice) {
     const a = await decodifica(codice, "a");
-    await R.pc.setRemoteDescription({ type: "answer", sdp: a.sdp });
+    const pc = R.pc;
+    if (!pc || R.ruolo !== "crea") throw errore("nienteCodice", "prima crea il codice");
+    if (a.id !== R.id) throw errore("vecchio", "la risposta e' per un altro codice");
+    if (pc.signalingState !== "have-local-offer") {
+      if (pc.remoteDescription && pc.remoteDescription.sdp === a.sdp) return "gia";
+      throw errore("vecchio", "il codice non e' piu' valido");
+    }
+    await pc.setRemoteDescription({ type: "answer", sdp: a.sdp });
+    cambia("collego");
+    return "ok";
   };
   R.manda = function (obj) {
     if (R.ctl && R.ctl.readyState === "open") R.ctl.send(JSON.stringify(obj));
@@ -1336,6 +1350,13 @@ window.makeLockstep = makeLockstep;
       piede: "SCOTOGNO Soccer di LINOBOB. Versione web: il programma C64 originale in un piccolo emulatore.",
       errore: "Errore: ", attendo: "Aspetto l'altro giocatore…", decideCrea: "Le impostazioni le sceglie chi ha creato la partita.",
       sProntoIo: "tu sei pronto", sProntoLui: "l'altro è pronto", sAttesaLui: "l'altro non è ancora pronto",
+      cCollego: "Collegamento in corso…", cGia: "Risposta già usata: il collegamento è in corso, aspetta.",
+      cLento: "Il collegamento non riesce. Controllate che tutti e due abbiate lo STUN attivo, provate un altro browser (non Opera, niente VPN), poi ricreate il codice.",
+      errCodice: "Il codice non è valido: controlla di averlo copiato tutto.",
+      errServeOfferta: "Questo è un codice di risposta: qui va il codice di chi crea la partita.",
+      errServeRisposta: "Questo è un codice di chi crea: qui va la risposta dell'altro giocatore.",
+      errVecchio: "Questa risposta è per un codice vecchio: rimanda all'altro il codice nuovo (quello qui sopra) e incolla la sua nuova risposta.",
+      errNienteCodice: "Prima premi \"Crea il codice\".",
       cPreparo: "Preparo il codice…", cAttesa: "In attesa dell'altro…", cCollegato: "Collegati.", cChiuso: "Collegamento chiuso.",
       cErrore: "Collegamento non riuscito.", cNessuno: "Il browser non ha dato nessun indirizzo: controlla VPN, estensioni o le impostazioni WebRTC (Opera), oppure prova un altro browser.",
       eCollegato: "collegati", eUscito: "l'altro giocatore è uscito dalla partita", eChiuso: "collegamento chiuso",
@@ -1370,6 +1391,13 @@ window.makeLockstep = makeLockstep;
       piede: "SCOTOGNO Soccer by LINOBOB. Web version: the original C64 program in a small emulator.",
       errore: "Error: ", attendo: "Waiting for the other player…", decideCrea: "The match creator chooses the options.",
       sProntoIo: "you are ready", sProntoLui: "the other player is ready", sAttesaLui: "the other player is not ready yet",
+      cCollego: "Connecting…", cGia: "Answer already used: connecting, please wait.",
+      cLento: "The connection does not work. Check that you both have STUN on, try another browser (not Opera, no VPN), then create a new code.",
+      errCodice: "The code is not valid: check that you copied all of it.",
+      errServeOfferta: "This is an answer code: here goes the code of whoever created the match.",
+      errServeRisposta: "This is a creator code: here goes the other player's answer.",
+      errVecchio: "This answer is for an old code: send the new code (the one above) to the other player and paste their new answer.",
+      errNienteCodice: "First press \"Create the code\".",
       cPreparo: "Preparing the code…", cAttesa: "Waiting for the other player…", cCollegato: "Connected.", cChiuso: "Connection closed.",
       cErrore: "Connection failed.", cNessuno: "The browser gave no address: check VPN, extensions or WebRTC settings (Opera), or try another browser.",
       eCollegato: "connected", eUscito: "the other player left the match", eChiuso: "connection closed",
@@ -1617,6 +1645,7 @@ window.makeLockstep = makeLockstep;
     const st = $("statoRete");
     st.className = "nota";
     if (s === "preparo") st.textContent = tt("cPreparo");
+    if (s === "collego") st.textContent = tt("cCollego");
     if (s === "attesa") {
       st.textContent = tt("cAttesa");
       const ind = rete.indirizzi;
@@ -1643,7 +1672,7 @@ window.makeLockstep = makeLockstep;
     if ((s === "chiuso" || s === "errore") && (ON.collegato || s === "errore")) {
       const era = ON.collegato;
       ON.collegato = false;
-      st.textContent = s === "errore" ? tt("cErrore") : tt("cChiuso");
+      st.textContent = s === "errore" ? tt("cErrore") + " " + tt("cLento") : tt("cChiuso");
       st.className = "nota err";
       if (era) chat(tt("eChiuso"), "sis");
       if (inGioco && partitaOnline) fermaOnline(tt("eChiuso"));
@@ -1980,9 +2009,30 @@ window.makeLockstep = makeLockstep;
   });
   $("sChat").onchange = () => { chatPos = $("sChat").value; salva("chatPos", chatPos); disponiChat(); };
   $("chatIn").addEventListener("keydown", (e) => { if (e.key === "Enter") mandaChat(); });
-  const errRete = (e) => { $("statoRete").textContent = tt("errore") + e.message; $("statoRete").className = "nota err"; };
-  $("bCrea").onclick = async () => { try { $("tOffer").value = await rete.crea($("stun").checked); } catch (e) { errRete(e); } };
-  $("bCollega").onclick = async () => { try { await rete.collega($("tAnswerIn").value); } catch (e) { errRete(e); } };
+  const errRete = (e) => {
+    const k = e && e.codice ? "err" + e.codice[0].toUpperCase() + e.codice.slice(1) : null;
+    $("statoRete").textContent = k && T.it[k] ? tt(k) : tt("errore") + e.message;
+    $("statoRete").className = "nota err";
+  };
+  // chi crea: se dopo "Collega" il collegamento non arriva, lo si dice (prima restava "in attesa" e si ripremeva Collega)
+  let lentoTimer = null;
+  $("bCrea").onclick = async () => {
+    clearTimeout(lentoTimer);
+    $("tAnswerIn").value = "";
+    try { $("tOffer").value = await rete.crea($("stun").checked); } catch (e) { errRete(e); }
+  };
+  $("bCollega").onclick = async () => {
+    try {
+      const r = await rete.collega($("tAnswerIn").value);
+      const st = $("statoRete");
+      st.className = "nota";
+      st.textContent = r === "gia" ? tt("cGia") : tt("cCollego");
+      clearTimeout(lentoTimer);
+      lentoTimer = setTimeout(() => {
+        if (!ON.collegato) { st.textContent = tt("cLento"); st.className = "nota err"; }
+      }, 25000);
+    } catch (e) { errRete(e); }
+  };
   $("bRisp").onclick = async () => { try { $("tAnswer").value = await rete.rispondi($("tOfferIn").value); } catch (e) { errRete(e); } };
   const copia = async (id) => {
     const t = $(id);
