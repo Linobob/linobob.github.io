@@ -55,6 +55,17 @@
   select:disabled, .scelta.ferma button { opacity:.55; pointer-events:none; }
   .pronto { font-weight:700; } .pronto.si { color:var(--ok); } .pronto.no { color:var(--dim); }
   #gioco #chatBox { margin-top:10px; }
+  #barra select { min-width:0; padding:8px; }
+  @media (min-width: 900px) {
+    main.largo { max-width:1500px; }
+    #gioco.lato { display:flex; gap:14px; align-items:stretch; }
+    #gioco.lato.sinistra #chatGioco { order:-1; }
+    #gioco.lato #colGioco { flex:1 1 auto; min-width:0; max-width:calc((100vh - 130px) * 320 / 192 + 36px); }
+    #gioco.lato #chatGioco { flex:0 0 330px; display:flex; flex-direction:column; }
+    #gioco.lato #chatBox { margin-top:0; flex:1; display:flex; flex-direction:column; background:var(--pan);
+      border-radius:10px; padding:10px; }
+    #gioco.lato #chatLista { flex:1; height:auto; min-height:120px; }
+  }
   kbd { background:#2a2f3a; border-radius:4px; padding:1px 6px; font-family:inherit; font-size:13px; }
 </style>
 </head>
@@ -69,6 +80,7 @@
     </section>
 
     <section id="online" class="hide">
+      <div class="riga"><label data-t="tuoNome"></label><input type="text" id="nome" maxlength="16" autocomplete="nickname"></div>
       <div id="collega">
         <h2 data-t="collegamento"></h2>
         <div class="riga"><span class="scelta" id="sRuolo"></span></div>
@@ -137,6 +149,7 @@
   </div>
 
   <div id="gioco" class="hide">
+   <div id="colGioco">
     <div id="schermo">
       <canvas id="tela" width="320" height="192"></canvas>
       <div id="sopra" class="hide"></div>
@@ -145,6 +158,7 @@
       <button class="sec" id="bEsci" data-t="esci"></button>
       <button class="sec" id="bAudio"></button>
       <button class="sec" id="bFull" data-t="schermoIntero"></button>
+      <select id="sChat" class="hide" title="Chat"></select>
       <span class="nota" id="info" style="align-self:center"></span>
     </div>
     <div id="attesa" class="nota"></div>
@@ -152,6 +166,7 @@
       <div id="croce"></div>
       <div id="fuoco">FIRE</div>
     </div>
+   </div>
     <div id="chatGioco"></div>
   </div>
   <div id="chatBox" class="hide">
@@ -812,6 +827,15 @@ function SidCore(sampleRate) {
     return any ? out - 2048 : 0;
   }
 
+  // silenzio immediato: niente note in sospeso, voci ferme, volume a zero (a fine partita l'emulatore si ferma e il
+  // SID resterebbe sull'ultima nota); la partita dopo riparte da sync() con i registri giusti
+  this.silenzia = function () {
+    queue.length = 0;
+    reg[24] = 0;
+    for (const vo of v) { vo.env = 0; vo.state = 3; vo.gate = 0; vo.cnt = 0; vo.expCnt = 0; }
+    for (let k = 0; k < 3; k++) reg[k * 7 + 4] &= 0xfe;
+    lp = 0; bp = 0;
+  };
   this.post = function (events) {                     // events: [tempo in secondi audio, registro, valore, ...]
     for (let i = 0; i < events.length; i += 3) queue.push([Math.round(events[i] * sampleRate), events[i + 1], events[i + 2]]);
   };
@@ -849,7 +873,11 @@ function SidCore(sampleRate) {
 const SID_WORKLET = `
 ${SidCore.toString()}
 class SidProc extends AudioWorkletProcessor {
-  constructor() { super(); this.core = new SidCore(sampleRate); this.port.onmessage = (e) => this.core.post(e.data); }
+  constructor() {
+    super();
+    this.core = new SidCore(sampleRate);
+    this.port.onmessage = (e) => { if (e.data && e.data.silenzia) this.core.silenzia(); else this.core.post(e.data); };
+  }
   process(inputs, outputs) { const o = outputs[0][0]; this.core.render(o, currentFrame); for (let c = 1; c < outputs[0].length; c++) outputs[0][c].set(o); return true; }
 }
 registerProcessor("sid-proc", SidProc);
@@ -898,6 +926,11 @@ function makeSidAudio() {
     const ev = [];
     for (let r = 0; r < 25; r++) ev.push(A.t, r, mem[0xd400 + r]);
     if (A.core) A.core.post(ev); else A.node.port.postMessage(ev);
+  };
+  A.silenzia = function () {
+    if (!A.ok) return;
+    if (A.core) A.core.silenzia(); else A.node.port.postMessage({ silenzia: true });
+    A.t = 0;
   };
   A.stop = function () { if (A.ctx) A.ctx.suspend(); };
   return A;
@@ -1267,7 +1300,8 @@ window.makeLockstep = makeLockstep;
     it: {
       titolo: "- partita a due", sottotitolo: "Il gioco per Commodore 64, nel browser: in due sullo stesso dispositivo o online.",
       modo: "Si gioca", locale: "Stesso dispositivo", online: "Online",
-      collegamento: "Collegamento", creo: "Creo io la partita", entro: "Entro in una partita",
+      collegamento: "Collegamento", creo: "Creo io la partita", tuoNome: "Il tuo nome",
+      chatSotto: "Chat: sotto", chatSinistra: "Chat: a sinistra", chatDestra: "Chat: a destra", entro: "Entro in una partita",
       usaStun: "Usa STUN pubblico (serve via internet)", creaCodice: "Crea il codice", copia: "Copia", condividi: "Condividi",
       incollaRisposta: "Manda il codice all'altro giocatore, poi incolla qui la sua risposta:", collegaBtn: "Collega",
       incollaCodice: "Incolla qui il codice di chi crea la partita:", rispondi: "Rispondi",
@@ -1300,7 +1334,8 @@ window.makeLockstep = makeLockstep;
     en: {
       titolo: "- two-player match", sottotitolo: "The Commodore 64 game in the browser: two players on one device or online.",
       modo: "Play", locale: "Same device", online: "Online",
-      collegamento: "Connection", creo: "I create the match", entro: "I join a match",
+      collegamento: "Connection", creo: "I create the match", tuoNome: "Your name",
+      chatSotto: "Chat: below", chatSinistra: "Chat: on the left", chatDestra: "Chat: on the right", entro: "I join a match",
       usaStun: "Use public STUN (needed over the internet)", creaCodice: "Create the code", copia: "Copy", condividi: "Share",
       incollaRisposta: "Send the code to the other player, then paste their answer here:", collegaBtn: "Connect",
       incollaCodice: "Paste the code of whoever created the match:", rispondi: "Answer",
@@ -1332,6 +1367,8 @@ window.makeLockstep = makeLockstep;
     },
   };
   const $ = (id) => document.getElementById(id);
+  // testi variabili (nomi delle squadre mandati dall'altro, nomi dei giocatori, errori) dentro l'HTML: sempre protetti
+  const esc = (x) => String(x).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
   const b64 = (s) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
 
   // ------------------------------------------------------------------ stato salvato
@@ -1342,6 +1379,8 @@ window.makeLockstep = makeLockstep;
   // "scelte2": la prima versione salvava la battuta sbagliata (CENTROCAMPO) come valore di base
   const scelte = Object.assign({}, BASE, leggi("scelte2", {}));
   let modo = leggi("modo", "locale");
+  let mioNome = leggi("nome", "");
+  let chatPos = leggi("chatPos", "sotto");          // sotto, sinistra, destra (affiancata solo su schermi larghi)
   let segreti = null;                                // { teams: [[indice, it, en]], field: [it, en] } se sbloccati
   const tt = (k) => T[scelte.lang ? "en" : "it"][k];
 
@@ -1353,15 +1392,19 @@ window.makeLockstep = makeLockstep;
     sq: [BASE.p1, BASE.p2],                           // squadre di PL1 e PL2
     pronti: [false, false],                           // [chi crea, chi entra]
     nomi: {},                                         // nomi delle squadre segrete mandati da chi crea
-    rtt: [], tipo: "",
+    rtt: [], tipo: "", nomeLui: "",
   };
+  const chiIo = () => mioNome || tt("tu");
+  const chiLui = () => ON.nomeLui || tt("altro");
+  const nomePL = (pl) => (pl === mioPL() ? chiIo() : chiLui());
+  const pulisciNome = (x) => (typeof x === "string" ? x.replace(/[\u0000-\u001f\u007f]/g, "").trim().slice(0, 16) : "");
   const mioPL = () => (ON.ruolo === "crea" ? ON.hostPL : 3 - ON.hostPL);
 
   // ------------------------------------------------------------------ chat
   function chat(testo, chi) {
     const l = $("chatLista"), d = document.createElement("div");
     d.className = chi;
-    d.textContent = (chi === "io" ? tt("tu") + ": " : chi === "lui" ? tt("altro") + ": " : "— ") + testo;
+    d.textContent = (chi === "io" ? chiIo() + ": " : chi === "lui" ? chiLui() + ": " : "— ") + testo;
     l.appendChild(d);
     while (l.children.length > 200) l.removeChild(l.firstChild);
     l.scrollTop = l.scrollHeight;
@@ -1496,7 +1539,7 @@ window.makeLockstep = makeLockstep;
     $("pronti").innerHTML = "";
     if (col) {
       const io = mioPL(), vv = vista();
-      $("ruoli").textContent = `${tt("tu")}: PL${io} (${nome(io === 1 ? vv.p1 : vv.p2)}) — ${tt("altro")}: PL${3 - io} (${nome(io === 1 ? vv.p2 : vv.p1)})`;
+      $("ruoli").textContent = `${chiIo()}: PL${io} (${nome(io === 1 ? vv.p1 : vv.p2)}) — ${chiLui()}: PL${3 - io} (${nome(io === 1 ? vv.p2 : vv.p1)})`;
       const r = ON.rtt.length ? Math.round(ON.rtt.reduce((a, b) => a + b, 0) / ON.rtt.length) : null;
       const tipo = { "stessa rete": "stessaRete", internet: "internet", inoltro: "inoltro" }[ON.tipo];
       $("rete").textContent = (tipo ? tt(tipo) + " · " : "") +
@@ -1579,6 +1622,8 @@ window.makeLockstep = makeLockstep;
       }
       st.textContent = tt("cCollegato");
       chat(tt("eCollegato"), "sis");
+      ON.nomeLui = "";
+      rete.manda({ t: "nome", n: mioNome });
       if (ON.ruolo === "entra") rete.manda({ t: "squadra", p: scelte.p2 });
       mandaSala();
       avviaPing();
@@ -1637,6 +1682,10 @@ window.makeLockstep = makeLockstep;
       giocaOnline(Object.assign(c, { p1: o.p1, p2: o.p2 }), o.cointeam, o.D);
     } else if (o.t === "hash" && ls) ls.riceviHash(o);
     else if (o.t === "esci" && inGioco && partitaOnline) fermaOnline(tt("eUscito"));
+    else if (o.t === "nome") {
+      ON.nomeLui = pulisciNome(o.n);
+      if (!inGioco) disegnaSala();
+    }
   };
   rete.onTasti = (buf) => { if (ls) ls.riceviTasti(buf); };
 
@@ -1774,6 +1823,19 @@ window.makeLockstep = makeLockstep;
     s.innerHTML = html;
     s.classList.remove("hide");
   }
+  function disponiChat() {                           // chat sotto, a sinistra o a destra del gioco (online, schermi larghi)
+    const lato = inGioco && partitaOnline && chatPos !== "sotto";
+    $("gioco").classList.toggle("lato", lato);
+    $("gioco").classList.toggle("sinistra", lato && chatPos === "sinistra");
+    document.querySelector("main").classList.toggle("largo", lato);
+    const s = $("sChat");
+    s.classList.toggle("hide", !(inGioco && partitaOnline));
+    s.innerHTML = "";
+    for (const [v, k] of [["sotto", "chatSotto"], ["sinistra", "chatSinistra"], ["destra", "chatDestra"]]) {
+      const o = document.createElement("option"); o.value = v; o.textContent = tt(k); s.appendChild(o);
+    }
+    s.value = chatPos;
+  }
   function mostraGioco() {
     $("salaAttesa").classList.add("hide");
     $("gioco").classList.remove("hide");
@@ -1782,7 +1844,7 @@ window.makeLockstep = makeLockstep;
   }
   async function moneta(c, cointeam) {
     disegna();
-    sopra(`<div class="grande">${tt("moneta")}</div><div>${tt("batte")} ${cointeam === 1 ? "PL1" : "PL2"} (${nome(cointeam === 1 ? c.p1 : c.p2)})</div>`);
+    sopra(`<div class="grande">${tt("moneta")}</div><div>${tt("batte")} ${cointeam === 1 ? "PL1" : "PL2"} (${esc(nome(cointeam === 1 ? c.p1 : c.p2))})</div>`);
     await new Promise((ok) => setTimeout(ok, 1600));
     sopra(null);
   }
@@ -1796,7 +1858,7 @@ window.makeLockstep = makeLockstep;
     crypto.getRandomValues(r);
     const cointeam = 1 + (r[0] & 1);
     try { avviaPartita(m, sym, Object.assign({}, c, { cointeam })); } catch (e) {
-      sopra(`<div class="grande err">${tt("errore")}</div><div>${e.message}</div>`); return;
+      sopra(`<div class="grande err">${tt("errore")}</div><div>${esc(e.message)}</div>`); return;
     }
     if (audioSi) sid.sync(m.mem);
     await moneta(c, cointeam);
@@ -1808,6 +1870,7 @@ window.makeLockstep = makeLockstep;
     partitaOnline = true;
     clearInterval(inviaDopo);
     mostraGioco();
+    disponiChat();
     try { avviaPartita(m, sym, Object.assign({}, c, { cointeam })); } catch (e) { fermaOnline(tt("errore") + e.message); return; }
     ls = makeLockstep({
       posto: mioPL() - 1, ritardo: D,
@@ -1824,12 +1887,17 @@ window.makeLockstep = makeLockstep;
   }
   function fine(g) {
     finito = true;
+    sid.silenzia();
     const p = m.mem[SCOREP], o = m.mem[SCOREO], c = ultimeScelte;
-    const esito = p === o ? tt("pareggio") : `${p > o ? "PL1" : "PL2"} (${nome(p > o ? c.p1 : c.p2)}) ${tt("vince")}`;
+    const chi = (pl) => (partitaOnline ? nomePL(pl) : "PL" + pl);
+    const esito = p === o ? tt("pareggio") : `${chi(p > o ? 1 : 2)} (${nome(p > o ? c.p1 : c.p2)}) ${tt("vince")}`;
     const riv = partitaOnline ? "" : `<button id="bRiv">${tt("rivincita")}</button>`;
     sopra(`<div class="grande">${g === 3 ? tt("cappotto") : tt("fine")}</div>
-      <div style="font-size:22px;margin:4px 0">PL1 ${p} - ${o} PL2</div><div>${esito}</div>
+      <div style="font-size:22px;margin:4px 0"></div><div></div>
       <div style="margin-top:12px">${riv}<button class="sec" id="bSala">${tt("torna")}</button></div>`);
+    // punteggio: con textContent, perche' online contiene i nomi scritti dai giocatori
+    $("sopra").children[1].textContent = partitaOnline ? `PL1 ${nomePL(1)}  ${p} - ${o}  ${nomePL(2)} PL2` : `PL1 ${p} - ${o} PL2`;
+    $("sopra").children[2].textContent = esito;
     if (!partitaOnline) $("bRiv").onclick = () => { sopra(null); gioca(true); };
     $("bSala").onclick = esci;
     if (partitaOnline) dopoLaFine();
@@ -1843,8 +1911,9 @@ window.makeLockstep = makeLockstep;
   function fermaOnline(motivo) {
     if (!inGioco) return;
     finito = true;
+    sid.silenzia();
     if (ls) dopoLaFine();
-    sopra(`<div class="grande">${motivo}</div><div style="margin-top:12px"><button class="sec" id="bSala">${tt("torna")}</button></div>`);
+    sopra(`<div class="grande">${esc(motivo)}</div><div style="margin-top:12px"><button class="sec" id="bSala">${tt("torna")}</button></div>`);
     $("bSala").onclick = esci;
   }
   function esci() {
@@ -1852,7 +1921,9 @@ window.makeLockstep = makeLockstep;
     inGioco = false; attivo = false; finito = true;
     partitaOnline = false;
     sopra(null);
+    sid.silenzia();
     sid.stop();
+    disponiChat();
     $("attesa").textContent = "";
     $("gioco").classList.add("hide");
     $("salaAttesa").classList.remove("hide");
@@ -1881,6 +1952,18 @@ window.makeLockstep = makeLockstep;
   $("bPw").onclick = () => provaPassword($("pw").value, false);
   $("pw").addEventListener("keydown", (e) => { if (e.key === "Enter") provaPassword($("pw").value, false); });
   $("bChat").onclick = mandaChat;
+  $("nome").value = mioNome;
+  let nomeTimer = null;
+  $("nome").addEventListener("input", () => {
+    clearTimeout(nomeTimer);
+    nomeTimer = setTimeout(() => {
+      mioNome = pulisciNome($("nome").value);
+      salva("nome", mioNome);
+      if (ON.collegato) rete.manda({ t: "nome", n: mioNome });
+      if (!inGioco) disegnaSala();
+    }, 400);
+  });
+  $("sChat").onchange = () => { chatPos = $("sChat").value; salva("chatPos", chatPos); disponiChat(); };
   $("chatIn").addEventListener("keydown", (e) => { if (e.key === "Enter") mandaChat(); });
   const errRete = (e) => { $("statoRete").textContent = tt("errore") + e.message; $("statoRete").className = "nota err"; };
   $("bCrea").onclick = async () => { try { $("tOffer").value = await rete.crea($("stun").checked); } catch (e) { errRete(e); } };
@@ -1907,7 +1990,7 @@ window.makeLockstep = makeLockstep;
 
   // errori imprevisti: si mostrano invece di bloccare la pagina in silenzio
   addEventListener("unhandledrejection", (e) => {
-    if (inGioco) sopra(`<div class="grande err">${tt("errore")}</div><div>${String(e.reason && e.reason.message || e.reason)}</div>
+    if (inGioco) sopra(`<div class="grande err">${tt("errore")}</div><div>${esc(e.reason && e.reason.message || e.reason)}</div>
       <div style="margin-top:12px"><button class="sec" id="bSala">${tt("torna")}</button></div>`);
     const b = $("bSala"); if (b) b.onclick = esci;
   });
