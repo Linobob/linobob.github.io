@@ -58,6 +58,9 @@
 .card .extra { position: relative; z-index: 1; display: block; width: fit-content; margin-top: 0.5rem;
   padding: 0.3rem 0; color: var(--muted); font-size: 0.9rem; }
 .card .extra:hover { color: var(--accent); }
+/* Secondo link d'azione vero (sopra il link che copre la scheda), nello stile di .go */
+.card .go2 { position: relative; z-index: 1; display: block; width: fit-content; margin-top: 0.5rem; color: var(--accent); font: 500 0.8rem var(--mono); text-decoration: none; }
+.card .go2:hover { text-decoration: underline; }
 /* Schede con immagine: miniatura a sinistra, su telefono sopra il testo */
 .card.cover { display: grid; grid-template-columns: 160px minmax(0, 1fr); gap: 0 1.1rem; align-items: start; }
 .card.cover img { width: 160px; height: auto; border-radius: 6px; }
@@ -137,6 +140,7 @@
       <h3><a href="https://linobob.itch.io/scotogno-soccer" target="_blank" rel="noopener noreferrer">Scotogno Soccer</a> <span class="ver">v1.1</span></h3>
       <p>Calcio uno contro uno, scotognato. Da solo contro il computer o in due sullo stesso C64: 8 nazionali, 9 livelli di difficoltà, la Scotogno Cup e qualche power-up. Gratis su itch.io, si gioca anche nel browser.</p>
       <span class="go" aria-hidden="true">Gioca su itch.io ↗</span>
+      <a class="go2" href="progetti/scotogno-soccer/online/">Gioca online con altre persone →</a>
       <a class="extra" href="progetti/scotogno-soccer/v1.0/">Versione 1.0</a>
       </div>
     </li>
